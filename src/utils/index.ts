@@ -1,2 +1,4 @@
-// Utility exports - will be implemented in task 2
-// Placeholder exports to avoid TypeScript errors during setup
+export * from './math';
+export * from './color';
+export * from './webgl';
+export * from './config';
