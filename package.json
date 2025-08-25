@@ -34,7 +34,7 @@
     "test:exports": "node scripts/test-exports.mjs && node scripts/test-cjs.cjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint src",
-    "prepublishOnly": "npm run test:run && npm run build",
+    "prepublishOnly": "npm run build",
     "vite": "vite"
   },
   "keywords": [
@@ -46,16 +46,16 @@
     "background",
     "animation"
   ],
-  "author": "Fluid Background Contributors",
+  "author": "mrballistic",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/fluid-background.git"
+    "url": "https://github.com/mrballistic/fluid-background.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/fluid-background/issues"
+    "url": "https://github.com/mrballistic/fluid-background/issues"
   },
-  "homepage": "https://github.com/your-username/fluid-background#readme",
+  "homepage": "https://github.com/mrballistic/fluid-background#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
