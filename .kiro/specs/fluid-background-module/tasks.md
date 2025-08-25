@@ -28,7 +28,7 @@
   - Write unit tests for configuration system
   - _Requirements: 3.2, 4.3_
 
-- [-] 3. Build WebGL foundation classes
+- [x] 3. Build WebGL foundation classes
 - [x] 3.1 Implement WebGLContext class
   - Write WebGL2/WebGL1 context initialization
   - Implement extension loading and capability detection
@@ -50,7 +50,7 @@
   - Write unit tests for framebuffer operations
   - _Requirements: 4.1, 4.3_
 
-- [ ] 4. Create individual shader modules
+- [-] 4. Create individual shader modules
 - [ ] 4.1 Implement base vertex shader
   - Write vertex shader source code with texture coordinate calculation
   - Create shader export with proper TypeScript typing
