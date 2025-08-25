@@ -13,6 +13,8 @@ import {
   CurlPass,
   VorticityPass,
   SplatPass,
+  SimulationStepImpl,
+  InputHandlerImpl,
 } from './index';
 
 describe('Simulation module exports', () => {
@@ -31,6 +33,11 @@ describe('Simulation module exports', () => {
     expect(SplatPass).toBeDefined();
   });
 
+  it('should export orchestrator and input classes', () => {
+    expect(SimulationStepImpl).toBeDefined();
+    expect(InputHandlerImpl).toBeDefined();
+  });
+
   it('should export classes that can be instantiated', () => {
     // These are constructor functions, so they should be functions
     expect(typeof WebGLContextImpl).toBe('function');
@@ -42,5 +49,7 @@ describe('Simulation module exports', () => {
     expect(typeof CurlPass).toBe('function');
     expect(typeof VorticityPass).toBe('function');
     expect(typeof SplatPass).toBe('function');
+    expect(typeof SimulationStepImpl).toBe('function');
+    expect(typeof InputHandlerImpl).toBe('function');
   });
 });

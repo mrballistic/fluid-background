@@ -108,23 +108,23 @@
   - Write unit tests for splat calculations
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [-] 6. Create simulation orchestrator
-- [ ] 6.1 Implement SimulationStep class
+- [x] 6. Create simulation orchestrator
+- [x] 6.1 Implement SimulationStep class
   - Write simulation step coordination logic
   - Implement render pass execution order
   - Create delta time handling and frame rate management
   - Write integration tests for full simulation step
   - _Requirements: 3.1, 4.2_
 
-- [ ] 6.2 Build InputHandler class
+- [x] 6.2 Build InputHandler class
   - Implement mouse event processing and coordinate conversion
   - Write touch event handling for mobile devices
   - Create pointer tracking and delta calculation
   - Write unit tests for input processing
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 7. Create React hooks
-- [ ] 7.1 Implement useFluidSimulation hook
+- [-] 7. Create React hooks
+- [-] 7.1 Implement useFluidSimulation hook
   - Write WebGL initialization and simulation setup
   - Implement animation loop with requestAnimationFrame
   - Create configuration update and cleanup logic

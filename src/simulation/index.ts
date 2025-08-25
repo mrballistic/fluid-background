@@ -15,3 +15,9 @@ export { PressurePass } from './PressurePass';
 export { CurlPass } from './CurlPass';
 export { VorticityPass } from './VorticityPass';
 export { SplatPass } from './SplatPass';
+
+// Simulation orchestrator
+export { SimulationStepImpl } from './SimulationStep';
+
+// Input handling
+export { InputHandlerImpl } from './InputHandler';
