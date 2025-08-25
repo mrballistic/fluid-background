@@ -29,21 +29,21 @@
   - _Requirements: 3.2, 4.3_
 
 - [-] 3. Build WebGL foundation classes
-- [ ] 3.1 Implement WebGLContext class
+- [x] 3.1 Implement WebGLContext class
   - Write WebGL2/WebGL1 context initialization
   - Implement extension loading and capability detection
   - Create context resize and cleanup methods
   - Write unit tests with mocked WebGL context
   - _Requirements: 4.1, 4.3, 7.1_
 
-- [ ] 3.2 Create ShaderManager class
+- [x] 3.2 Create ShaderManager class
   - Implement shader compilation with error handling
   - Write program creation and linking logic
   - Create uniform location caching system
   - Write unit tests for shader compilation
   - _Requirements: 4.3, 7.1_
 
-- [ ] 3.3 Build FramebufferManager class
+- [x] 3.3 Build FramebufferManager class
   - Implement FBO creation with format detection
   - Write double FBO management for ping-pong rendering
   - Create FBO resize and cleanup methods
