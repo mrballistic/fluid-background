@@ -19,6 +19,7 @@ export interface FluidSimulationConfig {
     curl: number;
     splatRadius: number;
     splatForce: number;
+    iterations: number;
   };
   
   // Performance Configuration
@@ -59,7 +60,8 @@ export const DEFAULT_CONFIG: FluidSimulationConfig = {
     pressure: 0.8,
     curl: 30,
     splatRadius: 0.25,
-    splatForce: 6000
+    splatForce: 6000,
+    iterations: 20
   },
   performance: {
     resolution: 'auto',
@@ -85,11 +87,13 @@ export const PERFORMANCE_PRESETS = {
       pressure: 0.6,
       curl: 20,
       splatRadius: 0.3,
-      splatForce: 4000
+      splatForce: 4000,
+      iterations: 15
     },
     performance: {
       resolution: 'low' as const,
-      frameRate: 30
+      frameRate: 30,
+      pauseOnHidden: true
     }
   },
   medium: {
@@ -99,11 +103,13 @@ export const PERFORMANCE_PRESETS = {
       pressure: 0.7,
       curl: 25,
       splatRadius: 0.25,
-      splatForce: 5000
+      splatForce: 5000,
+      iterations: 18
     },
     performance: {
       resolution: 'medium' as const,
-      frameRate: 45
+      frameRate: 45,
+      pauseOnHidden: true
     }
   },
   high: {
@@ -113,11 +119,13 @@ export const PERFORMANCE_PRESETS = {
       pressure: 0.8,
       curl: 30,
       splatRadius: 0.2,
-      splatForce: 6000
+      splatForce: 6000,
+      iterations: 20
     },
     performance: {
       resolution: 'high' as const,
-      frameRate: 60
+      frameRate: 60,
+      pauseOnHidden: true
     }
   }
 };/**
@@ -169,10 +177,11 @@ export const validateConfig = (config: FluidSimulationConfig): FluidSimulationCo
       pressure: clamp(config.physics.pressure, 0, 2.0),
       curl: clamp(config.physics.curl, 0, 100),
       splatRadius: clamp(config.physics.splatRadius, 0.01, 1.0),
-      splatForce: clamp(config.physics.splatForce, 100, 20000)
+      splatForce: clamp(config.physics.splatForce, 100, 20000),
+      iterations: clamp(config.physics.iterations, 1, 50)
     },
     performance: {
-      resolution: ['low', 'medium', 'high', 'auto'].includes(config.performance.resolution) 
+      resolution: (['low', 'medium', 'high', 'auto'] as const).indexOf(config.performance.resolution) !== -1
         ? config.performance.resolution 
         : 'auto',
       frameRate: clamp(config.performance.frameRate, 15, 120),

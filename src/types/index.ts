@@ -41,17 +41,10 @@ export interface FluidBackgroundProps {
 
 // Core simulation configuration
 export interface FluidSimulationConfig {
-  // Canvas and rendering
-  canvas: {
-    width: number;
-    height: number;
-    devicePixelRatio: number;
-  };
-  
   // Visual settings
   colors: {
     background: { r: number; g: number; b: number };
-    fluid: { r: number; g: number; b: number }[];
+    fluid: 'rainbow' | 'monochrome' | { r: number; g: number; b: number }[];
   };
   
   // Physics parameters
@@ -67,10 +60,9 @@ export interface FluidSimulationConfig {
   
   // Performance settings
   performance: {
-    resolution: number;
+    resolution: 'low' | 'medium' | 'high' | 'auto';
     frameRate: number;
     pauseOnHidden: boolean;
-    autoOptimize: boolean;
   };
   
   // Interaction settings
@@ -197,6 +189,17 @@ export interface UsePerformanceReturn {
   fps: number;
   isVisible: boolean;
   shouldOptimize: boolean;
+  recordFrame: (timestamp?: number) => void;
+  resetMetrics: () => void;
+  getMetrics: () => {
+    fps: number;
+    frameTime: number;
+    averageFps: number;
+    minFps: number;
+    maxFps: number;
+    frameCount: number;
+    droppedFrames: number;
+  };
 }
 
 // Utility types

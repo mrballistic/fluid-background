@@ -281,7 +281,7 @@ describe('SimulationStep', () => {
     });
 
     it('should recreate textures with new dimensions', () => {
-      const initialTextureCreations = (gl.createTexture as Mock).mock.calls.length;
+      // const _initialTextureCreations = (gl.createTexture as Mock).mock.calls.length;
       
       simulationStep.resize(800, 600);
       

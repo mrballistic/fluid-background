@@ -53,7 +53,6 @@ export class FramebufferManagerImpl implements FramebufferManager {
    * Create a framebuffer pair for ping-pong rendering
    */
   public createFramebufferPair(width: number, height: number, format: number): FramebufferPair {
-    const gl = this.gl;
     
     // Create two framebuffers
     const fbo1 = this.createFramebuffer(width, height, format);
@@ -186,7 +185,7 @@ export class FramebufferManagerImpl implements FramebufferManager {
   /**
    * Resize all managed framebuffers
    */
-  public resize(width: number, height: number): void {
+  public resize(_width: number, _height: number): void {
     // Note: WebGL framebuffers don't resize automatically
     // This method would typically recreate framebuffers with new dimensions
     // For now, we'll clear the cache and let them be recreated as needed

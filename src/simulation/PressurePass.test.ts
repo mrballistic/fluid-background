@@ -11,9 +11,9 @@ const createMockGL = () => {
   const mockTexture = {} as WebGLTexture;
   const mockBuffer = {} as WebGLBuffer;
   const mockVAO = {} as WebGLVertexArrayObject;
-  const mockProgram = {} as WebGLProgram;
+  // const _mockProgram = {} as WebGLProgram;
   const mockLocation = {} as WebGLUniformLocation;
-  const mockFramebuffer = {} as WebGLFramebuffer;
+  // const _mockFramebuffer = {} as WebGLFramebuffer;
 
   return {
     createBuffer: vi.fn(() => mockBuffer),

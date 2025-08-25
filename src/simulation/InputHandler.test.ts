@@ -3,7 +3,7 @@
  * Tests mouse and touch input processing, coordinate conversion, and state management
  */
 
-import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { InputHandlerImpl } from './InputHandler';
 
 // Mock HTMLCanvasElement

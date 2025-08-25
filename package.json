@@ -8,22 +8,33 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.esm.js",
       "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+      "default": "./dist/index.esm.js"
+    },
+    "./package.json": "./package.json"
   },
+  "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "docs",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "npm run clean && npm run build:rollup",
+    "build:rollup": "rollup -c",
+    "build:types": "tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist",
     "dev": "rollup -c -w",
     "test": "vitest",
     "test:run": "vitest --run",
+    "test:build": "npm run build && npm run test:exports",
+    "test:exports": "node scripts/test-exports.mjs && node scripts/test-cjs.cjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint src",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run test:run && npm run build"
   },
   "keywords": [
     "react",
@@ -34,8 +45,16 @@
     "background",
     "animation"
   ],
-  "author": "",
+  "author": "Fluid Background Contributors",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/fluid-background.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/fluid-background/issues"
+  },
+  "homepage": "https://github.com/your-username/fluid-background#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"

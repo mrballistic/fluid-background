@@ -11,7 +11,7 @@ const createMockGL = () => {
   const mockTexture = {} as WebGLTexture;
   const mockBuffer = {} as WebGLBuffer;
   const mockVAO = {} as WebGLVertexArrayObject;
-  const mockProgram = {} as WebGLProgram;
+  // const _mockProgram = {} as WebGLProgram;
   const mockLocation = {} as WebGLUniformLocation;
 
   return {

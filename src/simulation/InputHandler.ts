@@ -226,12 +226,15 @@ export class InputHandlerImpl implements IInputHandler {
 
         // If there are other active touches, promote one to primary
         if (this.activeTouches.size > 0) {
-          const [newPrimaryId, touchPos] = this.activeTouches.entries().next().value;
-          this.primaryTouchId = newPrimaryId;
+          const firstEntry = this.activeTouches.entries().next().value;
+          if (firstEntry) {
+            const [newPrimaryId, touchPos] = firstEntry;
+            this.primaryTouchId = newPrimaryId;
 
-          const newCoords = this.getCanvasCoordinates(touchPos.x, touchPos.y);
-          this.isTracking = true;
-          this.updateState(newCoords.x, newCoords.y, true);
+            const newCoords = this.getCanvasCoordinates(touchPos.x, touchPos.y);
+            this.isTracking = true;
+            this.updateState(newCoords.x, newCoords.y, true);
+          }
         }
 
         break;

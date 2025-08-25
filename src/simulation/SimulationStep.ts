@@ -14,21 +14,21 @@ import { FramebufferManagerImpl } from './FramebufferManager';
 import { ShaderManagerImpl } from './ShaderManager';
 
 export class SimulationStepImpl implements ISimulationStep {
-  private advectionPass: AdvectionPass;
-  private divergencePass: DivergencePass;
-  private pressurePass: PressurePass;
-  private curlPass: CurlPass;
-  private vorticityPass: VorticityPass;
-  private splatPass: SplatPass;
+  private advectionPass!: AdvectionPass;
+  private divergencePass!: DivergencePass;
+  private pressurePass!: PressurePass;
+  private curlPass!: CurlPass;
+  private vorticityPass!: VorticityPass;
+  private splatPass!: SplatPass;
   
-  private velocityFBO: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
-  private densityFBO: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
-  private pressureFBO: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
-  private divergenceFBO: WebGLFramebuffer;
-  private curlFBO: WebGLFramebuffer;
+  private velocityFBO!: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
+  private densityFBO!: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
+  private pressureFBO!: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
+  private divergenceFBO!: WebGLFramebuffer;
+  private curlFBO!: WebGLFramebuffer;
   
-  private divergenceTexture: WebGLTexture;
-  private curlTexture: WebGLTexture;
+  private divergenceTexture!: WebGLTexture;
+  private curlTexture!: WebGLTexture;
   
   private lastTime: number = 0;
   private frameCount: number = 0;
@@ -53,7 +53,9 @@ export class SimulationStepImpl implements ISimulationStep {
   }
 
   private initialize(): void {
-    const { width, height } = this.config.canvas;
+    // Use default canvas dimensions - these will be updated via resize()
+    const width = 800;
+    const height = 600;
     const format = this.gl.RGBA16F || this.gl.RGBA;
 
     // Create framebuffer pairs for ping-pong rendering
@@ -237,8 +239,7 @@ export class SimulationStepImpl implements ISimulationStep {
   }
 
   resize(width: number, height: number): void {
-    this.config.canvas.width = width;
-    this.config.canvas.height = height;
+    // Store dimensions for internal use (config doesn't have canvas property)
     
     // Resize all framebuffers
     this.framebufferManager.resize(width, height);

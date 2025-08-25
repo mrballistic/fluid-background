@@ -144,7 +144,7 @@ describe('FramebufferManagerImpl', () => {
     it('should update texture when swapping', () => {
       const pair = framebufferManager.createFramebufferPair(512, 512, mockGL.RGBA);
       
-      const originalTexture = pair.texture;
+      // const _originalTexture = pair.texture;
       
       pair.swap();
       

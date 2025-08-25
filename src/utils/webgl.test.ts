@@ -4,11 +4,8 @@ import {
   detectWebGLCapabilities,
   loadWebGLExtensions,
   isTextureFormatSupported,
-  getBestFloatTextureFormat,
   validateFramebuffer,
-  checkWebGLError,
-  type WebGLCapabilities,
-  type WebGLExtensions
+  checkWebGLError
 } from './webgl';
 
 // Mock WebGL context

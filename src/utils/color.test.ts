@@ -7,8 +7,7 @@ import {
   blendColors,
   rgbToHex,
   hexToRgb,
-  type RGB,
-  type HSV
+  type RGB
 } from './color';
 
 describe('Color utilities', () => {

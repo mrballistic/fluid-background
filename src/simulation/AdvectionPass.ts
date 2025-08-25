@@ -3,7 +3,7 @@
  * Implements velocity and dye advection with bilinear filtering support
  */
 
-import { RenderPass, RenderPassInputs, ShaderProgram } from '../types';
+import { RenderPass, RenderPassInputs } from '../types';
 import { advectionShaderSource } from '../shaders/fragments/advection';
 import { vertexShaderSource } from '../shaders/vertex';
 

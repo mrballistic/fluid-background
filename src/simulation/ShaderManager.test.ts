@@ -37,8 +37,8 @@ const createMockWebGLContext = () => ({
     ];
     return attributes[index] || null;
   }),
-  getUniformLocation: vi.fn((program, name) => ({ name, location: `uniform-${name}` })),
-  getAttribLocation: vi.fn((program, name) => 0),
+  getUniformLocation: vi.fn((_program, name) => ({ name, location: `uniform-${name}` })),
+  getAttribLocation: vi.fn((_program, _name) => 0),
   VERTEX_SHADER: 0x8B31,
   FRAGMENT_SHADER: 0x8B30,
   COMPILE_STATUS: 0x8B81,
