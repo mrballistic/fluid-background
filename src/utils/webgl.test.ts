@@ -51,7 +51,7 @@ const createMockWebGLContext = () => {
       }
     }),
     getExtension: vi.fn((name: string) => {
-      const extensions: Record<string, any> = {
+  const extensions: Record<string, unknown> = {
         'OES_texture_float': { HALF_FLOAT_OES: 0x8D61 },
         'OES_texture_half_float': { HALF_FLOAT_OES: 0x8D61 },
         'OES_texture_float_linear': {},

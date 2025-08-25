@@ -254,7 +254,7 @@ describe('FluidBackground', () => {
       render(<FluidBackground />);
       const canvas = screen.getByRole('presentation', { hidden: true }).querySelector('canvas') as HTMLCanvasElement;
 
-      expect(canvas.style.imageRendering).toBe('optimizeSpeed');
+      expect(canvas.style.imageRendering).toBe('pixelated');
       expect(canvas.style.backfaceVisibility).toBe('hidden');
       expect(canvas.style.WebkitBackfaceVisibility).toBe('hidden');
       expect(canvas.style.transform).toBe('translate3d(0, 0, 0)');

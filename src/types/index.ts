@@ -1,3 +1,13 @@
+// Performance metrics for hooks and tests
+export interface PerformanceMetrics {
+  fps: number;
+  frameTime: number;
+  averageFps: number;
+  minFps: number;
+  maxFps: number;
+  frameCount: number;
+  droppedFrames: number;
+}
 import { CSSProperties } from 'react';
 
 // Main component props interface

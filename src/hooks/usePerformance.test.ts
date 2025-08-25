@@ -1,6 +1,9 @@
+
 import { renderHook, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { usePerformance, useAutoQuality, useReducedMotion, useBatteryStatus } from './usePerformance';
+// import type { PerformanceMetrics } from '../types';
+// import type { Mock } from 'vitest';
 
 // Mock performance.now
 const mockPerformanceNow = vi.fn();
@@ -48,7 +51,7 @@ describe('usePerformance', () => {
       writable: true,
     });
     
-    (document.hasFocus as any).mockReturnValue(true);
+  (document.hasFocus as unknown as { mockReturnValue: (v: boolean) => void }).mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -213,7 +216,7 @@ describe('usePerformance', () => {
       expect(result.current.isVisible).toBe(true);
       
       // Simulate page losing focus
-      (document.hasFocus as jest.Mock).mockReturnValue(false);
+  (document.hasFocus as unknown as { mockReturnValue: (v: boolean) => void }).mockReturnValue(false);
       
       act(() => {
         window.dispatchEvent(new Event('blur'));
@@ -275,23 +278,27 @@ describe('usePerformance', () => {
 });
 
 describe('useAutoQuality', () => {
-  let mockPerformanceHook: any;
+  let mockPerformanceHook: import('../types').UsePerformanceReturn & { getMetrics: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    mockPerformanceHook = {
+    const getMetricsMock = vi.fn(() => ({
       fps: 60,
-      isVisible: true,
-      shouldOptimize: false,
-      getMetrics: vi.fn(() => ({
+      frameTime: 16.67,
+      averageFps: 60,
+      minFps: 60,
+      maxFps: 60,
+      frameCount: 100,
+      droppedFrames: 0
+    }));
+      // @ts-expect-error: TypeScript cannot satisfy the intersection type for test mocks
+      mockPerformanceHook = {
         fps: 60,
-        frameTime: 16.67,
-        averageFps: 60,
-        minFps: 60,
-        maxFps: 60,
-        frameCount: 100,
-        droppedFrames: 0
-      }))
-    };
+        isVisible: true,
+        shouldOptimize: false,
+        recordFrame: vi.fn(),
+        resetMetrics: vi.fn(),
+        getMetrics: getMetricsMock
+      };
   });
 
   it('should initialize with initial quality', () => {
@@ -305,7 +312,7 @@ describe('useAutoQuality', () => {
     vi.useFakeTimers();
     
     mockPerformanceHook.shouldOptimize = true;
-    mockPerformanceHook.getMetrics.mockReturnValue({
+  (mockPerformanceHook.getMetrics as ReturnType<typeof vi.fn>).mockReturnValue({
       fps: 25,
       frameTime: 40,
       averageFps: 25,
@@ -339,7 +346,7 @@ describe('useAutoQuality', () => {
     
     // Set good performance metrics
     mockPerformanceHook.shouldOptimize = false;
-    mockPerformanceHook.getMetrics.mockReturnValue({
+  (mockPerformanceHook.getMetrics as ReturnType<typeof vi.fn>).mockReturnValue({
       fps: 58,
       frameTime: 17.2,
       averageFps: 58,
@@ -363,7 +370,7 @@ describe('useAutoQuality', () => {
     vi.useFakeTimers();
     
     mockPerformanceHook.shouldOptimize = true;
-    mockPerformanceHook.getMetrics.mockReturnValue({
+  (mockPerformanceHook.getMetrics as ReturnType<typeof vi.fn>).mockReturnValue({
       fps: 25,
       frameTime: 40,
       averageFps: 25,
@@ -464,9 +471,9 @@ describe('useReducedMotion', () => {
     expect(result.current).toBe(false);
     
     // Simulate media query change
-    if (changeHandler) {
+    if (changeHandler !== null) {
       act(() => {
-        changeHandler({ matches: true } as MediaQueryListEvent);
+        changeHandler!({ matches: true } as MediaQueryListEvent);
       });
     }
     

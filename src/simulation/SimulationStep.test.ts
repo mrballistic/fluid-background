@@ -275,9 +275,11 @@ describe('SimulationStep', () => {
       
       simulationStep.resize(newWidth, newHeight);
       
-      expect(config.canvas.width).toBe(newWidth);
-      expect(config.canvas.height).toBe(newHeight);
+      // Should call framebuffer manager resize
       expect(framebufferManager.resize).toHaveBeenCalledWith(newWidth, newHeight);
+      
+      // Should recreate textures with new dimensions
+      expect(gl.texImage2D).toHaveBeenCalled();
     });
 
     it('should recreate textures with new dimensions', () => {

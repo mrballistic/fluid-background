@@ -126,8 +126,8 @@ export class PressurePass implements RenderPass {
       // Swap framebuffers for next iteration
       pressureFramebuffers.swap();
       
-      // Update pressure texture input for next iteration
-      inputs.pressure = pressureFramebuffers.read as any; // Type assertion for texture
+  // Update pressure texture input for next iteration
+  inputs.pressure = pressureFramebuffers.read as unknown as WebGLTexture; // Type assertion for texture
     }
   }
 

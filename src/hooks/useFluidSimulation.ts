@@ -45,6 +45,27 @@ export const useFluidSimulation = (
   const frameCountRef = useRef<number>(0);
   
   /**
+   * Set up input event listeners
+   */
+  const setupEventListeners = useCallback((
+    canvas: HTMLCanvasElement, 
+    inputHandler: InputHandler
+  ) => {
+    // Mouse events
+    canvas.addEventListener('mousemove', inputHandler.handleMouseMove);
+    canvas.addEventListener('mousedown', inputHandler.handleMouseDown);
+    canvas.addEventListener('mouseup', inputHandler.handleMouseUp);
+    
+    // Touch events
+    canvas.addEventListener('touchstart', inputHandler.handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', inputHandler.handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', inputHandler.handleTouchEnd);
+    
+    // Prevent context menu on right click
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  }, []);
+  
+  /**
    * Initialize WebGL context and simulation
    */
   const initializeSimulation = useCallback(async (): Promise<boolean> => {
@@ -92,28 +113,7 @@ export const useFluidSimulation = (
       console.error('Error initializing fluid simulation:', error);
       return false;
     }
-  }, []);
-  
-  /**
-   * Set up input event listeners
-   */
-  const setupEventListeners = useCallback((
-    canvas: HTMLCanvasElement, 
-    inputHandler: InputHandler
-  ) => {
-    // Mouse events
-    canvas.addEventListener('mousemove', inputHandler.handleMouseMove);
-    canvas.addEventListener('mousedown', inputHandler.handleMouseDown);
-    canvas.addEventListener('mouseup', inputHandler.handleMouseUp);
-    
-    // Touch events
-    canvas.addEventListener('touchstart', inputHandler.handleTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', inputHandler.handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', inputHandler.handleTouchEnd);
-    
-    // Prevent context menu on right click
-    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-  }, []);
+  }, [setupEventListeners]);
   
   /**
    * Animation loop using requestAnimationFrame
