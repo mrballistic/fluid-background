@@ -65,50 +65,50 @@
   - Write unit tests for shader source validation
   - _Requirements: 3.1, 5.1_
 
-- [-] 5. Build render pass classes
-- [ ] 5.1 Implement AdvectionPass class
+- [x] 5. Build render pass classes
+- [x] 5.1 Implement AdvectionPass class
   - Write advection render pass with bilinear filtering support
   - Implement velocity and dye advection logic
   - Create pass execution and cleanup methods
   - Write unit tests for advection calculations
   - _Requirements: 3.1, 4.3_
 
-- [ ] 5.2 Create DivergencePass class
+- [x] 5.2 Create DivergencePass class
   - Implement velocity divergence calculation
   - Write boundary condition handling
   - Create pass execution with proper uniform binding
   - Write unit tests for divergence computation
   - _Requirements: 3.1_
 
-- [ ] 5.3 Build PressurePass class
+- [x] 5.3 Build PressurePass class
   - Implement iterative pressure solving
   - Write Jacobi iteration logic for pressure field
   - Create configurable iteration count handling
   - Write unit tests for pressure solving
   - _Requirements: 3.1, 3.3_
 
-- [ ] 5.4 Implement CurlPass class
+- [x] 5.4 Implement CurlPass class
   - Write velocity curl calculation
   - Create vorticity computation logic
   - Implement pass execution with texture binding
   - Write unit tests for curl calculations
   - _Requirements: 3.1_
 
-- [ ] 5.5 Create VorticityPass class
+- [x] 5.5 Create VorticityPass class
   - Implement vorticity confinement force calculation
   - Write velocity update with vorticity forces
   - Create configurable curl strength parameter
   - Write unit tests for vorticity confinement
   - _Requirements: 3.1, 3.3_
 
-- [ ] 5.6 Build SplatPass class
+- [x] 5.6 Build SplatPass class
   - Implement mouse/touch splat rendering
   - Write velocity and dye injection logic
   - Create configurable splat radius and force
   - Write unit tests for splat calculations
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 6. Create simulation orchestrator
+- [-] 6. Create simulation orchestrator
 - [ ] 6.1 Implement SimulationStep class
   - Write simulation step coordination logic
   - Implement render pass execution order

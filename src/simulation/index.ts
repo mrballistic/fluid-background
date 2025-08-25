@@ -1,15 +1,17 @@
-// WebGL Foundation Classes
+/**
+ * Simulation module exports
+ * Provides all WebGL simulation components and render passes
+ */
+
+// Core simulation classes
 export { WebGLContextImpl } from './WebGLContext';
 export { ShaderManagerImpl } from './ShaderManager';
 export { FramebufferManagerImpl } from './FramebufferManager';
 
-// Re-export types for convenience
-export type {
-  WebGLContext,
-  WebGLExtensions,
-  WebGLCapabilities,
-  ShaderManager,
-  ShaderProgram,
-  FramebufferManager,
-  FramebufferPair,
-} from '../types';
+// Render pass classes
+export { AdvectionPass } from './AdvectionPass';
+export { DivergencePass } from './DivergencePass';
+export { PressurePass } from './PressurePass';
+export { CurlPass } from './CurlPass';
+export { VorticityPass } from './VorticityPass';
+export { SplatPass } from './SplatPass';
