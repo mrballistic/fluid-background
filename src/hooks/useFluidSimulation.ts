@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { UseFluidSimulationReturn, FluidSimulationConfig } from '../types';
+import { UseFluidSimulationReturn } from '../types';
 
 // Placeholder hook - will be implemented in task 7.1
 const useFluidSimulation = (): UseFluidSimulationReturn => {

@@ -45,5 +45,5 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
 });
 
 // Mock requestAnimationFrame
-(globalThis as any).requestAnimationFrame = vi.fn((cb) => setTimeout(cb, 16));
-(globalThis as any).cancelAnimationFrame = vi.fn();
+(globalThis as unknown as { requestAnimationFrame: typeof requestAnimationFrame }).requestAnimationFrame = vi.fn((cb) => setTimeout(cb, 16));
+(globalThis as unknown as { cancelAnimationFrame: typeof cancelAnimationFrame }).cancelAnimationFrame = vi.fn();

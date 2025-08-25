@@ -22,7 +22,7 @@
     "test": "vitest",
     "test:run": "vitest --run",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint src",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
