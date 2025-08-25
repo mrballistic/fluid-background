@@ -50,14 +50,14 @@
   - Write unit tests for framebuffer operations
   - _Requirements: 4.1, 4.3_
 
-- [-] 4. Create individual shader modules
-- [ ] 4.1 Implement base vertex shader
+- [x] 4. Create individual shader modules
+- [x] 4.1 Implement base vertex shader
   - Write vertex shader source code with texture coordinate calculation
   - Create shader export with proper TypeScript typing
   - Write unit tests for shader source validation
   - _Requirements: 3.1_
 
-- [ ] 4.2 Create fragment shader modules
+- [x] 4.2 Create fragment shader modules
   - Write copy, clear, and display fragment shaders
   - Implement advection and divergence fragment shaders
   - Create pressure, curl, and vorticity fragment shaders
@@ -65,7 +65,7 @@
   - Write unit tests for shader source validation
   - _Requirements: 3.1, 5.1_
 
-- [ ] 5. Build render pass classes
+- [-] 5. Build render pass classes
 - [ ] 5.1 Implement AdvectionPass class
   - Write advection render pass with bilinear filtering support
   - Implement velocity and dye advection logic
