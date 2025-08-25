@@ -123,7 +123,7 @@
   - Write unit tests for input processing
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [-] 7. Create React hooks
+- [x] 7. Create React hooks
 - [x] 7.1 Implement useFluidSimulation hook
   - Write WebGL initialization and simulation setup
   - Implement animation loop with requestAnimationFrame
