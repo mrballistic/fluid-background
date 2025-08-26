@@ -97,20 +97,31 @@
       }
     }
 
-    // Simplified fluid simulation that shows actual fluid-like effects
+    // Enhanced fluid simulation with better physics
     function useInlineFluidSimulation() {
       const canvasRef = useRef(null);
       const [isInitialized, setIsInitialized] = useState(false);
-      const glRef = useRef(null);
       const animationRef = useRef(null);
       const mouseRef = useRef({ x: 0, y: 0, down: false, lastX: 0, lastY: 0 });
       
-      // Fluid simulation state
+      // Fluid simulation state with proper arrays for Navier-Stokes
       const fluidStateRef = useRef({
-        velocityField: null,
-        densityField: null,
+        // Current state
+        velocityX: null,
+        velocityY: null,
+        density: null,
+        // Previous state for time stepping
+        prevVelocityX: null,
+        prevVelocityY: null,
+        prevDensity: null,
+        // Temporary arrays
+        temp: null,
         width: 0,
-        height: 0
+        height: 0,
+        // Physics parameters
+        viscosity: 0.0001,
+        diffusion: 0.0001,
+        dt: 0.1
       });
 
       const initializeFluidSimulation = useCallback(async () => {
@@ -132,15 +143,28 @@
           ctx.fillStyle = 'black';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           
-          // Initialize fluid simulation grid (simplified)
-          const width = Math.floor(canvas.width / 4); // Lower resolution for performance
-          const height = Math.floor(canvas.height / 4);
+          // Initialize fluid simulation grid with proper Navier-Stokes arrays
+          const width = Math.floor(canvas.width / 3); // Good balance of performance and quality
+          const height = Math.floor(canvas.height / 3);
+          const size = width * height;
           
           fluidStateRef.current = {
-            velocityField: new Float32Array(width * height * 2), // x, y velocity
-            densityField: new Float32Array(width * height),
+            // Current state
+            velocityX: new Float32Array(size),
+            velocityY: new Float32Array(size),
+            density: new Float32Array(size),
+            // Previous state for time stepping
+            prevVelocityX: new Float32Array(size),
+            prevVelocityY: new Float32Array(size),
+            prevDensity: new Float32Array(size),
+            // Temporary arrays
+            temp: new Float32Array(size),
             width,
-            height
+            height,
+            // Physics parameters
+            viscosity: 0.0001,
+            diffusion: 0.0001,
+            dt: 0.1
           };
           
           addStatus(`Fluid simulation initialized (${width}x${height})`, 'success');
@@ -153,19 +177,134 @@
         }
       }, []);
 
+      // Proper Navier-Stokes fluid simulation methods
+      const IX = useCallback((x, y, width, size) => {
+        return Math.max(0, Math.min(size - 1, y * width + x));
+      }, []);
+
+      const setBoundary = useCallback((b, x, width, height) => {
+        // Set boundary conditions
+        for (let i = 1; i < height - 1; i++) {
+          x[IX(0, i, width, x.length)] = b === 1 ? -x[IX(1, i, width, x.length)] : x[IX(1, i, width, x.length)];
+          x[IX(width - 1, i, width, x.length)] = b === 1 ? -x[IX(width - 2, i, width, x.length)] : x[IX(width - 2, i, width, x.length)];
+        }
+        
+        for (let i = 1; i < width - 1; i++) {
+          x[IX(i, 0, width, x.length)] = b === 2 ? -x[IX(i, 1, width, x.length)] : x[IX(i, 1, width, x.length)];
+          x[IX(i, height - 1, width, x.length)] = b === 2 ? -x[IX(i, height - 2, width, x.length)] : x[IX(i, height - 2, width, x.length)];
+        }
+        
+        // Corners
+        x[IX(0, 0, width, x.length)] = 0.5 * (x[IX(1, 0, width, x.length)] + x[IX(0, 1, width, x.length)]);
+        x[IX(0, height - 1, width, x.length)] = 0.5 * (x[IX(1, height - 1, width, x.length)] + x[IX(0, height - 2, width, x.length)]);
+        x[IX(width - 1, 0, width, x.length)] = 0.5 * (x[IX(width - 2, 0, width, x.length)] + x[IX(width - 1, 1, width, x.length)]);
+        x[IX(width - 1, height - 1, width, x.length)] = 0.5 * (x[IX(width - 2, height - 1, width, x.length)] + x[IX(width - 1, height - 2, width, x.length)]);
+      }, [IX]);
+
+      const linearSolve = useCallback((b, x, x0, a, c, width, height, iterations = 4) => {
+        const cRecip = 1.0 / c;
+        for (let iter = 0; iter < iterations; iter++) {
+          for (let j = 1; j < height - 1; j++) {
+            for (let i = 1; i < width - 1; i++) {
+              const index = IX(i, j, width, x.length);
+              x[index] = (x0[index] + a * (
+                x[IX(i + 1, j, width, x.length)] + x[IX(i - 1, j, width, x.length)] +
+                x[IX(i, j + 1, width, x.length)] + x[IX(i, j - 1, width, x.length)]
+              )) * cRecip;
+            }
+          }
+          setBoundary(b, x, width, height);
+        }
+      }, [IX, setBoundary]);
+
+      const diffuse = useCallback((b, x, x0, diff, dt, width, height) => {
+        const a = dt * diff * (width - 2) * (height - 2);
+        linearSolve(b, x, x0, a, 1 + 6 * a, width, height);
+      }, [linearSolve]);
+
+      const project = useCallback((velocX, velocY, p, div, width, height) => {
+        // Calculate divergence
+        for (let j = 1; j < height - 1; j++) {
+          for (let i = 1; i < width - 1; i++) {
+            div[IX(i, j, width, div.length)] = -0.5 * (
+              velocX[IX(i + 1, j, width, velocX.length)] - velocX[IX(i - 1, j, width, velocX.length)] +
+              velocY[IX(i, j + 1, width, velocY.length)] - velocY[IX(i, j - 1, width, velocY.length)]
+            ) / Math.max(width, height);
+            p[IX(i, j, width, p.length)] = 0;
+          }
+        }
+        
+        setBoundary(0, div, width, height);
+        setBoundary(0, p, width, height);
+        linearSolve(0, p, div, 1, 6, width, height);
+        
+        // Subtract gradient
+        for (let j = 1; j < height - 1; j++) {
+          for (let i = 1; i < width - 1; i++) {
+            velocX[IX(i, j, width, velocX.length)] -= 0.5 * (p[IX(i + 1, j, width, p.length)] - p[IX(i - 1, j, width, p.length)]) * Math.max(width, height);
+            velocY[IX(i, j, width, velocY.length)] -= 0.5 * (p[IX(i, j + 1, width, p.length)] - p[IX(i, j - 1, width, p.length)]) * Math.max(width, height);
+          }
+        }
+        
+        setBoundary(1, velocX, width, height);
+        setBoundary(2, velocY, width, height);
+      }, [IX, setBoundary, linearSolve]);
+
+      const advect = useCallback((b, d, d0, velocX, velocY, dt, width, height) => {
+        const dtx = dt * (width - 2);
+        const dty = dt * (height - 2);
+        
+        for (let j = 1; j < height - 1; j++) {
+          for (let i = 1; i < width - 1; i++) {
+            let tmp1 = dtx * velocX[IX(i, j, width, velocX.length)];
+            let tmp2 = dty * velocY[IX(i, j, width, velocY.length)];
+            let x = i - tmp1;
+            let y = j - tmp2;
+            
+            if (x < 0.5) x = 0.5;
+            if (x > width - 1.5) x = width - 1.5;
+            let i0 = Math.floor(x);
+            let i1 = i0 + 1;
+            
+            if (y < 0.5) y = 0.5;
+            if (y > height - 1.5) y = height - 1.5;
+            let j0 = Math.floor(y);
+            let j1 = j0 + 1;
+            
+            let s1 = x - i0;
+            let s0 = 1 - s1;
+            let t1 = y - j0;
+            let t0 = 1 - t1;
+            
+            let i0i = Math.floor(i0);
+            let i1i = Math.floor(i1);
+            let j0i = Math.floor(j0);
+            let j1i = Math.floor(j1);
+            
+            d[IX(i, j, width, d.length)] = 
+              s0 * (t0 * d0[IX(i0i, j0i, width, d0.length)] + t1 * d0[IX(i0i, j1i, width, d0.length)]) +
+              s1 * (t0 * d0[IX(i1i, j0i, width, d0.length)] + t1 * d0[IX(i1i, j1i, width, d0.length)]);
+          }
+        }
+        
+        setBoundary(b, d, width, height);
+      }, [IX, setBoundary]);
+
       const updateFluidSimulation = useCallback(() => {
         const fluid = fluidStateRef.current;
         const mouse = mouseRef.current;
         
-        if (!fluid.velocityField) return;
+        if (!fluid.velocityX) return;
         
-        const { width, height, velocityField, densityField } = fluid;
+        const { width, height, velocityX, velocityY, density, prevVelocityX, prevVelocityY, prevDensity, temp, viscosity, diffusion, dt } = fluid;
         
         // Add mouse influence
         if (mouse.down || Math.abs(mouse.x - mouse.lastX) > 0.01 || Math.abs(mouse.y - mouse.lastY) > 0.01) {
           const mouseX = Math.floor(mouse.x * width);
           const mouseY = Math.floor(mouse.y * height);
-          const radius = 5;
+          const radius = mouse.down ? 4 : 2;
+          const densityAmount = mouse.down ? 100 : 50;
+          const velocityScale = mouse.down ? 50 : 25;
           
           for (let dy = -radius; dy <= radius; dy++) {
             for (let dx = -radius; dx <= radius; dx++) {
@@ -173,123 +312,88 @@
               const y = mouseY + dy;
               
               if (x >= 0 && x < width && y >= 0 && y < height) {
-                const index = y * width + x;
+                const index = IX(x, y, width, density.length);
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance <= radius) {
-                  const strength = (1 - distance / radius) * 0.5;
-                  
-                  // Add velocity
-                  const velIndex = index * 2;
-                  velocityField[velIndex] += (mouse.x - mouse.lastX) * strength * 50;
-                  velocityField[velIndex + 1] += (mouse.y - mouse.lastY) * strength * 50;
+                  const factor = (1 - distance / radius);
                   
                   // Add density
-                  densityField[index] = Math.min(1, densityField[index] + strength * 0.8);
+                  density[index] = Math.min(density[index] + densityAmount * factor, 255);
+                  
+                  // Add velocity
+                  const velX = (mouse.x - mouse.lastX) * velocityScale * factor;
+                  const velY = (mouse.y - mouse.lastY) * velocityScale * factor;
+                  velocityX[index] += velX;
+                  velocityY[index] += velY;
                 }
               }
             }
           }
         }
         
-        // Simple fluid dynamics (very simplified)
-        const newVelocityField = new Float32Array(velocityField);
-        const newDensityField = new Float32Array(densityField);
+        // Velocity step (Navier-Stokes)
+        diffuse(1, prevVelocityX, velocityX, viscosity, dt, width, height);
+        diffuse(2, prevVelocityY, velocityY, viscosity, dt, width, height);
         
-        // Diffusion and advection (simplified)
-        for (let y = 1; y < height - 1; y++) {
-          for (let x = 1; x < width - 1; x++) {
-            const index = y * width + x;
-            const velIndex = index * 2;
-            
-            // Velocity diffusion
-            const neighbors = [
-              ((y-1) * width + x) * 2,
-              ((y+1) * width + x) * 2,
-              (y * width + (x-1)) * 2,
-              (y * width + (x+1)) * 2
-            ];
-            
-            let avgVelX = velocityField[velIndex];
-            let avgVelY = velocityField[velIndex + 1];
-            
-            neighbors.forEach(nIndex => {
-              avgVelX += velocityField[nIndex] * 0.1;
-              avgVelY += velocityField[nIndex + 1] * 0.1;
-            });
-            
-            newVelocityField[velIndex] = avgVelX * 0.99; // Damping
-            newVelocityField[velIndex + 1] = avgVelY * 0.99;
-            
-            // Density advection
-            const velX = velocityField[velIndex] * 0.1;
-            const velY = velocityField[velIndex + 1] * 0.1;
-            
-            const sourceX = Math.max(0, Math.min(width - 1, x - velX));
-            const sourceY = Math.max(0, Math.min(height - 1, y - velY));
-            
-            const x0 = Math.floor(sourceX);
-            const y0 = Math.floor(sourceY);
-            const x1 = Math.min(width - 1, x0 + 1);
-            const y1 = Math.min(height - 1, y0 + 1);
-            
-            const fx = sourceX - x0;
-            const fy = sourceY - y0;
-            
-            const density00 = densityField[y0 * width + x0];
-            const density10 = densityField[y0 * width + x1];
-            const density01 = densityField[y1 * width + x0];
-            const density11 = densityField[y1 * width + x1];
-            
-            const interpolated = 
-              density00 * (1 - fx) * (1 - fy) +
-              density10 * fx * (1 - fy) +
-              density01 * (1 - fx) * fy +
-              density11 * fx * fy;
-            
-            newDensityField[index] = interpolated * 0.995; // Fade out
+        project(prevVelocityX, prevVelocityY, velocityX, velocityY, width, height);
+        
+        advect(1, velocityX, prevVelocityX, prevVelocityX, prevVelocityY, dt, width, height);
+        advect(2, velocityY, prevVelocityY, prevVelocityX, prevVelocityY, dt, width, height);
+        
+        project(velocityX, velocityY, prevVelocityX, prevVelocityY, width, height);
+        
+        // Density step
+        diffuse(0, prevDensity, density, diffusion, dt, width, height);
+        advect(0, density, prevDensity, velocityX, velocityY, dt, width, height);
+        
+        // Fade density to prevent accumulation
+        for (let i = 0; i < density.length; i++) {
+          density[i] *= 0.995;
+          if (density[i] < 0.1) {
+            density[i] = 0;
           }
         }
         
-        // Update fields
-        fluid.velocityField.set(newVelocityField);
-        fluid.densityField.set(newDensityField);
-        
         mouse.lastX = mouse.x;
         mouse.lastY = mouse.y;
-      }, []);
+      }, [IX, setBoundary, linearSolve, diffuse, project, advect]);
 
       const renderFluidSimulation = useCallback(() => {
         const canvas = canvasRef.current;
         const fluid = fluidStateRef.current;
         
-        if (!canvas || !fluid.densityField) return;
+        if (!canvas || !fluid.density) return;
         
-        // Get 2D context (don't mix with WebGL)
+        // Get 2D context
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         
-        // Clear canvas
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; // Slight fade for trails
+        // Clear canvas with slight fade for trails
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // Create image data from density field
         const imageData = new ImageData(fluid.width, fluid.height);
         const data = imageData.data;
         
-        for (let i = 0; i < fluid.densityField.length; i++) {
-          const density = fluid.densityField[i];
+        for (let i = 0; i < fluid.density.length; i++) {
+          const density = Math.min(1, fluid.density[i] / 100);
           
-          if (density > 0.01) {
-            // Create colorful fluid visualization
-            const hue = (density * 360 + Date.now() * 0.1) % 360;
-            const saturation = Math.min(1, density * 2);
-            const lightness = Math.min(0.8, density * 1.5);
+          if (density > 0.05) {
+            // Create swirling colors based on velocity
+            const vx = fluid.velocityX[i];
+            const vy = fluid.velocityY[i];
+            const velocity = Math.sqrt(vx * vx + vy * vy);
+            
+            const hue = (Math.atan2(vy, vx) * 180 / Math.PI + 180 + Date.now() * 0.05) % 360;
+            const saturation = Math.min(100, velocity * 10 + 50);
+            const lightness = Math.min(80, density * 100 + 20);
             
             // Convert HSL to RGB
-            const c = (1 - Math.abs(2 * lightness - 1)) * saturation;
+            const c = (1 - Math.abs(2 * lightness/100 - 1)) * saturation/100;
             const x = c * (1 - Math.abs((hue / 60) % 2 - 1));
-            const m = lightness - c / 2;
+            const m = lightness/100 - c / 2;
             
             let r, g, b;
             if (hue < 60) { r = c; g = x; b = 0; }
@@ -304,7 +408,7 @@
             data[i * 4 + 2] = Math.floor((b + m) * 255);
             data[i * 4 + 3] = Math.floor(density * 255);
           } else {
-            // Transparent for low density
+            // Ensure transparent pixels are completely transparent
             data[i * 4] = 0;
             data[i * 4 + 1] = 0;
             data[i * 4 + 2] = 0;
@@ -319,9 +423,10 @@
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.putImageData(imageData, 0, 0);
         
-        // Scale and draw to main canvas with blending
-        ctx.globalCompositeOperation = 'screen';
+        // Scale and draw to main canvas with better blending
         ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.globalCompositeOperation = 'lighter'; // Better blending for fluid effects
         ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
         ctx.globalCompositeOperation = 'source-over';
         

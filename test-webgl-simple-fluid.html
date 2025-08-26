@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple WebGL Fluid</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+      overflow: hidden;
+    }
+    
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+    
+    .overlay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      font-size: 14px;
+      border: 1px solid #333;
+    }
+    
+    .status {
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 13px;
+      border-left: 4px solid;
+    }
+    
+    .success { 
+      background: rgba(0, 255, 0, 0.1); 
+      color: #0f0; 
+      border-left-color: #0f0;
+    }
+    .error { 
+      background: rgba(255, 0, 0, 0.1); 
+      color: #f88; 
+      border-left-color: #f00;
+    }
+    .info { 
+      background: rgba(0, 0, 255, 0.1); 
+      color: #88f; 
+      border-left-color: #00f;
+    }
+    .warning { 
+      background: rgba(255, 255, 0, 0.1); 
+      color: #ff8; 
+      border-left-color: #ff0;
+    }
+    
+    .fps {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="canvas"></canvas>
+    
+    <div class="overlay">
+      <h3 style="margin: 0 0 15px 0; color: #0ff;">🌊 Simple WebGL Fluid</h3>
+      <div id="status"></div>
+      
+      <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #444; font-size: 12px; color: #aaa; line-height: 1.4;">
+        <strong>Instructions:</strong><br>
+        • Move your mouse to create fluid effects<br>
+        • Hold mouse button for stronger currents<br>
+        • This version uses basic WebGL for compatibility
+      </div>
+    </div>
+    
+    <div class="fps" id="fps">
+      FPS: --<br>
+      Frame: --
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const statusDiv = document.getElementById('status');
+    const fpsDiv = document.getElementById('fps');
+    
+    // Performance monitoring
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let totalFrames = 0;
+    
+    function addStatus(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `status ${type}`;
+      
+      const timestamp = new Date().toLocaleTimeString();
+      div.innerHTML = `<strong>${timestamp}:</strong> ${message}`;
+      
+      statusDiv.appendChild(div);
+      console.log(`[${type.toUpperCase()}] ${timestamp}: ${message}`);
+      
+      // Keep only last 8 messages
+      while (statusDiv.children.length > 8) {
+        statusDiv.removeChild(statusDiv.firstChild);
+      }
+    }
+    
+    function updateFPS() {
+      const now = performance.now();
+      frameCount++;
+      totalFrames++;
+      
+      if (now - lastTime >= 1000) {
+        const fps = Math.round((frameCount * 1000) / (now - lastTime));
+        fpsDiv.innerHTML = `FPS: ${fps}<br>Frame: ${totalFrames}`;
+        frameCount = 0;
+        lastTime = now;
+      }
+    }
+    
+    // Simple WebGL Fluid Simulation
+    class SimpleWebGLFluid {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.gl = null;
+        this.program = null;
+        this.texture = null;
+        this.framebuffer = null;
+        this.mouse = { x: 0, y: 0, lastX: 0, lastY: 0, down: false };
+        this.initialized = false;
+        
+        // Simple particle-based approach
+        this.particles = [];
+        this.maxParticles = 1000;
+        this.particleBuffer = null;
+      }
+      
+      async initialize() {
+        try {
+          // Get WebGL context with minimal requirements
+          this.gl = this.canvas.getContext('webgl', {
+            alpha: true,
+            depth: false,
+            stencil: false,
+            antialias: true,
+            premultipliedAlpha: false,
+            preserveDrawingBuffer: false
+          });
+          
+          if (!this.gl) {
+            throw new Error('WebGL not supported');
+          }
+          
+          addStatus(`WebGL context created: ${this.gl.getParameter(this.gl.VERSION)}`, 'success');
+          
+          // Set canvas size
+          this.resize();
+          
+          // Initialize simple particle system
+          await this.initializeParticleSystem();
+          
+          // Set up mouse events
+          this.setupMouseEvents();
+          
+          this.initialized = true;
+          addStatus('Simple WebGL fluid initialized!', 'success');
+          
+          return true;
+        } catch (error) {
+          addStatus(`Initialization failed: ${error.message}`, 'error');
+          return false;
+        }
+      }
+      
+      resize() {
+        const rect = this.canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        
+        this.canvas.width = Math.floor(rect.width * dpr * 0.8); // Reduce resolution for performance
+        this.canvas.height = Math.floor(rect.height * dpr * 0.8);
+        
+        if (this.gl) {
+          this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        }
+      }
+      
+      async initializeParticleSystem() {
+        const gl = this.gl;
+        
+        // Simple vertex shader for particles
+        const vertexShaderSource = `
+          attribute vec2 a_position;
+          attribute vec3 a_color;
+          attribute float a_size;
+          
+          uniform vec2 u_resolution;
+          
+          varying vec3 v_color;
+          
+          void main() {
+            vec2 position = (a_position / u_resolution) * 2.0 - 1.0;
+            position.y *= -1.0;
+            
+            gl_Position = vec4(position, 0.0, 1.0);
+            gl_PointSize = a_size;
+            v_color = a_color;
+          }
+        `;
+        
+        // Simple fragment shader for particles
+        const fragmentShaderSource = `
+          precision mediump float;
+          
+          varying vec3 v_color;
+          
+          void main() {
+            vec2 coord = gl_PointCoord - vec2(0.5);
+            float dist = length(coord);
+            
+            if (dist > 0.5) {
+              discard;
+            }
+            
+            float alpha = 1.0 - (dist * 2.0);
+            alpha = smoothstep(0.0, 1.0, alpha);
+            
+            gl_FragColor = vec4(v_color, alpha * 0.8);
+          }
+        `;
+        
+        // Create shaders
+        const vertexShader = this.createShader(gl.VERTEX_SHADER, vertexShaderSource);
+        const fragmentShader = this.createShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+        
+        // Create program
+        this.program = gl.createProgram();
+        gl.attachShader(this.program, vertexShader);
+        gl.attachShader(this.program, fragmentShader);
+        gl.linkProgram(this.program);
+        
+        if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+          throw new Error('Program link error: ' + gl.getProgramInfoLog(this.program));
+        }
+        
+        // Initialize particles
+        this.initializeParticles();
+        
+        // Create particle buffer
+        this.particleBuffer = gl.createBuffer();
+        
+        addStatus('Particle system initialized', 'success');
+      }
+      
+      createShader(type, source) {
+        const gl = this.gl;
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          throw new Error('Shader compile error: ' + gl.getShaderInfoLog(shader));
+        }
+        
+        return shader;
+      }
+      
+      initializeParticles() {
+        this.particles = [];
+        // Start with no particles - they'll be created by mouse interaction
+      }
+      
+      setupMouseEvents() {
+        const updateMouse = (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          this.mouse.lastX = this.mouse.x;
+          this.mouse.lastY = this.mouse.y;
+          this.mouse.x = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+          this.mouse.y = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+        };
+        
+        this.canvas.addEventListener('mousemove', updateMouse);
+        this.canvas.addEventListener('mousedown', (e) => {
+          this.mouse.down = true;
+          updateMouse(e);
+        });
+        this.canvas.addEventListener('mouseup', () => {
+          this.mouse.down = false;
+        });
+        this.canvas.addEventListener('mouseleave', () => {
+          this.mouse.down = false;
+        });
+      }
+      
+      addParticles() {
+        const mouse = this.mouse;
+        
+        if (!mouse.x || !mouse.y) return;
+        
+        const dx = mouse.x - mouse.lastX;
+        const dy = mouse.y - mouse.lastY;
+        const speed = Math.sqrt(dx * dx + dy * dy);
+        
+        if (speed > 1 || mouse.down) {
+          const numParticles = mouse.down ? 8 : Math.min(4, Math.floor(speed / 2));
+          
+          for (let i = 0; i < numParticles; i++) {
+            if (this.particles.length >= this.maxParticles) {
+              this.particles.shift(); // Remove oldest particle
+            }
+            
+            // Create colorful particle
+            const time = Date.now() * 0.001;
+            const hue = (time * 50 + Math.random() * 60) % 360;
+            const color = this.hslToRgb(hue, 0.8, 0.6);
+            
+            this.particles.push({
+              x: mouse.x + (Math.random() - 0.5) * 20,
+              y: mouse.y + (Math.random() - 0.5) * 20,
+              vx: dx * 0.5 + (Math.random() - 0.5) * 5,
+              vy: dy * 0.5 + (Math.random() - 0.5) * 5,
+              life: 1.0,
+              decay: 0.005 + Math.random() * 0.01,
+              size: 10 + Math.random() * 20,
+              color: color
+            });
+          }
+        }
+      }
+      
+      hslToRgb(h, s, l) {
+        h /= 360;
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs((h * 6) % 2 - 1));
+        const m = l - c / 2;
+        
+        let r, g, b;
+        if (h < 1/6) { r = c; g = x; b = 0; }
+        else if (h < 2/6) { r = x; g = c; b = 0; }
+        else if (h < 3/6) { r = 0; g = c; b = x; }
+        else if (h < 4/6) { r = 0; g = x; b = c; }
+        else if (h < 5/6) { r = x; g = 0; b = c; }
+        else { r = c; g = 0; b = x; }
+        
+        return {
+          r: r + m,
+          g: g + m,
+          b: b + m
+        };
+      }
+      
+      updateParticles() {
+        // Update particle physics
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          
+          // Simple physics
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.98; // Damping
+          p.vy *= 0.98;
+          
+          // Gravity and swirl
+          p.vy += 0.1;
+          const centerX = this.canvas.width / 2;
+          const centerY = this.canvas.height / 2;
+          const dx = p.x - centerX;
+          const dy = p.y - centerY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist > 0) {
+            const swirl = 0.02;
+            p.vx += -dy * swirl / dist;
+            p.vy += dx * swirl / dist;
+          }
+          
+          // Life decay
+          p.life -= p.decay;
+          
+          // Remove dead particles
+          if (p.life <= 0) {
+            this.particles.splice(i, 1);
+          }
+        }
+      }
+      
+      render() {
+        if (!this.initialized) return;
+        
+        const gl = this.gl;
+        
+        // Add new particles from mouse
+        this.addParticles();
+        
+        // Update particle physics
+        this.updateParticles();
+        
+        // Clear canvas
+        gl.clearColor(0.02, 0.02, 0.05, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        
+        // Enable blending for particles
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blending
+        
+        // Render particles
+        if (this.particles.length > 0) {
+          this.renderParticles();
+        }
+        
+        gl.disable(gl.BLEND);
+        
+        updateFPS();
+      }
+      
+      renderParticles() {
+        const gl = this.gl;
+        
+        // Prepare particle data
+        const vertexData = [];
+        
+        for (const p of this.particles) {
+          // Position
+          vertexData.push(p.x, p.y);
+          // Color (with life-based alpha)
+          vertexData.push(p.color.r, p.color.g, p.color.b);
+          // Size (with life-based scaling)
+          vertexData.push(p.size * p.life);
+        }
+        
+        if (vertexData.length === 0) return;
+        
+        // Upload data to GPU
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.DYNAMIC_DRAW);
+        
+        // Use shader program
+        gl.useProgram(this.program);
+        
+        // Set uniforms
+        const resolutionLocation = gl.getUniformLocation(this.program, 'u_resolution');
+        gl.uniform2f(resolutionLocation, this.canvas.width, this.canvas.height);
+        
+        // Set attributes
+        const positionLocation = gl.getAttribLocation(this.program, 'a_position');
+        const colorLocation = gl.getAttribLocation(this.program, 'a_color');
+        const sizeLocation = gl.getAttribLocation(this.program, 'a_size');
+        
+        const stride = 6 * 4; // 6 floats per vertex * 4 bytes per float
+        
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, stride, 0);
+        
+        gl.enableVertexAttribArray(colorLocation);
+        gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, stride, 2 * 4);
+        
+        gl.enableVertexAttribArray(sizeLocation);
+        gl.vertexAttribPointer(sizeLocation, 1, gl.FLOAT, false, stride, 5 * 4);
+        
+        // Draw particles
+        gl.drawArrays(gl.POINTS, 0, this.particles.length);
+      }
+    }
+    
+    // Initialize and run the simulation
+    async function main() {
+      addStatus('🚀 Starting simple WebGL fluid...', 'info');
+      
+      const simulation = new SimpleWebGLFluid(canvas);
+      
+      if (await simulation.initialize()) {
+        addStatus('🎉 Simple WebGL fluid ready!', 'success');
+        addStatus('Move your mouse to create particle effects', 'info');
+        
+        function animate() {
+          simulation.render();
+          requestAnimationFrame(animate);
+        }
+        
+        animate();
+      } else {
+        addStatus('❌ Failed to initialize simple WebGL fluid', 'error');
+      }
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (window.simulation) {
+        window.simulation.resize();
+      }
+    });
+    
+    // Start the simulation
+    main().catch(error => {
+      addStatus(`Fatal error: ${error.message}`, 'error');
+      console.error(error);
+    });
+  </script>
+</body>
+</html>

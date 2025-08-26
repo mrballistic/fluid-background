@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real Fluid Dynamics</title>
+  <title>Simple Working Fluid</title>
   <style>
     body {
       margin: 0;
@@ -55,11 +55,11 @@
 <body>
   <canvas id="canvas"></canvas>
   <div class="overlay">
-    <h3 style="margin: 0 0 10px 0;">Real Fluid Dynamics</h3>
+    <h3 style="margin: 0 0 10px 0;">Simple Working Fluid</h3>
     <div id="status"></div>
     <div style="margin-top: 10px; font-size: 11px; color: #aaa;">
-      Move your mouse to create swirling fluid effects!<br>
-      Hold mouse button for stronger effects.
+      Move your mouse to create fluid effects!<br>
+      This version prioritizes working over complexity.
     </div>
   </div>
   <div class="fps" id="fps">FPS: --</div>
@@ -86,7 +86,7 @@
       }
     }
     
-    // Set canvas size with higher resolution
+    // Set canvas size
     function resizeCanvas() {
       canvas.width = Math.floor(window.innerWidth * 0.8);
       canvas.height = Math.floor(window.innerHeight * 0.8);
@@ -97,31 +97,22 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     
-    // Real fluid simulation with proper Navier-Stokes
-    class RealFluidSimulation {
+    // Simplified but effective fluid simulation
+    class SimpleFluidSimulation {
       constructor(width, height) {
         this.width = width;
         this.height = height;
         this.size = width * height;
         
-        // Current state
+        // Simplified state - just what we need
         this.density = new Float32Array(this.size);
         this.velocityX = new Float32Array(this.size);
         this.velocityY = new Float32Array(this.size);
-        
-        // Previous state for time stepping
         this.prevDensity = new Float32Array(this.size);
         this.prevVelocityX = new Float32Array(this.size);
         this.prevVelocityY = new Float32Array(this.size);
         
-        // Temporary arrays
-        this.temp = new Float32Array(this.size);
-        
-        this.viscosity = 0.0001;
-        this.diffusion = 0.0001;
-        this.dt = 0.1;
-        
-        addStatus(`Real fluid: ${width}x${height}`, 'success');
+        addStatus(`Simple fluid: ${width}x${height}`, 'success');
       }
       
       IX(x, y) {
@@ -140,145 +131,83 @@
         this.velocityY[index] += vy;
       }
       
-      setBoundary(b, x) {
-        // Set boundary conditions
-        for (let i = 1; i < this.height - 1; i++) {
-          x[this.IX(0, i)] = b === 1 ? -x[this.IX(1, i)] : x[this.IX(1, i)];
-          x[this.IX(this.width - 1, i)] = b === 1 ? -x[this.IX(this.width - 2, i)] : x[this.IX(this.width - 2, i)];
-        }
-        
-        for (let i = 1; i < this.width - 1; i++) {
-          x[this.IX(i, 0)] = b === 2 ? -x[this.IX(i, 1)] : x[this.IX(i, 1)];
-          x[this.IX(i, this.height - 1)] = b === 2 ? -x[this.IX(i, this.height - 2)] : x[this.IX(i, this.height - 2)];
-        }
-        
-        // Corners
-        x[this.IX(0, 0)] = 0.5 * (x[this.IX(1, 0)] + x[this.IX(0, 1)]);
-        x[this.IX(0, this.height - 1)] = 0.5 * (x[this.IX(1, this.height - 1)] + x[this.IX(0, this.height - 2)]);
-        x[this.IX(this.width - 1, 0)] = 0.5 * (x[this.IX(this.width - 2, 0)] + x[this.IX(this.width - 1, 1)]);
-        x[this.IX(this.width - 1, this.height - 1)] = 0.5 * (x[this.IX(this.width - 2, this.height - 1)] + x[this.IX(this.width - 1, this.height - 2)]);
-      }
-      
-      linearSolve(b, x, x0, a, c, iterations = 4) {
-        const cRecip = 1.0 / c;
-        for (let iter = 0; iter < iterations; iter++) {
-          for (let j = 1; j < this.height - 1; j++) {
-            for (let i = 1; i < this.width - 1; i++) {
-              const index = this.IX(i, j);
-              x[index] = (x0[index] + a * (
-                x[this.IX(i + 1, j)] + x[this.IX(i - 1, j)] +
-                x[this.IX(i, j + 1)] + x[this.IX(i, j - 1)]
-              )) * cRecip;
-            }
-          }
-          this.setBoundary(b, x);
-        }
-      }
-      
-      diffuse(b, x, x0, diff) {
-        const a = this.dt * diff * (this.width - 2) * (this.height - 2);
-        this.linearSolve(b, x, x0, a, 1 + 6 * a);
-      }
-      
-      project(velocX, velocY, p, div) {
-        // Calculate divergence
-        for (let j = 1; j < this.height - 1; j++) {
-          for (let i = 1; i < this.width - 1; i++) {
-            div[this.IX(i, j)] = -0.5 * (
-              velocX[this.IX(i + 1, j)] - velocX[this.IX(i - 1, j)] +
-              velocY[this.IX(i, j + 1)] - velocY[this.IX(i, j - 1)]
-            ) / Math.max(this.width, this.height);
-            p[this.IX(i, j)] = 0;
-          }
-        }
-        
-        this.setBoundary(0, div);
-        this.setBoundary(0, p);
-        this.linearSolve(0, p, div, 1, 6);
-        
-        // Subtract gradient
-        for (let j = 1; j < this.height - 1; j++) {
-          for (let i = 1; i < this.width - 1; i++) {
-            velocX[this.IX(i, j)] -= 0.5 * (p[this.IX(i + 1, j)] - p[this.IX(i - 1, j)]) * Math.max(this.width, this.height);
-            velocY[this.IX(i, j)] -= 0.5 * (p[this.IX(i, j + 1)] - p[this.IX(i, j - 1)]) * Math.max(this.width, this.height);
-          }
-        }
-        
-        this.setBoundary(1, velocX);
-        this.setBoundary(2, velocY);
-      }
-      
-      advect(b, d, d0, velocX, velocY) {
-        const dtx = this.dt * (this.width - 2);
-        const dty = this.dt * (this.height - 2);
-        
-        for (let j = 1; j < this.height - 1; j++) {
-          for (let i = 1; i < this.width - 1; i++) {
-            let tmp1 = dtx * velocX[this.IX(i, j)];
-            let tmp2 = dty * velocY[this.IX(i, j)];
-            let x = i - tmp1;
-            let y = j - tmp2;
-            
-            if (x < 0.5) x = 0.5;
-            if (x > this.width - 1.5) x = this.width - 1.5;
-            let i0 = Math.floor(x);
-            let i1 = i0 + 1;
-            
-            if (y < 0.5) y = 0.5;
-            if (y > this.height - 1.5) y = this.height - 1.5;
-            let j0 = Math.floor(y);
-            let j1 = j0 + 1;
-            
-            let s1 = x - i0;
-            let s0 = 1 - s1;
-            let t1 = y - j0;
-            let t0 = 1 - t1;
-            
-            let i0i = Math.floor(i0);
-            let i1i = Math.floor(i1);
-            let j0i = Math.floor(j0);
-            let j1i = Math.floor(j1);
-            
-            d[this.IX(i, j)] = 
-              s0 * (t0 * d0[this.IX(i0i, j0i)] + t1 * d0[this.IX(i0i, j1i)]) +
-              s1 * (t0 * d0[this.IX(i1i, j0i)] + t1 * d0[this.IX(i1i, j1i)]);
-          }
-        }
-        
-        this.setBoundary(b, d);
-      }
-      
+      // Very simplified fluid step - focus on working, not perfect physics
       step() {
-        // Velocity step
-        this.diffuse(1, this.prevVelocityX, this.velocityX, this.viscosity);
-        this.diffuse(2, this.prevVelocityY, this.velocityY, this.viscosity);
-        
-        this.project(this.prevVelocityX, this.prevVelocityY, this.velocityX, this.velocityY);
-        
-        this.advect(1, this.velocityX, this.prevVelocityX, this.prevVelocityX, this.prevVelocityY);
-        this.advect(2, this.velocityY, this.prevVelocityY, this.prevVelocityX, this.prevVelocityY);
-        
-        this.project(this.velocityX, this.velocityY, this.prevVelocityX, this.prevVelocityY);
-        
-        // Density step
-        this.diffuse(0, this.prevDensity, this.density, this.diffusion);
-        this.advect(0, this.density, this.prevDensity, this.velocityX, this.velocityY);
-        
-        // Fade density more aggressively to prevent dark patches
+        // Simple diffusion
         for (let i = 0; i < this.size; i++) {
-          this.density[i] *= 0.98;
-          // Clamp to zero when very small to prevent dark patches
-          if (this.density[i] < 0.01) {
+          this.prevDensity[i] = this.density[i];
+          this.prevVelocityX[i] = this.velocityX[i];
+          this.prevVelocityY[i] = this.velocityY[i];
+        }
+        
+        // Simple advection and diffusion
+        for (let y = 1; y < this.height - 1; y++) {
+          for (let x = 1; x < this.width - 1; x++) {
+            const index = this.IX(x, y);
+            
+            // Get velocity at this point
+            const vx = this.prevVelocityX[index] * 0.1;
+            const vy = this.prevVelocityY[index] * 0.1;
+            
+            // Simple advection - move density based on velocity
+            const sourceX = Math.max(0, Math.min(this.width - 1, x - vx));
+            const sourceY = Math.max(0, Math.min(this.height - 1, y - vy));
+            
+            const x0 = Math.floor(sourceX);
+            const y0 = Math.floor(sourceY);
+            const x1 = Math.min(this.width - 1, x0 + 1);
+            const y1 = Math.min(this.height - 1, y0 + 1);
+            
+            const fx = sourceX - x0;
+            const fy = sourceY - y0;
+            
+            // Bilinear interpolation
+            const density00 = this.prevDensity[this.IX(x0, y0)];
+            const density10 = this.prevDensity[this.IX(x1, y0)];
+            const density01 = this.prevDensity[this.IX(x0, y1)];
+            const density11 = this.prevDensity[this.IX(x1, y1)];
+            
+            this.density[index] = 
+              density00 * (1 - fx) * (1 - fy) +
+              density10 * fx * (1 - fy) +
+              density01 * (1 - fx) * fy +
+              density11 * fx * fy;
+            
+            // Simple velocity diffusion
+            const neighbors = [
+              this.IX(x-1, y), this.IX(x+1, y),
+              this.IX(x, y-1), this.IX(x, y+1)
+            ];
+            
+            let avgVelX = this.prevVelocityX[index];
+            let avgVelY = this.prevVelocityY[index];
+            
+            neighbors.forEach(nIndex => {
+              if (nIndex >= 0 && nIndex < this.size) {
+                avgVelX += this.prevVelocityX[nIndex] * 0.05;
+                avgVelY += this.prevVelocityY[nIndex] * 0.05;
+              }
+            });
+            
+            this.velocityX[index] = avgVelX * 0.99; // Damping
+            this.velocityY[index] = avgVelY * 0.99;
+          }
+        }
+        
+        // Fade density
+        for (let i = 0; i < this.size; i++) {
+          this.density[i] *= 0.995;
+          if (this.density[i] < 0.1) {
             this.density[i] = 0;
           }
         }
       }
     }
     
-    // Initialize fluid with higher resolution
-    const fluidWidth = Math.floor(canvas.width / 2);
-    const fluidHeight = Math.floor(canvas.height / 2);
-    const fluid = new RealFluidSimulation(fluidWidth, fluidHeight);
+    // Initialize fluid with reasonable resolution
+    const fluidWidth = Math.floor(canvas.width / 4);
+    const fluidHeight = Math.floor(canvas.height / 4);
+    const fluid = new SimpleFluidSimulation(fluidWidth, fluidHeight);
     
     // Mouse tracking
     let mouse = { x: 0, y: 0, lastX: 0, lastY: 0, down: false };
@@ -293,7 +222,7 @@
     
     canvas.addEventListener('mousedown', () => {
       mouse.down = true;
-      addStatus('Creating strong fluid currents!', 'info');
+      addStatus('Creating fluid effects!', 'info');
     });
     
     canvas.addEventListener('mouseup', () => {
@@ -301,8 +230,6 @@
     });
     
     // Animation loop
-    let animationId;
-    
     function animate(currentTime) {
       // Calculate FPS
       frameCount++;
@@ -322,9 +249,9 @@
         const dy = (mouse.y - mouse.lastY) * fluidHeight;
         
         if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1 || mouse.down) {
-          const radius = mouse.down ? 4 : 2;
-          const densityAmount = mouse.down ? 100 : 50;
-          const velocityScale = mouse.down ? 50 : 25;
+          const radius = mouse.down ? 3 : 2;
+          const densityAmount = mouse.down ? 80 : 40;
+          const velocityScale = mouse.down ? 30 : 15;
           
           for (let dy_offset = -radius; dy_offset <= radius; dy_offset++) {
             for (let dx_offset = -radius; dx_offset <= radius; dx_offset++) {
@@ -344,8 +271,8 @@
       // Update fluid simulation
       fluid.step();
       
-      // Clear canvas
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+      // Clear canvas with slight fade
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Render fluid
@@ -353,16 +280,16 @@
       const data = imageData.data;
       
       for (let i = 0; i < fluid.size; i++) {
-        const density = Math.min(1, fluid.density[i] / 100);
+        const density = Math.min(1, fluid.density[i] / 80);
         
-        if (density > 0.01) {
-          // Create swirling colors based on velocity
+        if (density > 0.05) {
+          // Create colors based on velocity
           const vx = fluid.velocityX[i];
           const vy = fluid.velocityY[i];
           const velocity = Math.sqrt(vx * vx + vy * vy);
           
           const hue = (Math.atan2(vy, vx) * 180 / Math.PI + 180 + currentTime * 0.05) % 360;
-          const saturation = Math.min(100, velocity * 10 + 50);
+          const saturation = Math.min(100, velocity * 5 + 50);
           const lightness = Math.min(80, density * 100 + 20);
           
           // Convert HSL to RGB
@@ -382,6 +309,11 @@
           data[i * 4 + 1] = Math.floor((g + m) * 255);
           data[i * 4 + 2] = Math.floor((b + m) * 255);
           data[i * 4 + 3] = Math.floor(density * 255);
+        } else {
+          data[i * 4] = 0;
+          data[i * 4 + 1] = 0;
+          data[i * 4 + 2] = 0;
+          data[i * 4 + 3] = 0;
         }
       }
       
@@ -393,17 +325,18 @@
       tempCtx.putImageData(imageData, 0, 0);
       
       ctx.imageSmoothingEnabled = true;
-      ctx.globalCompositeOperation = 'screen';
+      ctx.imageSmoothingQuality = 'high';
+      ctx.globalCompositeOperation = 'lighter';
       ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = 'source-over';
       
-      animationId = requestAnimationFrame(animate);
+      requestAnimationFrame(animate);
     }
     
     // Start
-    addStatus('✅ Real fluid dynamics initialized!', 'success');
-    addStatus('This uses proper Navier-Stokes equations', 'info');
-    animationId = requestAnimationFrame(animate);
+    addStatus('✅ Simple fluid simulation ready!', 'success');
+    addStatus('Move your mouse to create effects', 'info');
+    requestAnimationFrame(animate);
   </script>
 </body>
 </html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluid Cursor Effect</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+      overflow: hidden;
+      cursor: none;
+    }
+    
+    canvas {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 50px;
+      min-height: 100vh;
+    }
+    
+    .overlay {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      max-width: 350px;
+      font-size: 14px;
+    }
+    
+    .status {
+      margin: 5px 0;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .success { background: rgba(0, 255, 0, 0.2); color: #0f0; }
+    .info { background: rgba(0, 0, 255, 0.2); color: #88f; }
+    
+    .fps {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      z-index: 10000;
+    }
+    
+    h1, h2, p {
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+    
+    .demo-text {
+      font-size: 18px;
+      color: #ccc;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  
+  <div class="overlay">
+    <h3 style="margin: 0 0 10px 0;">Fluid Cursor Effect</h3>
+    <div id="status"></div>
+    <div style="margin-top: 10px; font-size: 11px; color: #aaa;">
+      Move your mouse around to create flowing fluid smoke!<br>
+      This uses actual fluid simulation for realistic effects.
+    </div>
+  </div>
+  
+  <div class="fps" id="fps">FPS: --</div>
+  
+  <div class="content">
+    <h1>Fluid Cursor Demo</h1>
+    <p class="demo-text">
+      Move your mouse around this page to see the realistic fluid cursor effect. 
+      The smoke flows and connects naturally, creating continuous trails.
+    </p>
+    
+    <h2>Fluid Physics</h2>
+    <p class="demo-text">
+      This effect uses simplified fluid dynamics to create realistic smoke behavior:
+    </p>
+    
+    <ul class="demo-text">
+      <li>Velocity field simulation</li>
+      <li>Density advection and diffusion</li>
+      <li>Natural flow and mixing</li>
+      <li>Edge bouncing with momentum</li>
+    </ul>
+    
+    <p class="demo-text">
+      Try different mouse movements to see how the fluid responds - 
+      fast movements create turbulence, slow movements create smooth flows!
+    </p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const statusDiv = document.getElementById('status');
+    const fpsDiv = document.getElementById('fps');
+    
+    // Performance monitoring
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let fps = 0;
+    
+    function addStatus(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `status ${type}`;
+      div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+      statusDiv.appendChild(div);
+      
+      while (statusDiv.children.length > 6) {
+        statusDiv.removeChild(statusDiv.firstChild);
+      }
+    }
+    
+    // Set canvas to full screen
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Fluid cursor effect with actual fluid simulation
+    class FluidCursor {
+      constructor() {
+        this.mouse = { x: 0, y: 0, lastX: 0, lastY: 0 };
+        
+        // Fluid simulation grid
+        this.gridWidth = Math.floor(canvas.width / 4);
+        this.gridHeight = Math.floor(canvas.height / 4);
+        this.gridSize = this.gridWidth * this.gridHeight;
+        
+        // Fluid state
+        this.density = new Float32Array(this.gridSize);
+        this.velocityX = new Float32Array(this.gridSize);
+        this.velocityY = new Float32Array(this.gridSize);
+        this.prevDensity = new Float32Array(this.gridSize);
+        this.prevVelocityX = new Float32Array(this.gridSize);
+        this.prevVelocityY = new Float32Array(this.gridSize);
+        
+        // Fluid parameters
+        this.viscosity = 0.0001;
+        this.diffusion = 0.0001;
+        this.dt = 0.1;
+        
+        this.setupMouseTracking();
+        addStatus('Fluid cursor effect initialized!', 'success');
+      }
+      
+      setupMouseTracking() {
+        document.addEventListener('mousemove', (e) => {
+          this.mouse.lastX = this.mouse.x;
+          this.mouse.lastY = this.mouse.y;
+          this.mouse.x = e.clientX;
+          this.mouse.y = e.clientY;
+        });
+      }
+      
+      IX(x, y) {
+        return Math.max(0, Math.min(this.gridSize - 1, y * this.gridWidth + x));
+      }
+      
+      addDensity(x, y, amount) {
+        if (x < 0 || x >= this.gridWidth || y < 0 || y >= this.gridHeight) return;
+        this.density[this.IX(x, y)] += amount;
+      }
+      
+      addVelocity(x, y, vx, vy) {
+        if (x < 0 || x >= this.gridWidth || y < 0 || y >= this.gridHeight) return;
+        const index = this.IX(x, y);
+        this.velocityX[index] += vx;
+        this.velocityY[index] += vy;
+      }
+      
+      setBoundary(b, x) {
+        const w = this.gridWidth;
+        const h = this.gridHeight;
+        
+        // Bounce off boundaries
+        for (let i = 1; i < h - 1; i++) {
+          x[this.IX(0, i)] = b === 1 ? -x[this.IX(1, i)] : x[this.IX(1, i)];
+          x[this.IX(w - 1, i)] = b === 1 ? -x[this.IX(w - 2, i)] : x[this.IX(w - 2, i)];
+        }
+        
+        for (let i = 1; i < w - 1; i++) {
+          x[this.IX(i, 0)] = b === 2 ? -x[this.IX(i, 1)] : x[this.IX(i, 1)];
+          x[this.IX(i, h - 1)] = b === 2 ? -x[this.IX(i, h - 2)] : x[this.IX(i, h - 2)];
+        }
+        
+        // Corners
+        x[this.IX(0, 0)] = 0.5 * (x[this.IX(1, 0)] + x[this.IX(0, 1)]);
+        x[this.IX(0, h - 1)] = 0.5 * (x[this.IX(1, h - 1)] + x[this.IX(0, h - 2)]);
+        x[this.IX(w - 1, 0)] = 0.5 * (x[this.IX(w - 2, 0)] + x[this.IX(w - 1, 1)]);
+        x[this.IX(w - 1, h - 1)] = 0.5 * (x[this.IX(w - 2, h - 1)] + x[this.IX(w - 1, h - 2)]);
+      }
+      
+      linearSolve(b, x, x0, a, c, iterations = 2) {
+        const cRecip = 1.0 / c;
+        const w = this.gridWidth;
+        const h = this.gridHeight;
+        
+        for (let iter = 0; iter < iterations; iter++) {
+          for (let j = 1; j < h - 1; j++) {
+            for (let i = 1; i < w - 1; i++) {
+              const index = this.IX(i, j);
+              x[index] = (x0[index] + a * (
+                x[this.IX(i + 1, j)] + x[this.IX(i - 1, j)] +
+                x[this.IX(i, j + 1)] + x[this.IX(i, j - 1)]
+              )) * cRecip;
+            }
+          }
+          this.setBoundary(b, x);
+        }
+      }
+      
+      diffuse(b, x, x0, diff) {
+        const a = this.dt * diff * (this.gridWidth - 2) * (this.gridHeight - 2);
+        this.linearSolve(b, x, x0, a, 1 + 6 * a);
+      }
+      
+      advect(b, d, d0, velocX, velocY) {
+        const w = this.gridWidth;
+        const h = this.gridHeight;
+        const dtx = this.dt * (w - 2);
+        const dty = this.dt * (h - 2);
+        
+        for (let j = 1; j < h - 1; j++) {
+          for (let i = 1; i < w - 1; i++) {
+            const idx = this.IX(i, j);
+            
+            let x = i - dtx * velocX[idx];
+            let y = j - dty * velocY[idx];
+            
+            x = Math.max(0.5, Math.min(w - 1.5, x));
+            y = Math.max(0.5, Math.min(h - 1.5, y));
+            
+            const i0 = Math.floor(x);
+            const i1 = i0 + 1;
+            const j0 = Math.floor(y);
+            const j1 = j0 + 1;
+            
+            const s1 = x - i0;
+            const s0 = 1 - s1;
+            const t1 = y - j0;
+            const t0 = 1 - t1;
+            
+            d[idx] = 
+              s0 * (t0 * d0[this.IX(i0, j0)] + t1 * d0[this.IX(i0, j1)]) +
+              s1 * (t0 * d0[this.IX(i1, j0)] + t1 * d0[this.IX(i1, j1)]);
+          }
+        }
+        
+        this.setBoundary(b, d);
+      }
+      
+      project(velocX, velocY, p, div) {
+        const w = this.gridWidth;
+        const h = this.gridHeight;
+        const scale = 0.5 / Math.max(w, h);
+        
+        // Calculate divergence
+        for (let j = 1; j < h - 1; j++) {
+          for (let i = 1; i < w - 1; i++) {
+            const idx = this.IX(i, j);
+            div[idx] = -scale * (
+              velocX[this.IX(i + 1, j)] - velocX[this.IX(i - 1, j)] +
+              velocY[this.IX(i, j + 1)] - velocY[this.IX(i, j - 1)]
+            );
+            p[idx] = 0;
+          }
+        }
+        
+        this.setBoundary(0, div);
+        this.setBoundary(0, p);
+        this.linearSolve(0, p, div, 1, 6, 3);
+        
+        // Subtract gradient
+        const gradScale = 0.5 * Math.max(w, h);
+        for (let j = 1; j < h - 1; j++) {
+          for (let i = 1; i < w - 1; i++) {
+            const idx = this.IX(i, j);
+            velocX[idx] -= gradScale * (p[this.IX(i + 1, j)] - p[this.IX(i - 1, j)]);
+            velocY[idx] -= gradScale * (p[this.IX(i, j + 1)] - p[this.IX(i, j - 1)]);
+          }
+        }
+        
+        this.setBoundary(1, velocX);
+        this.setBoundary(2, velocY);
+      }
+      
+      addMouseInput() {
+        const dx = this.mouse.x - this.mouse.lastX;
+        const dy = this.mouse.y - this.mouse.lastY;
+        const speed = Math.sqrt(dx * dx + dy * dy);
+        
+        // Always add some density when mouse moves
+        if (speed > 0.1) {
+          const gridX = Math.floor((this.mouse.x / canvas.width) * this.gridWidth);
+          const gridY = Math.floor((this.mouse.y / canvas.height) * this.gridHeight);
+          
+          const radius = 2;
+          const densityAmount = 50; // Fixed amount for testing
+          const velocityScale = 20;
+          
+          for (let dy_offset = -radius; dy_offset <= radius; dy_offset++) {
+            for (let dx_offset = -radius; dx_offset <= radius; dx_offset++) {
+              const distance = Math.sqrt(dx_offset * dx_offset + dy_offset * dy_offset);
+              if (distance <= radius) {
+                const factor = (1 - distance / radius);
+                this.addDensity(gridX + dx_offset, gridY + dy_offset, densityAmount * factor);
+                this.addVelocity(gridX + dx_offset, gridY + dy_offset, 
+                  dx * velocityScale * factor * 0.01, 
+                  dy * velocityScale * factor * 0.01);
+              }
+            }
+          }
+        }
+      }
+      
+      step() {
+        // Add mouse input
+        this.addMouseInput();
+        
+        // Velocity step
+        this.diffuse(1, this.prevVelocityX, this.velocityX, this.viscosity);
+        this.diffuse(2, this.prevVelocityY, this.velocityY, this.viscosity);
+        
+        this.project(this.prevVelocityX, this.prevVelocityY, this.velocityX, this.velocityY);
+        
+        this.advect(1, this.velocityX, this.prevVelocityX, this.prevVelocityX, this.prevVelocityY);
+        this.advect(2, this.velocityY, this.prevVelocityY, this.prevVelocityX, this.prevVelocityY);
+        
+        this.project(this.velocityX, this.velocityY, this.prevVelocityX, this.prevVelocityY);
+        
+        // Density step
+        this.diffuse(0, this.prevDensity, this.density, this.diffusion);
+        this.advect(0, this.density, this.prevDensity, this.velocityX, this.velocityY);
+        
+        // Fade density
+        for (let i = 0; i < this.gridSize; i++) {
+          this.density[i] *= 0.99;
+          if (this.density[i] < 0.1) {
+            this.density[i] = 0;
+          }
+        }
+      }
+      
+      render() {
+        // Clear to black
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Debug: Check if we have any density
+        let maxDensity = 0;
+        for (let i = 0; i < this.gridSize; i++) {
+          maxDensity = Math.max(maxDensity, this.density[i]);
+        }
+        
+        if (maxDensity > 0) {
+          // Create image data from density field
+          const imageData = ctx.createImageData(this.gridWidth, this.gridHeight);
+          const data = imageData.data;
+          
+          for (let i = 0; i < this.gridSize; i++) {
+            const density = Math.min(1, this.density[i] / 20); // Lower threshold
+            
+            if (density > 0.01) {
+              // Simple bright colors for visibility
+              const intensity = density * 255;
+              data[i * 4] = intensity;     // Red
+              data[i * 4 + 1] = intensity * 0.7; // Green
+              data[i * 4 + 2] = intensity * 0.3; // Blue
+              data[i * 4 + 3] = intensity; // Alpha
+            }
+          }
+          
+          // Create temporary canvas for fluid
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = this.gridWidth;
+          tempCanvas.height = this.gridHeight;
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCtx.putImageData(imageData, 0, 0);
+          
+          // Scale and draw to main canvas
+          ctx.imageSmoothingEnabled = true;
+          ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+        } else {
+          // No density, show debug message
+          ctx.fillStyle = 'white';
+          ctx.font = '16px Arial';
+          ctx.fillText(`Max density: ${maxDensity.toFixed(4)}`, 50, 100);
+          ctx.fillText('Move mouse to add density', 50, 120);
+        }
+      }
+      
+      update() {
+        this.step();
+        this.render();
+        
+        // Update FPS
+        frameCount++;
+        const now = performance.now();
+        if (now - lastTime >= 1000) {
+          fps = Math.round((frameCount * 1000) / (now - lastTime));
+          fpsDiv.textContent = `FPS: ${fps}`;
+          frameCount = 0;
+          lastTime = now;
+        }
+      }
+    }
+    
+    // Initialize and start the effect
+    const fluidCursor = new FluidCursor();
+    
+    function animate() {
+      fluidCursor.update();
+      requestAnimationFrame(animate);
+    }
+    
+    addStatus('Starting fluid cursor simulation...', 'info');
+    animate();
+    
+    setTimeout(() => {
+      addStatus('Move your mouse to see fluid smoke!', 'info');
+    }, 1000);
+  </script>
+</body>
+</html>
