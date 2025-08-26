@@ -5,6 +5,8 @@ export class FramebufferManagerImpl implements FramebufferManager {
   private framebuffers: Map<string, WebGLFramebuffer> = new Map();
   private framebufferPairs: Map<string, FramebufferPair> = new Map();
   private textures: Map<string, WebGLTexture> = new Map();
+  private currentWidth: number = 0;
+  private currentHeight: number = 0;
 
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
@@ -16,9 +18,24 @@ export class FramebufferManagerImpl implements FramebufferManager {
   public createFramebuffer(width: number, height: number, format: number): WebGLFramebuffer {
     const gl = this.gl;
     
+    // Check if WebGL context is valid
+    if (!gl || gl.isContextLost()) {
+      throw new WebGLError('WebGL context is lost or invalid');
+    }
+    
+    // Validate dimensions
+    if (width <= 0 || height <= 0) {
+      throw new WebGLError(`Invalid framebuffer dimensions: ${width}x${height}`);
+    }
+    
     // Create framebuffer
     const framebuffer = gl.createFramebuffer();
     if (!framebuffer) {
+      console.error('WebGL state:', {
+        contextLost: gl.isContextLost(),
+        error: gl.getError(),
+        version: gl.getParameter(gl.VERSION)
+      });
       throw new WebGLError('Failed to create framebuffer');
     }
 
@@ -38,10 +55,35 @@ export class FramebufferManagerImpl implements FramebufferManager {
     // Check framebuffer completeness
     const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      console.error('Framebuffer creation failed:', {
+        status: this.getFramebufferStatusString(status),
+        statusCode: status,
+        statusHex: '0x' + status.toString(16),
+        width,
+        height,
+        format,
+        maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+        maxRenderbufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE)
+      });
+      
       gl.deleteFramebuffer(framebuffer);
       gl.deleteTexture(texture);
-      throw new WebGLError(`Framebuffer incomplete: ${this.getFramebufferStatusString(status)}`);
+      
+      // Provide specific error messages for common issues
+      let errorMessage = `Framebuffer incomplete: ${this.getFramebufferStatusString(status)}`;
+      if (status === 36054) { // GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE
+        errorMessage += ' - This may be due to multisampling configuration issues. Try using a different browser or updating your graphics drivers.';
+      } else if (width > gl.getParameter(gl.MAX_TEXTURE_SIZE) || height > gl.getParameter(gl.MAX_TEXTURE_SIZE)) {
+        errorMessage += ` - Texture dimensions (${width}x${height}) exceed maximum supported size (${gl.getParameter(gl.MAX_TEXTURE_SIZE)}).`;
+      }
+      
+      throw new WebGLError(errorMessage);
     }
+
+    // Clear the framebuffer to initialize it
+    gl.viewport(0, 0, width, height);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Unbind framebuffer
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -142,27 +184,13 @@ export class FramebufferManagerImpl implements FramebufferManager {
   } {
     const gl = this.gl;
     
-    switch (format) {
-      case gl.RGBA32F:
-        return {
-          internalFormat: gl.RGBA32F,
-          textureFormat: gl.RGBA,
-          type: gl.FLOAT,
-        };
-      case gl.RGBA16F:
-        return {
-          internalFormat: gl.RGBA16F,
-          textureFormat: gl.RGBA,
-          type: gl.HALF_FLOAT,
-        };
-      case gl.RGBA:
-      default:
-        return {
-          internalFormat: gl.RGBA,
-          textureFormat: gl.RGBA,
-          type: gl.UNSIGNED_BYTE,
-        };
-    }
+    // Always use safe RGBA format for better compatibility
+    // Float formats can cause framebuffer incomplete errors on some devices
+    return {
+      internalFormat: gl.RGBA,
+      textureFormat: gl.RGBA,
+      type: gl.UNSIGNED_BYTE,
+    };
   }
 
   /**
@@ -185,11 +213,19 @@ export class FramebufferManagerImpl implements FramebufferManager {
   /**
    * Resize all managed framebuffers
    */
-  public resize(_width: number, _height: number): void {
-    // Note: WebGL framebuffers don't resize automatically
-    // This method would typically recreate framebuffers with new dimensions
-    // For now, we'll clear the cache and let them be recreated as needed
-    this.cleanup();
+  public resize(width: number, height: number): void {
+    // Store current dimensions to avoid unnecessary recreation
+    if (this.currentWidth === width && this.currentHeight === height) {
+      return;
+    }
+    
+    this.currentWidth = width;
+    this.currentHeight = height;
+    
+    // Clear cached framebuffers - they will be recreated with new dimensions as needed
+    // Don't call cleanup() here as it would delete textures that are still in use
+    this.framebuffers.clear();
+    this.framebufferPairs.clear();
   }
 
   /**
@@ -231,8 +267,12 @@ export class FramebufferManagerImpl implements FramebufferManager {
         return 'FRAMEBUFFER_INCOMPLETE_DIMENSIONS';
       case gl.FRAMEBUFFER_UNSUPPORTED:
         return 'FRAMEBUFFER_UNSUPPORTED';
+      case 36054: // GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE
+        return 'FRAMEBUFFER_INCOMPLETE_MULTISAMPLE';
+      case 36055: // GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS
+        return 'FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS';
       default:
-        return `UNKNOWN_STATUS_${status}`;
+        return `UNKNOWN_STATUS_${status}_0x${status.toString(16)}`;
     }
   }
 

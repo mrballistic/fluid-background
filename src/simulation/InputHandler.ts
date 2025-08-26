@@ -26,28 +26,49 @@ export class InputHandlerImpl implements IInputHandler {
     private canvas: HTMLCanvasElement,
     private config: { interaction: { enabled: boolean; mouse: boolean; touch: boolean; intensity: number } }
   ) {
+    // Ensure config is properly structured
+    if (!this.config || !this.config.interaction) {
+      console.warn('InputHandler: Invalid config passed, using defaults');
+      // Provide fallback config
+      this.config = {
+        interaction: {
+          enabled: true,
+          mouse: true,
+          touch: true,
+          intensity: 1.0
+        }
+      };
+    }
+    
+    // Ensure all required properties exist
+    const interaction = this.config.interaction;
+    if (typeof interaction.enabled !== 'boolean') interaction.enabled = true;
+    if (typeof interaction.mouse !== 'boolean') interaction.mouse = true;
+    if (typeof interaction.touch !== 'boolean') interaction.touch = true;
+    if (typeof interaction.intensity !== 'number') interaction.intensity = 1.0;
+    
     this.setupEventListeners();
   }
 
   private setupEventListeners(): void {
-    if (!this.config.interaction.enabled) {
+    if (!this.config?.interaction?.enabled) {
       return;
     }
 
     // Mouse events
     if (this.config.interaction.mouse) {
-      this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
-      this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
-      this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
-      this.canvas.addEventListener('mouseleave', this.handleMouseUp.bind(this));
+      this.canvas.addEventListener('mousemove', this.handleMouseMove);
+      this.canvas.addEventListener('mousedown', this.handleMouseDown);
+      this.canvas.addEventListener('mouseup', this.handleMouseUp);
+      this.canvas.addEventListener('mouseleave', this.handleMouseUp);
     }
 
     // Touch events
     if (this.config.interaction.touch) {
-      this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-      this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-      this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-      this.canvas.addEventListener('touchcancel', this.handleTouchEnd.bind(this), { passive: false });
+      this.canvas.addEventListener('touchstart', this.handleTouchStart, { passive: false });
+      this.canvas.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+      this.canvas.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+      this.canvas.addEventListener('touchcancel', this.handleTouchEnd, { passive: false });
     }
 
     // Prevent context menu on right click
@@ -56,16 +77,16 @@ export class InputHandlerImpl implements IInputHandler {
 
   private removeEventListeners(): void {
     // Mouse events
-    this.canvas.removeEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.canvas.removeEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.canvas.removeEventListener('mouseup', this.handleMouseUp.bind(this));
-    this.canvas.removeEventListener('mouseleave', this.handleMouseUp.bind(this));
+    this.canvas.removeEventListener('mousemove', this.handleMouseMove);
+    this.canvas.removeEventListener('mousedown', this.handleMouseDown);
+    this.canvas.removeEventListener('mouseup', this.handleMouseUp);
+    this.canvas.removeEventListener('mouseleave', this.handleMouseUp);
 
     // Touch events
-    this.canvas.removeEventListener('touchstart', this.handleTouchStart.bind(this));
-    this.canvas.removeEventListener('touchmove', this.handleTouchMove.bind(this));
-    this.canvas.removeEventListener('touchend', this.handleTouchEnd.bind(this));
-    this.canvas.removeEventListener('touchcancel', this.handleTouchEnd.bind(this));
+    this.canvas.removeEventListener('touchstart', this.handleTouchStart);
+    this.canvas.removeEventListener('touchmove', this.handleTouchMove);
+    this.canvas.removeEventListener('touchend', this.handleTouchEnd);
+    this.canvas.removeEventListener('touchcancel', this.handleTouchEnd);
 
     this.canvas.removeEventListener('contextmenu', (e) => e.preventDefault());
   }
@@ -97,8 +118,9 @@ export class InputHandlerImpl implements IInputHandler {
 
     if (this.isTracking && (this.lastX !== 0 || this.lastY !== 0)) {
       const lastNormalized = this.getNormalizedCoordinates(this.lastX, this.lastY);
-      dx = (normalized.x - lastNormalized.x) * this.config.interaction.intensity;
-      dy = (normalized.y - lastNormalized.y) * this.config.interaction.intensity;
+      const intensity = this.config?.interaction?.intensity ?? 1.0;
+      dx = (normalized.x - lastNormalized.x) * intensity;
+      dy = (normalized.y - lastNormalized.y) * intensity;
     }
 
     this.state = {
@@ -113,8 +135,8 @@ export class InputHandlerImpl implements IInputHandler {
     this.lastY = y;
   }
 
-  handleMouseMove(event: MouseEvent): void {
-    if (!this.config.interaction.enabled || !this.config.interaction.mouse) {
+  handleMouseMove = (event: MouseEvent): void => {
+    if (!this.config?.interaction?.enabled || !this.config?.interaction?.mouse) {
       return;
     }
 
@@ -130,8 +152,8 @@ export class InputHandlerImpl implements IInputHandler {
     this.updateState(coords.x, coords.y, this.state.down);
   }
 
-  handleMouseDown(event: MouseEvent): void {
-    if (!this.config.interaction.enabled || !this.config.interaction.mouse) {
+  handleMouseDown = (event: MouseEvent): void => {
+    if (!this.config?.interaction?.enabled || !this.config?.interaction?.mouse) {
       return;
     }
 
@@ -142,8 +164,8 @@ export class InputHandlerImpl implements IInputHandler {
     this.updateState(coords.x, coords.y, true);
   }
 
-  handleMouseUp(event: MouseEvent): void {
-    if (!this.config.interaction.enabled || !this.config.interaction.mouse) {
+  handleMouseUp = (event: MouseEvent): void => {
+    if (!this.config?.interaction?.enabled || !this.config?.interaction?.mouse) {
       return;
     }
 
@@ -156,8 +178,8 @@ export class InputHandlerImpl implements IInputHandler {
     this.state.dy = 0;
   }
 
-  handleTouchStart(event: TouchEvent): void {
-    if (!this.config.interaction.enabled || !this.config.interaction.touch) {
+  handleTouchStart = (event: TouchEvent): void => {
+    if (!this.config?.interaction?.enabled || !this.config?.interaction?.touch) {
       return;
     }
 
@@ -178,8 +200,8 @@ export class InputHandlerImpl implements IInputHandler {
     }
   }
 
-  handleTouchMove(event: TouchEvent): void {
-    if (!this.config.interaction.enabled || !this.config.interaction.touch) {
+  handleTouchMove = (event: TouchEvent): void => {
+    if (!this.config?.interaction?.enabled || !this.config?.interaction?.touch) {
       return;
     }
 
@@ -200,8 +222,8 @@ export class InputHandlerImpl implements IInputHandler {
     }
   }
 
-  handleTouchEnd(event: TouchEvent): void {
-    if (!this.config.interaction.enabled || !this.config.interaction.touch) {
+  handleTouchEnd = (event: TouchEvent): void => {
+    if (!this.config?.interaction?.enabled || !this.config?.interaction?.touch) {
       return;
     }
 

@@ -15,14 +15,15 @@ export class AdvectionPass implements RenderPass {
 
   constructor(
     private gl: WebGL2RenderingContext,
-    private shaderManager: { createProgram: (vs: string, fs: string) => WebGLProgram }
+    private shaderManager: { createShaderProgram: (vs: string, fs: string) => { program: WebGLProgram } }
   ) {
     this.initialize();
   }
 
   private initialize(): void {
     // Create shader program
-    this.program = this.shaderManager.createProgram(vertexShaderSource, advectionShaderSource);
+    const shaderProgram = this.shaderManager.createShaderProgram(vertexShaderSource, advectionShaderSource);
+    this.program = shaderProgram.program;
     
     // Get uniform locations
     this.uniforms = {

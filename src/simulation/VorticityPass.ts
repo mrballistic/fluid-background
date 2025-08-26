@@ -16,7 +16,7 @@ export class VorticityPass implements RenderPass {
 
   constructor(
     private gl: WebGL2RenderingContext,
-    private shaderManager: { createProgram: (vs: string, fs: string) => WebGLProgram },
+    private shaderManager: { createShaderProgram: (vs: string, fs: string) => { program: WebGLProgram } },
     curlStrength: number = 30.0
   ) {
     this.curlStrength = curlStrength;
@@ -25,7 +25,8 @@ export class VorticityPass implements RenderPass {
 
   private initialize(): void {
     // Create shader program
-    this.program = this.shaderManager.createProgram(vertexShaderSource, vorticityShaderSource);
+    const shaderProgram = this.shaderManager.createShaderProgram(vertexShaderSource, vorticityShaderSource);
+    this.program = shaderProgram.program;
     
     // Get uniform locations
     this.uniforms = {

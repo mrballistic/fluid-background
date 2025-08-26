@@ -18,6 +18,10 @@ export class WebGLContextImpl implements WebGLContext {
   public initialize(canvas: HTMLCanvasElement): boolean {
     this.canvas = canvas;
 
+    // Set up context lost/restored handlers before creating context
+    canvas.addEventListener('webglcontextlost', this.handleContextLost.bind(this), false);
+    canvas.addEventListener('webglcontextrestored', this.handleContextRestored.bind(this), false);
+
     // Try WebGL2 first
     let gl = canvas.getContext('webgl2', {
       alpha: false,
@@ -26,10 +30,13 @@ export class WebGLContextImpl implements WebGLContext {
       antialias: false,
       premultipliedAlpha: false,
       preserveDrawingBuffer: false,
+      powerPreference: 'default', // Use default power preference
+      failIfMajorPerformanceCaveat: false, // Allow software rendering if needed
     }) as WebGL2RenderingContext;
 
     // Fallback to WebGL1
     if (!gl) {
+      console.log('WebGL2 not available, falling back to WebGL1');
       gl = canvas.getContext('webgl', {
         alpha: false,
         depth: false,
@@ -37,6 +44,8 @@ export class WebGLContextImpl implements WebGLContext {
         antialias: false,
         premultipliedAlpha: false,
         preserveDrawingBuffer: false,
+        powerPreference: 'default',
+        failIfMajorPerformanceCaveat: false,
       }) as WebGL2RenderingContext;
     }
 
@@ -44,11 +53,47 @@ export class WebGLContextImpl implements WebGLContext {
       throw new WebGLError('WebGL is not supported in this browser');
     }
 
-    this.gl = gl;
-    this.loadExtensions();
-    this.detectCapabilities();
+    // Check if context is immediately lost
+    if (gl.isContextLost()) {
+      throw new WebGLError('WebGL context was lost immediately after creation');
+    }
 
-    return true;
+    this.gl = gl;
+    
+    try {
+      this.loadExtensions();
+      this.detectCapabilities();
+      
+      // Set up initial WebGL state
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.disable(gl.DEPTH_TEST);
+      gl.disable(gl.STENCIL_TEST);
+      gl.disable(gl.CULL_FACE);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      
+      console.log('WebGL context initialized successfully');
+      return true;
+    } catch (error) {
+      console.error('Error during WebGL initialization:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle WebGL context lost event
+   */
+  private handleContextLost(event: Event): void {
+    console.warn('WebGL context lost');
+    event.preventDefault();
+  }
+
+  /**
+   * Handle WebGL context restored event
+   */
+  private handleContextRestored(event: Event): void {
+    console.log('WebGL context restored');
+    // Re-initialize if needed
   }
 
   /**

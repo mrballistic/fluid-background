@@ -16,7 +16,7 @@ export class PressurePass implements RenderPass {
 
   constructor(
     private gl: WebGL2RenderingContext,
-    private shaderManager: { createProgram: (vs: string, fs: string) => WebGLProgram },
+    private shaderManager: { createShaderProgram: (vs: string, fs: string) => { program: WebGLProgram } },
     iterations: number = 20
   ) {
     this.iterations = iterations;
@@ -25,7 +25,8 @@ export class PressurePass implements RenderPass {
 
   private initialize(): void {
     // Create shader program
-    this.program = this.shaderManager.createProgram(vertexShaderSource, pressureShaderSource);
+    const shaderProgram = this.shaderManager.createShaderProgram(vertexShaderSource, pressureShaderSource);
+    this.program = shaderProgram.program;
     
     // Get uniform locations
     this.uniforms = {

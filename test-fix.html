@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluid Background Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 2rem;
+      text-align: center;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div id="fluid-background"></div>
+    <div class="content">
+      <h1>Fluid Background Test</h1>
+      <p>Move your mouse to interact with the fluid simulation</p>
+      <p>Check the console for any errors</p>
+    </div>
+  </div>
+
+  <script type="module">
+    // Simple test using the built package
+    import FluidBackground from './dist/index.esm.js';
+
+    console.log('FluidBackground imported:', FluidBackground);
+
+    // Create a simple React-like component test
+    const container = document.getElementById('fluid-background');
+
+    // For testing, we'll create a canvas manually
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '-1';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    container.appendChild(canvas);
+
+    console.log('Canvas created and added to DOM');
+    console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+
+    // Test WebGL context creation
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    if (gl) {
+      console.log('✅ WebGL context created successfully');
+      console.log('WebGL version:', gl.getParameter(gl.VERSION));
+      console.log('WebGL vendor:', gl.getParameter(gl.VENDOR));
+      console.log('WebGL renderer:', gl.getParameter(gl.RENDERER));
+    } else {
+      console.error('❌ Failed to create WebGL context');
+    }
+  </script>
+</body>
+
+</html>

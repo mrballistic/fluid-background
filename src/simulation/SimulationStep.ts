@@ -10,6 +10,7 @@ import { PressurePass } from './PressurePass';
 import { CurlPass } from './CurlPass';
 import { VorticityPass } from './VorticityPass';
 import { SplatPass } from './SplatPass';
+import { DisplayPass } from './DisplayPass';
 import { FramebufferManagerImpl } from './FramebufferManager';
 import { ShaderManagerImpl } from './ShaderManager';
 
@@ -20,20 +21,21 @@ export class SimulationStepImpl implements ISimulationStep {
   private curlPass!: CurlPass;
   private vorticityPass!: VorticityPass;
   private splatPass!: SplatPass;
-  
+  private displayPass!: DisplayPass;
+
   private velocityFBO!: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
   private densityFBO!: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
   private pressureFBO!: { read: WebGLFramebuffer; write: WebGLFramebuffer; texture: WebGLTexture; swap(): void };
   private divergenceFBO!: WebGLFramebuffer;
   private curlFBO!: WebGLFramebuffer;
-  
+
   private divergenceTexture!: WebGLTexture;
   private curlTexture!: WebGLTexture;
-  
+
   private lastTime: number = 0;
   private frameCount: number = 0;
   private targetFrameTime: number;
-  
+
   private inputState = {
     x: 0,
     y: 0,
@@ -53,78 +55,106 @@ export class SimulationStepImpl implements ISimulationStep {
   }
 
   private initialize(): void {
-    // Use default canvas dimensions - these will be updated via resize()
-    const width = 800;
-    const height = 600;
-    const format = this.gl.RGBA16F || this.gl.RGBA;
+    // Get actual canvas dimensions
+    const canvas = this.gl.canvas as HTMLCanvasElement;
+    const width = canvas.width || 800;
+    const height = canvas.height || 600;
 
-    // Create framebuffer pairs for ping-pong rendering
-    this.velocityFBO = this.framebufferManager.createFramebufferPair(width, height, format);
-    this.densityFBO = this.framebufferManager.createFramebufferPair(width, height, format);
-    this.pressureFBO = this.framebufferManager.createFramebufferPair(width, height, format);
-    
-    // Create single framebuffers for intermediate results
-    this.divergenceFBO = this.framebufferManager.createFramebuffer(width, height, format);
-    this.curlFBO = this.framebufferManager.createFramebuffer(width, height, format);
-    
-    // Create textures for intermediate results
-    this.divergenceTexture = this.gl.createTexture()!;
-    this.curlTexture = this.gl.createTexture()!;
-    
-    this.setupTextures(width, height, format);
-    
-    // Initialize render passes
-    this.advectionPass = new AdvectionPass(this.gl, this.shaderManager);
-    this.divergencePass = new DivergencePass(this.gl, this.shaderManager);
-    this.pressurePass = new PressurePass(this.gl, this.shaderManager);
-    this.curlPass = new CurlPass(this.gl, this.shaderManager);
-    this.vorticityPass = new VorticityPass(this.gl, this.shaderManager);
-    this.splatPass = new SplatPass(this.gl, this.shaderManager);
+    // Use safe RGBA format for better compatibility
+    const format = this.gl.RGBA;
+
+    try {
+      // Create framebuffer pairs for ping-pong rendering
+      this.velocityFBO = this.framebufferManager.createFramebufferPair(width, height, format);
+      this.densityFBO = this.framebufferManager.createFramebufferPair(width, height, format);
+      this.pressureFBO = this.framebufferManager.createFramebufferPair(width, height, format);
+
+      // Create single framebuffers for intermediate results
+      this.divergenceFBO = this.framebufferManager.createFramebuffer(width, height, format);
+      this.curlFBO = this.framebufferManager.createFramebuffer(width, height, format);
+
+      // Create textures for intermediate results
+      this.divergenceTexture = this.gl.createTexture()!;
+      this.curlTexture = this.gl.createTexture()!;
+
+      this.setupTextures(width, height, format);
+
+      // Initialize render passes
+      this.advectionPass = new AdvectionPass(this.gl, this.shaderManager);
+      this.divergencePass = new DivergencePass(this.gl, this.shaderManager);
+      this.pressurePass = new PressurePass(this.gl, this.shaderManager);
+      this.curlPass = new CurlPass(this.gl, this.shaderManager);
+      this.vorticityPass = new VorticityPass(this.gl, this.shaderManager);
+      this.splatPass = new SplatPass(this.gl, this.shaderManager);
+      this.displayPass = new DisplayPass(this.gl, this.shaderManager);
+
+      console.log('SimulationStep initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize SimulationStep:', error);
+      throw error;
+    }
   }
 
   private setupTextures(width: number, height: number, format: number): void {
+    // Use consistent texture format and type
+    const textureFormat = this.gl.RGBA;
+    const textureType = this.gl.UNSIGNED_BYTE;
+
     // Setup divergence texture
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.divergenceTexture);
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, format, width, height, 0, this.gl.RGBA, this.gl.FLOAT, null);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, format, width, height, 0, textureFormat, textureType, null);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    
+
     // Setup curl texture
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.curlTexture);
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, format, width, height, 0, this.gl.RGBA, this.gl.FLOAT, null);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, format, width, height, 0, textureFormat, textureType, null);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    
+
     this.gl.bindTexture(this.gl.TEXTURE_2D, null);
   }
 
   execute(deltaTime: number): void {
+    // Check if all required resources are initialized
+    if (!this.velocityFBO || !this.densityFBO || !this.pressureFBO ||
+      !this.divergenceTexture || !this.curlTexture) {
+      console.warn('SimulationStep not fully initialized, skipping frame');
+      return;
+    }
+
     const currentTime = performance.now();
-    
+
     // Frame rate limiting (skip if not enough time has passed)
     if (this.lastTime > 0 && currentTime - this.lastTime < this.targetFrameTime) {
       return;
     }
-    
+
     const actualDeltaTime = Math.min(deltaTime, 0.016); // Cap at 60fps equivalent
     this.lastTime = currentTime;
     this.frameCount++;
 
-    // Apply input splats if there's input
-    if (this.inputState.down || (this.inputState.dx !== 0 || this.inputState.dy !== 0)) {
-      this.applySplat(actualDeltaTime);
-    }
+    try {
+      // Apply input splats if there's input
+      if (this.inputState.down || (this.inputState.dx !== 0 || this.inputState.dy !== 0)) {
+        this.applySplat(actualDeltaTime);
+      }
 
-    // Execute simulation steps in order
-    this.executeAdvection(actualDeltaTime);
-    this.executeVorticity(actualDeltaTime);
-    this.executeDivergence(actualDeltaTime);
-    this.executePressure(actualDeltaTime);
-    this.executeProjection(actualDeltaTime);
+      // Execute simulation steps in order
+      this.executeAdvection(actualDeltaTime);
+      this.executeVorticity(actualDeltaTime);
+      this.executeDivergence(actualDeltaTime);
+      this.executePressure(actualDeltaTime);
+      this.executeProjection(actualDeltaTime);
+      this.executeDisplay(actualDeltaTime);
+    } catch (error) {
+      console.error('Error in simulation step:', error);
+      throw error;
+    }
   }
 
   private applySplat(deltaTime: number): void {
@@ -202,9 +232,16 @@ export class SimulationStepImpl implements ISimulationStep {
   }
 
   private executePressure(deltaTime: number): void {
+    // Ensure we have valid textures before proceeding
+    if (!this.divergenceTexture || !this.pressureFBO.texture) {
+      console.warn('Missing required textures for pressure pass');
+      return;
+    }
+
     const inputs: RenderPassInputs = {
       velocity: this.velocityFBO.texture,
       density: this.densityFBO.texture,
+      pressure: this.pressureFBO.texture,
       divergence: this.divergenceTexture,
       deltaTime
     };
@@ -212,8 +249,15 @@ export class SimulationStepImpl implements ISimulationStep {
     // Iterative pressure solving
     for (let i = 0; i < this.config.physics.iterations; i++) {
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.pressureFBO.write);
-      this.pressurePass.execute(this.gl, { ...inputs, pressure: this.pressureFBO.texture });
+
+      // Update pressure texture for current iteration
+      const currentInputs = { ...inputs, pressure: this.pressureFBO.texture };
+
+      this.pressurePass.execute(this.gl, currentInputs);
       this.pressureFBO.swap();
+
+      // Update inputs for next iteration
+      inputs.pressure = this.pressureFBO.texture;
     }
   }
 
@@ -234,18 +278,34 @@ export class SimulationStepImpl implements ISimulationStep {
     this.velocityFBO.swap();
   }
 
+  private executeDisplay(deltaTime: number): void {
+    // Render the fluid simulation to the screen
+    const inputs: RenderPassInputs = {
+      velocity: this.velocityFBO.texture,
+      density: this.densityFBO.texture,
+      pressure: this.pressureFBO.texture,
+      deltaTime
+    };
+
+    // Render to the main canvas (null framebuffer)
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+    this.displayPass.execute(this.gl, inputs);
+  }
+
   handleInput(x: number, y: number, dx: number, dy: number, down: boolean): void {
     this.inputState = { x, y, dx, dy, down };
   }
 
   resize(width: number, height: number): void {
     // Store dimensions for internal use (config doesn't have canvas property)
-    
+
     // Resize all framebuffers
     this.framebufferManager.resize(width, height);
-    
+
     // Recreate textures with new dimensions
-    const format = this.gl.RGBA16F || this.gl.RGBA;
+    const format = this.gl.RGBA;
     this.setupTextures(width, height, format);
   }
 
@@ -257,7 +317,8 @@ export class SimulationStepImpl implements ISimulationStep {
     this.curlPass.cleanup();
     this.vorticityPass.cleanup();
     this.splatPass.cleanup();
-    
+    this.displayPass.cleanup();
+
     // Clean up textures
     if (this.divergenceTexture) {
       this.gl.deleteTexture(this.divergenceTexture);
@@ -265,7 +326,7 @@ export class SimulationStepImpl implements ISimulationStep {
     if (this.curlTexture) {
       this.gl.deleteTexture(this.curlTexture);
     }
-    
+
     // Clean up framebuffers
     if (this.divergenceFBO) {
       this.gl.deleteFramebuffer(this.divergenceFBO);

@@ -76,6 +76,21 @@ export const useFluidSimulation = (
     }
     
     try {
+      // Check if WebGL is supported
+      const testContext = canvas.getContext('webgl2') || canvas.getContext('webgl');
+      if (!testContext) {
+        console.error('WebGL not supported by this browser');
+        return false;
+      }
+      
+      // Set canvas size before initializing WebGL
+      const rect = canvas.getBoundingClientRect();
+      const devicePixelRatio = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * devicePixelRatio));
+      canvas.height = Math.max(1, Math.floor(rect.height * devicePixelRatio));
+      
+      console.log('Initializing WebGL with canvas size:', canvas.width, 'x', canvas.height);
+      
       // Initialize WebGL context
       const webglContext = new WebGLContextImpl();
       const success = webglContext.initialize(canvas);
@@ -84,6 +99,15 @@ export const useFluidSimulation = (
         console.error('Failed to initialize WebGL context');
         return false;
       }
+      
+      // Check if context is valid after initialization
+      if (webglContext.gl.isContextLost()) {
+        console.error('WebGL context was lost during initialization');
+        return false;
+      }
+      
+      // Wait a frame to ensure context is stable
+      await new Promise(resolve => requestAnimationFrame(resolve));
       
       webglContextRef.current = webglContext;
       
@@ -100,7 +124,7 @@ export const useFluidSimulation = (
       );
       simulationRef.current = simulation;
       
-      // Initialize input handler
+      // Initialize input handler with proper config structure
       const inputHandler = new InputHandlerImpl(canvas, configRef.current);
       inputHandlerRef.current = inputHandler;
       
@@ -111,15 +135,51 @@ export const useFluidSimulation = (
       return true;
     } catch (error) {
       console.error('Error initializing fluid simulation:', error);
+      
+      // Cleanup on error
+      if (webglContextRef.current) {
+        webglContextRef.current.cleanup();
+        webglContextRef.current = null;
+      }
+      
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        if (error.message.includes('Framebuffer incomplete')) {
+          console.error('WebGL framebuffer error - this may be due to device limitations or driver issues');
+          console.error('Try refreshing the page or using a different browser');
+        } else if (error.message.includes('WebGL')) {
+          console.error('WebGL initialization failed - ensure your browser supports WebGL');
+        } else if (error.message.includes('Shader')) {
+          console.error('Shader compilation error:', error.message);
+        }
+      }
+      
       return false;
     }
   }, [setupEventListeners]);
   
   /**
+   * Stop animation loop
+   */
+  const stopAnimation = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+  }, []);
+
+  /**
    * Animation loop using requestAnimationFrame
    */
   const animate = useCallback((currentTime: number) => {
-    if (!simulationRef.current || !inputHandlerRef.current) {
+    if (!simulationRef.current || !inputHandlerRef.current || !webglContextRef.current) {
+      return;
+    }
+    
+    // Check if WebGL context is still valid
+    if (webglContextRef.current.gl.isContextLost()) {
+      console.error('WebGL context lost during animation');
+      stopAnimation();
       return;
     }
     
@@ -157,11 +217,18 @@ export const useFluidSimulation = (
       frameCountRef.current++;
     } catch (error) {
       console.error('Error in simulation animation loop:', error);
+      
+      // If we get repeated errors, stop the animation to prevent spam
+      if (error instanceof Error && error.message.includes('WebGL')) {
+        console.error('WebGL error detected, stopping animation');
+        stopAnimation();
+        return;
+      }
     }
     
     // Continue animation loop
     animationFrameRef.current = requestAnimationFrame(animate);
-  }, []);
+  }, [stopAnimation]);
   
   /**
    * Start animation loop
@@ -175,16 +242,6 @@ export const useFluidSimulation = (
     frameCountRef.current = 0;
     animationFrameRef.current = requestAnimationFrame(animate);
   }, [animate]);
-  
-  /**
-   * Stop animation loop
-   */
-  const stopAnimation = useCallback(() => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-  }, []);
   
   /**
    * Update configuration
@@ -220,9 +277,17 @@ export const useFluidSimulation = (
     const rect = canvas.getBoundingClientRect();
     const devicePixelRatio = window.devicePixelRatio || 1;
     
+    const newWidth = rect.width * devicePixelRatio;
+    const newHeight = rect.height * devicePixelRatio;
+    
+    // Only resize if dimensions actually changed
+    if (canvas.width === newWidth && canvas.height === newHeight) {
+      return;
+    }
+    
     // Update canvas size
-    canvas.width = rect.width * devicePixelRatio;
-    canvas.height = rect.height * devicePixelRatio;
+    canvas.width = newWidth;
+    canvas.height = newHeight;
     
     // Update WebGL viewport
     webglContextRef.current.resize(canvas.width, canvas.height);

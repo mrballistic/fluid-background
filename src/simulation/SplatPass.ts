@@ -17,7 +17,7 @@ export class SplatPass implements RenderPass {
 
   constructor(
     private gl: WebGL2RenderingContext,
-    private shaderManager: { createProgram: (vs: string, fs: string) => WebGLProgram },
+    private shaderManager: { createShaderProgram: (vs: string, fs: string) => { program: WebGLProgram } },
     splatRadius: number = 0.25,
     splatForce: number = 6000.0
   ) {
@@ -28,7 +28,8 @@ export class SplatPass implements RenderPass {
 
   private initialize(): void {
     // Create shader program
-    this.program = this.shaderManager.createProgram(vertexShaderSource, splatShaderSource);
+    const shaderProgram = this.shaderManager.createShaderProgram(vertexShaderSource, splatShaderSource);
+    this.program = shaderProgram.program;
     
     // Get uniform locations
     this.uniforms = {

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluid Simulation Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+      overflow: hidden;
+    }
+    
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .overlay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      max-width: 350px;
+      font-size: 14px;
+    }
+    
+    .status {
+      margin: 5px 0;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .success { background: rgba(0, 255, 0, 0.2); color: #0f0; }
+    .error { background: rgba(255, 0, 0, 0.2); color: #f88; }
+    .info { background: rgba(0, 0, 255, 0.2); color: #88f; }
+    .warning { background: rgba(255, 255, 0, 0.2); color: #ff8; }
+    
+    .controls {
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid #444;
+    }
+    
+    button {
+      background: #333;
+      color: white;
+      border: 1px solid #555;
+      padding: 5px 10px;
+      margin: 2px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    button:hover {
+      background: #444;
+    }
+    
+    .instructions {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="root"></div>
+    <div class="overlay">
+      <h3 style="margin: 0 0 10px 0;">Fluid Simulation Status</h3>
+      <div id="status"></div>
+      <div class="controls">
+        <button onclick="toggleAnimation()">Toggle Animation</button>
+        <button onclick="clearLog()">Clear Log</button>
+      </div>
+      <div class="instructions">
+        Move your mouse over the canvas to interact with the fluid simulation.
+        Check the browser console for detailed logs.
+      </div>
+    </div>
+  </div>
+
+  <!-- React from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <script type="module">
+    const { useState, useEffect, useRef, useCallback } = React;
+    const { createRoot } = ReactDOM;
+
+    let animationEnabled = true;
+
+    // Status logging
+    function addStatus(message, type = 'info') {
+      const statusDiv = document.getElementById('status');
+      const div = document.createElement('div');
+      div.className = `status ${type}`;
+      div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+      statusDiv.appendChild(div);
+      console.log(`[${type.toUpperCase()}] ${message}`);
+      
+      // Keep only last 8 messages
+      while (statusDiv.children.length > 8) {
+        statusDiv.removeChild(statusDiv.firstChild);
+      }
+    }
+
+    // Global controls
+    window.toggleAnimation = function() {
+      animationEnabled = !animationEnabled;
+      addStatus(`Animation ${animationEnabled ? 'enabled' : 'disabled'}`, 'info');
+    };
+
+    window.clearLog = function() {
+      document.getElementById('status').innerHTML = '';
+    };
+
+    // Import our built fluid simulation
+    import('./dist/index.esm.js').then(module => {
+      const { useFluidSimulation } = module;
+      
+      addStatus('Fluid simulation module loaded', 'success');
+
+      // Fluid simulation component
+      function FluidSimulationComponent() {
+        const [error, setError] = useState(null);
+        const [frameCount, setFrameCount] = useState(0);
+        const frameCountRef = useRef(0);
+
+        // Initialize fluid simulation with config
+        const { canvasRef, isInitialized, updateConfig } = useFluidSimulation({
+          physics: {
+            viscosity: 20,
+            density: 0.98,
+            pressure: 0.8,
+            curl: 25,
+            splatRadius: 0.25,
+            splatForce: 5000,
+            iterations: 15
+          },
+          performance: {
+            resolution: 'medium',
+            frameRate: 60,
+            pauseOnHidden: true
+          },
+          interaction: {
+            enabled: true,
+            mouse: true,
+            touch: true,
+            intensity: 1.0
+          },
+          colors: {
+            background: { r: 0.05, g: 0.05, b: 0.1 },
+            fluid: 'rainbow'
+          }
+        });
+
+        // Track initialization
+        useEffect(() => {
+          if (isInitialized) {
+            addStatus('✅ Fluid simulation initialized successfully!', 'success');
+          }
+        }, [isInitialized]);
+
+        // Frame counter for performance monitoring
+        useEffect(() => {
+          const interval = setInterval(() => {
+            setFrameCount(frameCountRef.current);
+            frameCountRef.current = 0;
+          }, 1000);
+
+          return () => clearInterval(interval);
+        }, []);
+
+        // Mouse interaction logging
+        useEffect(() => {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+
+          let lastLogTime = 0;
+          const handleMouseMove = (e) => {
+            frameCountRef.current++;
+            
+            // Log mouse interaction occasionally
+            const now = Date.now();
+            if (now - lastLogTime > 2000) { // Every 2 seconds
+              const rect = canvas.getBoundingClientRect();
+              const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+              const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+              addStatus(`Mouse interaction at ${x}%, ${y}%`, 'info');
+              lastLogTime = now;
+            }
+          };
+
+          canvas.addEventListener('mousemove', handleMouseMove);
+          return () => canvas.removeEventListener('mousemove', handleMouseMove);
+        }, [canvasRef]);
+
+        return React.createElement('canvas', {
+          ref: canvasRef,
+          style: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            cursor: 'crosshair'
+          }
+        });
+      }
+
+      // Render the component
+      const root = createRoot(document.getElementById('root'));
+      root.render(React.createElement(FluidSimulationComponent));
+
+      addStatus('Fluid simulation component rendered', 'info');
+
+    }).catch(error => {
+      addStatus(`Failed to load fluid simulation: ${error.message}`, 'error');
+      console.error('Module loading error:', error);
+    });
+
+    // Initial status
+    addStatus('Starting fluid simulation test...', 'info');
+  </script>
+</body>
+</html>

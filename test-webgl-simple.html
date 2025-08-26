@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple WebGL Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: white;
+    }
+    
+    canvas {
+      border: 1px solid #555;
+      display: block;
+      margin: 20px 0;
+    }
+    
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    
+    .success {
+      background: rgba(0, 255, 0, 0.2);
+      border: 1px solid #0f0;
+    }
+    
+    .error {
+      background: rgba(255, 0, 0, 0.2);
+      border: 1px solid #f00;
+    }
+    
+    .info {
+      background: rgba(0, 0, 255, 0.2);
+      border: 1px solid #00f;
+    }
+  </style>
+</head>
+<body>
+  <h1>WebGL Context Test</h1>
+  <div id="status"></div>
+  <canvas id="testCanvas" width="400" height="300"></canvas>
+  
+  <script>
+    const statusDiv = document.getElementById('status');
+    const canvas = document.getElementById('testCanvas');
+    
+    function addStatus(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `status ${type}`;
+      div.textContent = message;
+      statusDiv.appendChild(div);
+      console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+    
+    function testWebGL() {
+      addStatus('Starting WebGL test...');
+      
+      // Test WebGL2 context creation
+      let gl = canvas.getContext('webgl2', {
+        alpha: false,
+        depth: false,
+        stencil: false,
+        antialias: false,
+        premultipliedAlpha: false,
+        preserveDrawingBuffer: false,
+        powerPreference: 'default',
+        failIfMajorPerformanceCaveat: false,
+      });
+      
+      if (!gl) {
+        addStatus('WebGL2 not available, trying WebGL1...', 'info');
+        gl = canvas.getContext('webgl', {
+          alpha: false,
+          depth: false,
+          stencil: false,
+          antialias: false,
+          premultipliedAlpha: false,
+          preserveDrawingBuffer: false,
+          powerPreference: 'default',
+          failIfMajorPerformanceCaveat: false,
+        });
+      }
+      
+      if (!gl) {
+        addStatus('❌ WebGL not supported', 'error');
+        return false;
+      }
+      
+      addStatus('✅ WebGL context created successfully', 'success');
+      addStatus(`WebGL Version: ${gl.getParameter(gl.VERSION)}`, 'info');
+      addStatus(`Vendor: ${gl.getParameter(gl.VENDOR)}`, 'info');
+      addStatus(`Renderer: ${gl.getParameter(gl.RENDERER)}`, 'info');
+      
+      // Test context loss
+      if (gl.isContextLost()) {
+        addStatus('❌ WebGL context is lost', 'error');
+        return false;
+      }
+      
+      addStatus('✅ WebGL context is active', 'success');
+      
+      // Test framebuffer creation
+      try {
+        const framebuffer = gl.createFramebuffer();
+        const texture = gl.createTexture();
+        
+        if (!framebuffer || !texture) {
+          addStatus('❌ Failed to create framebuffer or texture', 'error');
+          return false;
+        }
+        
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        
+        // Use smaller, power-of-2 dimensions for better compatibility
+        const testWidth = 256;
+        const testHeight = 256;
+        
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, testWidth, testHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+        
+        const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status === gl.FRAMEBUFFER_COMPLETE) {
+          addStatus('✅ Framebuffer creation successful', 'success');
+        } else {
+          const statusNames = {
+            36054: 'FRAMEBUFFER_INCOMPLETE_MULTISAMPLE',
+            36055: 'FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS',
+            36057: 'FRAMEBUFFER_INCOMPLETE_ATTACHMENT',
+            36058: 'FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT',
+            36061: 'FRAMEBUFFER_UNSUPPORTED'
+          };
+          const statusName = statusNames[status] || `UNKNOWN_${status}`;
+          addStatus(`❌ Framebuffer incomplete: ${status} (${statusName})`, 'error');
+          addStatus(`Max texture size: ${gl.getParameter(gl.MAX_TEXTURE_SIZE)}`, 'info');
+        }
+        
+        // Clean up
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.deleteFramebuffer(framebuffer);
+        gl.deleteTexture(texture);
+        
+        // Test basic rendering
+        gl.clearColor(0.2, 0.4, 0.8, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        
+        addStatus('✅ Basic rendering test passed', 'success');
+        
+        return true;
+      } catch (error) {
+        addStatus(`❌ WebGL test failed: ${error.message}`, 'error');
+        return false;
+      }
+    }
+    
+    // Run the test
+    if (testWebGL()) {
+      addStatus('🎉 All WebGL tests passed!', 'success');
+    } else {
+      addStatus('💥 WebGL tests failed', 'error');
+    }
+  </script>
+</body>
+</html>
