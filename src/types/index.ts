@@ -8,6 +8,9 @@ export interface PerformanceMetrics {
   frameCount: number;
   droppedFrames: number;
 }
+
+// Export splash cursor types
+export * from './splash-cursor';
 import { CSSProperties } from 'react';
 
 // Main component props interface

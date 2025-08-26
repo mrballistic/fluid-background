@@ -1,50 +1,50 @@
 # Implementation Plan
 
-- [-] 1. Set up core infrastructure and utilities
+- [x] 1. Set up core infrastructure and utilities
   - Create TypeScript interfaces and types for splash cursor system
   - Implement Vector2 and color utility functions
   - Set up error handling and performance monitoring classes
   - _Requirements: 9.1, 9.3, 3.1_
 
-- [ ] 2. Implement ParticleSystem class
-- [ ] 2.1 Create Particle data structure and lifecycle management
+- [x] 2. Implement ParticleSystem class
+- [x] 2.1 Create Particle data structure and lifecycle management
   - Write Particle interface with position, velocity, life, and color properties
   - Implement particle creation, update, and cleanup methods
   - Create particle pooling system for memory efficiency
   - Write unit tests for particle lifecycle management
   - _Requirements: 1.1, 1.2, 3.3_
 
-- [ ] 2.2 Implement particle emission and mouse tracking
+- [x] 2.2 Implement particle emission and mouse tracking
   - Write mouse state tracking with position and velocity calculation
   - Implement particle emission based on mouse movement intensity
   - Create emission rate control and particle count management
   - Write unit tests for emission logic and mouse tracking
   - _Requirements: 1.1, 1.3, 1.4_
 
-- [ ] 3. Create PhysicsEngine class
-- [ ] 3.1 Implement basic particle physics
+- [x] 3. Create PhysicsEngine class
+- [x] 3.1 Implement basic particle physics
   - Write particle movement update with velocity and acceleration
   - Implement drag and gravity force application
   - Create delta time handling for frame-rate independent physics
   - Write unit tests for physics calculations
   - _Requirements: 2.1, 5.1, 5.2_
 
-- [ ] 3.2 Add boundary collision and bouncing
+- [x] 3.2 Add boundary collision and bouncing
   - Implement edge detection for screen boundaries
   - Write collision response with energy loss and velocity reflection
   - Add bounce dampening and realistic physics behavior
   - Write unit tests for collision detection and response
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 4. Build MetaballRenderer class
-- [ ] 4.1 Implement basic metaball field calculation
+- [-] 4. Build MetaballRenderer class
+- [x] 4.1 Implement basic metaball field calculation
   - Write influence field calculation for particle interactions
   - Implement threshold-based rendering for connected appearance
   - Create efficient distance-based culling for performance
   - Write unit tests for metaball field calculations
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 4.2 Add color blending and visual effects
+- [-] 4.2 Add color blending and visual effects
   - Implement color mixing for overlapping particle influences
   - Write smooth gradient generation for particle rendering
   - Add blur and smoothing effects for realistic appearance
