@@ -66,7 +66,8 @@ export default [
   {
     ignores: [
       'dist/**',
-      'node_modules/**'
+      'node_modules/**',
+      'src/demo.tsx'
     ],
   },
 ];
