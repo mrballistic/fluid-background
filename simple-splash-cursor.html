@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Splash Cursor - Like Reference</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            min-height: 100vh;
+            cursor: none;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .stats {
+            margin: 20px 0;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 5px;
+            min-width: 100px;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .content {
+            margin: 40px 0;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="container">
+        <h1>Simple Splash Cursor</h1>
+        <p>Move your mouse around to see the splash effect!</p>
+        
+        <div class="controls">
+            <button id="startBtn">Start</button>
+            <button id="stopBtn">Stop</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div>FPS</div>
+                <div id="fpsDisplay">0</div>
+            </div>
+            <div class="stat">
+                <div>Particles</div>
+                <div id="particleDisplay">0</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h2>Simplified Implementation</h2>
+            <p>This version focuses on the core splash effect with smooth performance, similar to the reference implementation.</p>
+        </div>
+    </div>
+
+    <script>
+        class SimpleSplashCursor {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.mouse = { x: 0, y: 0, lastX: 0, lastY: 0 };
+                this.active = false;
+                this.animationId = null;
+                
+                // Performance tracking
+                this.fps = 0;
+                this.frameCount = 0;
+                this.lastTime = 0;
+                this.lastFpsUpdate = 0;
+                
+                this.setupCanvas();
+                this.setupEvents();
+            }
+            
+            setupCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+            
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            setupEvents() {
+                document.addEventListener('mousemove', (e) => {
+                    this.mouse.lastX = this.mouse.x;
+                    this.mouse.lastY = this.mouse.y;
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                    
+                    if (this.active) {
+                        this.createParticles();
+                    }
+                });
+            }
+            
+            createParticles() {
+                const dx = this.mouse.x - this.mouse.lastX;
+                const dy = this.mouse.y - this.mouse.lastY;
+                const velocity = Math.sqrt(dx * dx + dy * dy);
+                
+                // Create more particles based on mouse speed
+                const particleCount = Math.min(3, Math.floor(velocity * 0.1) + 1);
+                
+                for (let i = 0; i < particleCount; i++) {
+                    this.particles.push({
+                        x: this.mouse.x + (Math.random() - 0.5) * 20,
+                        y: this.mouse.y + (Math.random() - 0.5) * 20,
+                        vx: dx * 0.1 + (Math.random() - 0.5) * 2,
+                        vy: dy * 0.1 + (Math.random() - 0.5) * 2,
+                        life: 1.0,
+                        size: 8 + Math.random() * 12,
+                        hue: (Date.now() * 0.01) % 360
+                    });
+                }
+                
+                // Limit particle count for performance
+                if (this.particles.length > 150) {
+                    this.particles = this.particles.slice(-150);
+                }
+            }
+            
+            updateParticles() {
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    
+                    // Update position
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    
+                    // Apply physics
+                    p.vy += 0.1; // gravity
+                    p.vx *= 0.99; // drag
+                    p.vy *= 0.99;
+                    
+                    // Update life
+                    p.life -= 0.015;
+                    
+                    // Remove dead particles
+                    if (p.life <= 0) {
+                        this.particles.splice(i, 1);
+                    }
+                }
+            }
+            
+            renderParticles() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Create metaball effect using canvas compositing
+                this.ctx.globalCompositeOperation = 'lighter';
+                
+                for (const p of this.particles) {
+                    const alpha = p.life * 0.8;
+                    const size = p.size * p.life;
+                    
+                    // Create gradient for smooth blending
+                    const gradient = this.ctx.createRadialGradient(
+                        p.x, p.y, 0,
+                        p.x, p.y, size
+                    );
+                    
+                    gradient.addColorStop(0, `hsla(${p.hue}, 70%, 60%, ${alpha})`);
+                    gradient.addColorStop(0.5, `hsla(${p.hue}, 70%, 60%, ${alpha * 0.5})`);
+                    gradient.addColorStop(1, `hsla(${p.hue}, 70%, 60%, 0)`);
+                    
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                
+                this.ctx.globalCompositeOperation = 'source-over';
+            }
+            
+            animate = (currentTime) => {
+                if (!this.active) return;
+                
+                // Calculate FPS
+                this.frameCount++;
+                if (currentTime - this.lastFpsUpdate > 1000) {
+                    this.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastFpsUpdate));
+                    this.frameCount = 0;
+                    this.lastFpsUpdate = currentTime;
+                }
+                
+                this.updateParticles();
+                this.renderParticles();
+                
+                this.animationId = requestAnimationFrame(this.animate);
+            };
+            
+            start() {
+                if (this.active) return;
+                this.active = true;
+                this.lastTime = performance.now();
+                this.lastFpsUpdate = this.lastTime;
+                this.animate(this.lastTime);
+            }
+            
+            stop() {
+                this.active = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+            }
+            
+            reset() {
+                this.particles = [];
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            getFPS() { return this.fps; }
+            getParticleCount() { return this.particles.length; }
+        }
+        
+        // Initialize
+        const splashCursor = new SimpleSplashCursor();
+        
+        // Controls
+        document.getElementById('startBtn').addEventListener('click', () => {
+            splashCursor.start();
+        });
+        
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            splashCursor.stop();
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            splashCursor.reset();
+        });
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('fpsDisplay').textContent = splashCursor.getFPS();
+            document.getElementById('particleDisplay').textContent = splashCursor.getParticleCount();
+        }
+        
+        setInterval(updateStats, 100);
+        
+        // Auto-start
+        splashCursor.start();
+    </script>
+</body>
+</html>

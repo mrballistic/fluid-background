@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working Splash Cursor Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .btn.secondary:hover {
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .stats {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4ecdc4;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .demo-area {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            margin: 40px 0;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .demo-area h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .demo-area p {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .status-active { background: #4CAF50; }
+        .status-inactive { background: #F44336; }
+
+        .error-message {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #ff6b6b;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                padding: 20px;
+            }
+            
+            .demo-area {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Real Splash Cursor</h1>
+            <p>Experience the actual physics-based splash cursor with metaball rendering</p>
+            <p><strong>Move your cursor around to see the real effect!</strong></p>
+        </div>
+
+        <div id="error-container"></div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-value" id="fps-display">0</span>
+                <div class="stat-label">FPS</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="particles-display">0</span>
+                <div class="stat-label">Active Particles</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="velocity-display">0</span>
+                <div class="stat-label">Mouse Velocity</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="status-display">Loading...</span>
+                <div class="stat-label">
+                    Status
+                    <span class="status-indicator status-inactive" id="status-indicator"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">🚀 Start</button>
+            <button class="btn secondary" id="stopBtn">⏹️ Stop</button>
+            <button class="btn" id="resetBtn">🔄 Reset</button>
+            <button class="btn" id="rainbowBtn">🌈 Rainbow</button>
+            <button class="btn" id="fireBtn">🔥 Fire</button>
+            <button class="btn" id="oceanBtn">🌊 Ocean</button>
+            <button class="btn" id="neonBtn">⚡ Neon</button>
+        </div>
+
+        <div class="demo-area">
+            <h2>Physics-Based Splash Cursor</h2>
+            <p>
+                This is the real implementation with particle physics, gravity simulation, 
+                boundary collision detection, and metaball rendering for fluid-like appearance.
+                Move your mouse around to create beautiful splash effects!
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        let splashCursor = null;
+        let errorContainer = document.getElementById('error-container');
+
+        function showError(message) {
+            errorContainer.innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function clearError() {
+            errorContainer.innerHTML = '';
+        }
+
+        try {
+            // Import the real implementation modules
+            const { ParticleSystem } = await import('./src/splash-cursor/ParticleSystem.js');
+            const { PhysicsEngine } = await import('./src/splash-cursor/PhysicsEngine.js');
+            const { MetaballRenderer } = await import('./src/splash-cursor/MetaballRenderer.js');
+            const { MouseTracker } = await import('./src/splash-cursor/MouseTracker.js');
+
+            console.log('✅ Successfully imported all modules');
+            clearError();
+
+            class RealSplashCursor {
+                constructor() {
+                    this.setupCanvas();
+                    this.setupSystems();
+                    this.active = false;
+                    this.animationId = null;
+                    this.lastTime = 0;
+                    this.fps = 0;
+                    this.frameCount = 0;
+                    this.lastFpsUpdate = 0;
+                }
+
+                setupCanvas() {
+                    this.canvas = document.createElement('canvas');
+                    this.canvas.style.position = 'fixed';
+                    this.canvas.style.top = '0';
+                    this.canvas.style.left = '0';
+                    this.canvas.style.width = '100%';
+                    this.canvas.style.height = '100%';
+                    this.canvas.style.pointerEvents = 'none';
+                    this.canvas.style.zIndex = '9999';
+                    document.body.appendChild(this.canvas);
+                    
+                    this.resizeCanvas();
+                    window.addEventListener('resize', () => this.resizeCanvas());
+                }
+
+                resizeCanvas() {
+                    const rect = this.canvas.getBoundingClientRect();
+                    this.canvas.width = rect.width;
+                    this.canvas.height = rect.height;
+                    
+                    // Update physics bounds
+                    if (this.physicsEngine) {
+                        this.physicsEngine.setBounds({
+                            x: 0, y: 0, 
+                            width: rect.width, 
+                            height: rect.height
+                        });
+                    }
+                }
+
+                setupSystems() {
+                    try {
+                        // Initialize particle system
+                        this.particleSystem = new ParticleSystem({
+                            maxParticles: 150,
+                            emissionRate: 60,
+                            particleLifetime: 2000,
+                            initialSize: 8,
+                            sizeVariation: 3
+                        });
+
+                        // Initialize physics engine
+                        this.physicsEngine = new PhysicsEngine({
+                            bounds: { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight },
+                            gravity: { x: 0, y: 20 },
+                            drag: 0.98,
+                            bounceEnabled: true,
+                            bounceDamping: 0.7
+                        });
+
+                        // Initialize renderer
+                        this.renderer = new MetaballRenderer(this.canvas, {
+                            threshold: 0.5,
+                            blurAmount: 2,
+                            qualityLevel: 'high',
+                            maxInfluenceDistance: 80,
+                            skipPixels: 1
+                        });
+
+                        // Initialize mouse tracker
+                        this.mouseTracker = new MouseTracker({
+                            velocitySmoothing: 0.8,
+                            maxVelocity: 400
+                        });
+
+                        this.mouseTracker.startTracking(document.body);
+                        
+                        console.log('✅ All systems initialized successfully');
+                        document.getElementById('status-display').textContent = 'Ready';
+                    } catch (error) {
+                        console.error('❌ Error initializing systems:', error);
+                        showError(`Failed to initialize systems: ${error.message}`);
+                        document.getElementById('status-display').textContent = 'Error';
+                    }
+                }
+
+                animate = (currentTime) => {
+                    if (!this.active) return;
+
+                    const deltaTime = Math.min(currentTime - this.lastTime, 50); // Cap at 50ms
+                    this.lastTime = currentTime;
+
+                    // Update FPS counter
+                    this.frameCount++;
+                    if (currentTime - this.lastFpsUpdate > 1000) {
+                        this.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastFpsUpdate));
+                        this.frameCount = 0;
+                        this.lastFpsUpdate = currentTime;
+                    }
+
+                    try {
+                        // Get mouse state
+                        const mouseState = this.mouseTracker.getMouseState();
+
+                        // Update particle system with mouse movement
+                        this.particleSystem.updateWithMouseState(deltaTime, mouseState);
+
+                        // Apply physics to all particles
+                        const particles = this.particleSystem.getParticles();
+                        particles.forEach(particle => {
+                            this.physicsEngine.updateParticle(particle, deltaTime / 1000);
+                        });
+
+                        // Render particles with metaball effect
+                        this.renderer.render(particles);
+
+                    } catch (error) {
+                        console.error('Animation error:', error);
+                        showError(`Animation error: ${error.message}`);
+                        this.stop();
+                    }
+
+                    this.animationId = requestAnimationFrame(this.animate);
+                };
+
+                start() {
+                    if (this.active) return;
+                    console.log('🚀 Starting splash cursor');
+                    this.active = true;
+                    this.lastTime = performance.now();
+                    this.animate(this.lastTime);
+                }
+
+                stop() {
+                    console.log('⏹️ Stopping splash cursor');
+                    this.active = false;
+                    if (this.animationId) {
+                        cancelAnimationFrame(this.animationId);
+                    }
+                }
+
+                reset() {
+                    console.log('🔄 Resetting splash cursor');
+                    this.particleSystem.cleanup();
+                    this.renderer.clear();
+                }
+
+                setPreset(preset) {
+                    console.log(`🎨 Applying preset: ${preset}`);
+                    switch (preset) {
+                        case 'rainbow':
+                            this.particleSystem.updateConfig({
+                                maxParticles: 150,
+                                emissionRate: 60,
+                                particleLifetime: 2000
+                            });
+                            this.physicsEngine.updateConfig({
+                                gravity: { x: 0, y: 20 },
+                                drag: 0.98
+                            });
+                            break;
+                        case 'fire':
+                            this.particleSystem.updateConfig({
+                                maxParticles: 200,
+                                emissionRate: 80,
+                                particleLifetime: 1500
+                            });
+                            this.physicsEngine.updateConfig({
+                                gravity: { x: 0, y: -15 }, // Upward for fire effect
+                                drag: 0.95
+                            });
+                            break;
+                        case 'ocean':
+                            this.particleSystem.updateConfig({
+                                maxParticles: 120,
+                                emissionRate: 40,
+                                particleLifetime: 3000
+                            });
+                            this.physicsEngine.updateConfig({
+                                gravity: { x: 0, y: 30 }, // Stronger downward
+                                drag: 0.99
+                            });
+                            break;
+                        case 'neon':
+                            this.particleSystem.updateConfig({
+                                maxParticles: 100,
+                                emissionRate: 100,
+                                particleLifetime: 1000
+                            });
+                            this.physicsEngine.updateConfig({
+                                gravity: { x: 0, y: 0 }, // No gravity
+                                drag: 0.92
+                            });
+                            break;
+                    }
+                }
+
+                getFPS() { return this.fps; }
+                getParticleCount() { return this.particleSystem ? this.particleSystem.getActiveCount() : 0; }
+                getVelocity() { 
+                    return this.mouseTracker ? Math.round(this.mouseTracker.getVelocityMagnitude()) : 0; 
+                }
+                isActive() { return this.active; }
+            }
+
+            // Initialize splash cursor
+            splashCursor = new RealSplashCursor();
+            console.log('✅ Splash cursor created successfully');
+
+            // Auto-start after a brief delay
+            setTimeout(() => {
+                if (splashCursor) {
+                    splashCursor.start();
+                    console.log('🎯 Auto-started splash cursor');
+                }
+            }, 1000);
+
+        } catch (error) {
+            console.error('❌ Failed to import modules:', error);
+            showError(`Failed to load splash cursor modules: ${error.message}. Make sure you're running this from a web server.`);
+            document.getElementById('status-display').textContent = 'Failed';
+        }
+
+        // Setup controls
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (splashCursor) splashCursor.start();
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            if (splashCursor) splashCursor.stop();
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (splashCursor) splashCursor.reset();
+        });
+
+        document.getElementById('rainbowBtn').addEventListener('click', () => {
+            if (splashCursor) splashCursor.setPreset('rainbow');
+        });
+
+        document.getElementById('fireBtn').addEventListener('click', () => {
+            if (splashCursor) splashCursor.setPreset('fire');
+        });
+
+        document.getElementById('oceanBtn').addEventListener('click', () => {
+            if (splashCursor) splashCursor.setPreset('ocean');
+        });
+
+        document.getElementById('neonBtn').addEventListener('click', () => {
+            if (splashCursor) splashCursor.setPreset('neon');
+        });
+
+        // Update stats display
+        function updateStats() {
+            if (!splashCursor) return;
+            
+            const fps = splashCursor.getFPS();
+            const particles = splashCursor.getParticleCount();
+            const velocity = splashCursor.getVelocity();
+            const active = splashCursor.isActive();
+            
+            document.getElementById('fps-display').textContent = fps;
+            document.getElementById('particles-display').textContent = particles;
+            document.getElementById('velocity-display').textContent = velocity;
+            document.getElementById('status-display').textContent = active ? 'Active' : 'Ready';
+            
+            const indicator = document.getElementById('status-indicator');
+            indicator.className = `status-indicator ${active ? 'status-active' : 'status-inactive'}`;
+        }
+
+        setInterval(updateStats, 100);
+    </script>
+</body>
+</html>

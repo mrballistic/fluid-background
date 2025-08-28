@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Splash Cursor - Like Reference</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            min-height: 100vh;
+            cursor: none;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .stats {
+            margin: 20px 0;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 5px;
+            min-width: 100px;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .content {
+            margin: 40px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="container">
+        <h1>Real Splash Cursor</h1>
+        <p>Move your mouse around to see the liquid splash effect!</p>
+        
+        <div class="controls">
+            <button id="startBtn">Start</button>
+            <button id="stopBtn">Stop</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div>FPS</div>
+                <div id="fpsDisplay">0</div>
+            </div>
+            <div class="stat">
+                <div>Droplets</div>
+                <div id="particleDisplay">0</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h2>Liquid Splash Effect</h2>
+            <p>This recreates the actual splash cursor with liquid droplets that merge, separate, and behave like real fluid.</p>
+        </div>
+    </div>
+
+    <script>
+        class SplashCursor {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.droplets = [];
+                this.mouse = { x: 0, y: 0, lastX: 0, lastY: 0 };
+                this.active = false;
+                this.animationId = null;
+                
+                // Performance tracking
+                this.fps = 0;
+                this.frameCount = 0;
+                this.lastTime = 0;
+                this.lastFpsUpdate = 0;
+                
+                this.setupCanvas();
+                this.setupEvents();
+            }
+            
+            setupCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+            
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            setupEvents() {
+                document.addEventListener('mousemove', (e) => {
+                    this.mouse.lastX = this.mouse.x;
+                    this.mouse.lastY = this.mouse.y;
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                    
+                    if (this.active) {
+                        this.createSplash();
+                    }
+                });
+            }
+            
+            createSplash() {
+                const dx = this.mouse.x - this.mouse.lastX;
+                const dy = this.mouse.y - this.mouse.lastY;
+                const velocity = Math.sqrt(dx * dx + dy * dy);
+                
+                if (velocity > 1) {
+                    // Create multiple droplets based on velocity
+                    const dropletCount = Math.min(8, Math.floor(velocity * 0.3) + 2);
+                    
+                    for (let i = 0; i < dropletCount; i++) {
+                        const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * Math.PI * 0.5;
+                        const speed = velocity * (0.1 + Math.random() * 0.2);
+                        
+                        this.droplets.push({
+                            x: this.mouse.x + (Math.random() - 0.5) * 15,
+                            y: this.mouse.y + (Math.random() - 0.5) * 15,
+                            vx: Math.cos(angle) * speed + (Math.random() - 0.5) * 3,
+                            vy: Math.sin(angle) * speed + (Math.random() - 0.5) * 3,
+                            size: 3 + Math.random() * 8,
+                            life: 1.0,
+                            maxLife: 0.8 + Math.random() * 0.4,
+                            color: {
+                                h: 200 + Math.random() * 60, // Blue-cyan range
+                                s: 70 + Math.random() * 30,
+                                l: 50 + Math.random() * 30
+                            }
+                        });
+                    }
+                    
+                    // Limit total droplets for performance
+                    if (this.droplets.length > 200) {
+                        this.droplets = this.droplets.slice(-200);
+                    }
+                }
+            }
+            
+            updateDroplets() {
+                for (let i = this.droplets.length - 1; i >= 0; i--) {
+                    const droplet = this.droplets[i];
+                    
+                    // Update position
+                    droplet.x += droplet.vx;
+                    droplet.y += droplet.vy;
+                    
+                    // Apply gravity and drag
+                    droplet.vy += 0.15; // gravity
+                    droplet.vx *= 0.995; // air resistance
+                    droplet.vy *= 0.995;
+                    
+                    // Bounce off edges with energy loss
+                    if (droplet.x <= droplet.size || droplet.x >= this.canvas.width - droplet.size) {
+                        droplet.vx *= -0.6;
+                        droplet.x = Math.max(droplet.size, Math.min(this.canvas.width - droplet.size, droplet.x));
+                    }
+                    
+                    if (droplet.y <= droplet.size || droplet.y >= this.canvas.height - droplet.size) {
+                        droplet.vy *= -0.6;
+                        droplet.y = Math.max(droplet.size, Math.min(this.canvas.height - droplet.size, droplet.y));
+                    }
+                    
+                    // Update life
+                    droplet.life -= 0.008;
+                    
+                    // Remove dead droplets
+                    if (droplet.life <= 0) {
+                        this.droplets.splice(i, 1);
+                    }
+                }
+                
+                // Merge nearby droplets (fluid behavior)
+                this.mergeDroplets();
+            }
+            
+            mergeDroplets() {
+                for (let i = 0; i < this.droplets.length; i++) {
+                    for (let j = i + 1; j < this.droplets.length; j++) {
+                        const d1 = this.droplets[i];
+                        const d2 = this.droplets[j];
+                        
+                        const dx = d1.x - d2.x;
+                        const dy = d1.y - d2.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const minDistance = (d1.size + d2.size) * 0.8;
+                        
+                        if (distance < minDistance && distance > 0) {
+                            // Merge droplets
+                            const totalMass = d1.size + d2.size;
+                            const newSize = Math.sqrt(totalMass);
+                            
+                            // Conservation of momentum
+                            const newVx = (d1.vx * d1.size + d2.vx * d2.size) / totalMass;
+                            const newVy = (d1.vy * d1.size + d2.vy * d2.size) / totalMass;
+                            
+                            // Average position weighted by size
+                            const newX = (d1.x * d1.size + d2.x * d2.size) / totalMass;
+                            const newY = (d1.y * d1.size + d2.y * d2.size) / totalMass;
+                            
+                            // Create merged droplet
+                            d1.x = newX;
+                            d1.y = newY;
+                            d1.vx = newVx;
+                            d1.vy = newVy;
+                            d1.size = newSize;
+                            d1.life = Math.max(d1.life, d2.life);
+                            
+                            // Remove the second droplet
+                            this.droplets.splice(j, 1);
+                            j--; // Adjust index after removal
+                        }
+                    }
+                }
+            }
+            
+            renderDroplets() {
+                // Clear canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Create metaball effect using multiple passes
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // First pass: render droplet cores
+                tempCtx.globalCompositeOperation = 'source-over';
+                
+                for (const droplet of this.droplets) {
+                    const alpha = droplet.life;
+                    const size = droplet.size * (0.5 + droplet.life * 0.5);
+                    
+                    // Create gradient for liquid appearance
+                    const gradient = tempCtx.createRadialGradient(
+                        droplet.x - size * 0.3, droplet.y - size * 0.3, 0,
+                        droplet.x, droplet.y, size
+                    );
+                    
+                    const color = `hsl(${droplet.color.h}, ${droplet.color.s}%, ${droplet.color.l}%)`;
+                    const darkColor = `hsl(${droplet.color.h}, ${droplet.color.s}%, ${droplet.color.l * 0.6}%)`;
+                    
+                    gradient.addColorStop(0, color);
+                    gradient.addColorStop(0.7, darkColor);
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                    
+                    tempCtx.globalAlpha = alpha;
+                    tempCtx.fillStyle = gradient;
+                    tempCtx.beginPath();
+                    tempCtx.arc(droplet.x, droplet.y, size, 0, Math.PI * 2);
+                    tempCtx.fill();
+                }
+                
+                // Second pass: create metaball connections
+                tempCtx.globalCompositeOperation = 'lighter';
+                tempCtx.globalAlpha = 0.6;
+                
+                for (const droplet of this.droplets) {
+                    const size = droplet.size * 1.5;
+                    const gradient = tempCtx.createRadialGradient(
+                        droplet.x, droplet.y, 0,
+                        droplet.x, droplet.y, size
+                    );
+                    
+                    const color = `hsla(${droplet.color.h}, ${droplet.color.s}%, ${droplet.color.l}%, 0.3)`;
+                    
+                    gradient.addColorStop(0, color);
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                    
+                    tempCtx.fillStyle = gradient;
+                    tempCtx.beginPath();
+                    tempCtx.arc(droplet.x, droplet.y, size, 0, Math.PI * 2);
+                    tempCtx.fill();
+                }
+                
+                // Apply blur for smooth liquid effect
+                this.ctx.filter = 'blur(2px)';
+                this.ctx.drawImage(tempCanvas, 0, 0);
+                
+                // Add sharp details
+                this.ctx.filter = 'none';
+                this.ctx.globalAlpha = 0.8;
+                this.ctx.drawImage(tempCanvas, 0, 0);
+                
+                // Reset
+                this.ctx.globalAlpha = 1.0;
+                this.ctx.filter = 'none';
+            }
+            
+            animate = (currentTime) => {
+                if (!this.active) return;
+                
+                // Calculate FPS
+                this.frameCount++;
+                if (currentTime - this.lastFpsUpdate > 1000) {
+                    this.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastFpsUpdate));
+                    this.frameCount = 0;
+                    this.lastFpsUpdate = currentTime;
+                }
+                
+                this.updateDroplets();
+                this.renderDroplets();
+                
+                this.animationId = requestAnimationFrame(this.animate);
+            };
+            
+            start() {
+                if (this.active) return;
+                this.active = true;
+                this.lastTime = performance.now();
+                this.lastFpsUpdate = this.lastTime;
+                this.animate(this.lastTime);
+            }
+            
+            stop() {
+                this.active = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+            }
+            
+            reset() {
+                this.droplets = [];
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            getFPS() { return this.fps; }
+            getDropletCount() { return this.droplets.length; }
+        }
+        
+        // Initialize
+        const splashCursor = new SplashCursor();
+        
+        // Controls
+        document.getElementById('startBtn').addEventListener('click', () => {
+            splashCursor.start();
+        });
+        
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            splashCursor.stop();
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            splashCursor.reset();
+        });
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('fpsDisplay').textContent = splashCursor.getFPS();
+            document.getElementById('particleDisplay').textContent = splashCursor.getDropletCount();
+        }
+        
+        setInterval(updateStats, 100);
+        
+        // Auto-start
+        splashCursor.start();
+    </script>
+</body>
+</html>
