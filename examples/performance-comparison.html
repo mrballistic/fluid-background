@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SplashCursor Performance Comparison</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .comparison-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+    }
+
+    .comparison-card h3 {
+      color: #4ecdc4;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .config-display {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .metric {
+      text-align: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .fps-excellent { color: #4CAF50; }
+    .fps-good { color: #FFC107; }
+    .fps-poor { color: #F44336; }
+
+    .control-button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    .control-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+    }
+
+    .control-button.active {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    }
+
+    .control-button:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .benchmark-section {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .benchmark-controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .benchmark-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .benchmark-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .benchmark-button:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .benchmark-results {
+      margin-top: 20px;
+    }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .results-table th,
+    .results-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .results-table th {
+      background: rgba(0, 0, 0, 0.3);
+      font-weight: bold;
+    }
+
+    .performance-chart {
+      height: 200px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      margin: 20px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .device-info {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .device-info h4 {
+      color: #4ecdc4;
+      margin-bottom: 10px;
+    }
+
+    .device-specs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .recommendations {
+      background: rgba(78, 205, 196, 0.1);
+      border: 1px solid rgba(78, 205, 196, 0.3);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .recommendations h4 {
+      color: #4ecdc4;
+      margin-bottom: 15px;
+    }
+
+    .recommendation-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-running { background: #4CAF50; }
+    .status-stopped { background: #F44336; }
+    .status-loading { background: #FFC107; animation: pulse 1s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+      transition: width 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .benchmark-controls {
+        flex-direction: column;
+      }
+      
+      .device-specs {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>SplashCursor Performance Comparison</h1>
+      <p>Compare different configurations and find the optimal settings for your device</p>
+    </div>
+
+    <div class="device-info">
+      <h4>Device Information</h4>
+      <div class="device-specs">
+        <div class="spec-item">
+          <span>CPU Cores:</span>
+          <span id="cpu-cores">-</span>
+        </div>
+        <div class="spec-item">
+          <span>Memory:</span>
+          <span id="device-memory">-</span>
+        </div>
+        <div class="spec-item">
+          <span>User Agent:</span>
+          <span id="user-agent">-</span>
+        </div>
+        <div class="spec-item">
+          <span>Screen Size:</span>
+          <span id="screen-size">-</span>
+        </div>
+        <div class="spec-item">
+          <span>Device Pixel Ratio:</span>
+          <span id="pixel-ratio">-</span>
+        </div>
+        <div class="spec-item">
+          <span>Connection:</span>
+          <span id="connection-type">-</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="comparison-grid">
+      <!-- High Performance Configuration -->
+      <div class="comparison-card">
+        <h3>🚀 High Performance</h3>
+        <div class="config-display">
+          particleCount: 300<br>
+          targetFPS: 60<br>
+          intensity: 1.0<br>
+          colors: rainbow<br>
+          drag: 0.998
+        </div>
+        <div class="metrics-grid">
+          <div class="metric">
+            <span class="metric-value fps-good" id="high-fps">0</span>
+            <div class="metric-label">FPS</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="high-particles">0</span>
+            <div class="metric-label">Particles</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="high-frame-time">0</span>
+            <div class="metric-label">Frame Time (ms)</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="high-cpu">0</span>
+            <div class="metric-label">CPU Usage</div>
+          </div>
+        </div>
+        <button class="control-button" onclick="toggleConfig('high')">
+          <span class="status-indicator status-stopped" id="high-status"></span>
+          Start High Performance
+        </button>
+      </div>
+
+      <!-- Balanced Configuration -->
+      <div class="comparison-card">
+        <h3>⚖️ Balanced</h3>
+        <div class="config-display">
+          particleCount: 150<br>
+          targetFPS: 60<br>
+          intensity: 0.8<br>
+          colors: rainbow<br>
+          drag: 0.997
+        </div>
+        <div class="metrics-grid">
+          <div class="metric">
+            <span class="metric-value fps-good" id="balanced-fps">0</span>
+            <div class="metric-label">FPS</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="balanced-particles">0</span>
+            <div class="metric-label">Particles</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="balanced-frame-time">0</span>
+            <div class="metric-label">Frame Time (ms)</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="balanced-cpu">0</span>
+            <div class="metric-label">CPU Usage</div>
+          </div>
+        </div>
+        <button class="control-button" onclick="toggleConfig('balanced')">
+          <span class="status-indicator status-stopped" id="balanced-status"></span>
+          Start Balanced
+        </button>
+      </div>
+
+      <!-- Mobile Optimized Configuration -->
+      <div class="comparison-card">
+        <h3>📱 Mobile Optimized</h3>
+        <div class="config-display">
+          particleCount: 75<br>
+          targetFPS: 30<br>
+          intensity: 0.6<br>
+          colors: single<br>
+          drag: 0.95
+        </div>
+        <div class="metrics-grid">
+          <div class="metric">
+            <span class="metric-value fps-good" id="mobile-fps">0</span>
+            <div class="metric-label">FPS</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="mobile-particles">0</span>
+            <div class="metric-label">Particles</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="mobile-frame-time">0</span>
+            <div class="metric-label">Frame Time (ms)</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="mobile-cpu">0</span>
+            <div class="metric-label">CPU Usage</div>
+          </div>
+        </div>
+        <button class="control-button" onclick="toggleConfig('mobile')">
+          <span class="status-indicator status-stopped" id="mobile-status"></span>
+          Start Mobile Optimized
+        </button>
+      </div>
+
+      <!-- Battery Saver Configuration -->
+      <div class="comparison-card">
+        <h3>🔋 Battery Saver</h3>
+        <div class="config-display">
+          particleCount: 25<br>
+          targetFPS: 20<br>
+          intensity: 0.3<br>
+          colors: single<br>
+          drag: 0.9
+        </div>
+        <div class="metrics-grid">
+          <div class="metric">
+            <span class="metric-value fps-good" id="battery-fps">0</span>
+            <div class="metric-label">FPS</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="battery-particles">0</span>
+            <div class="metric-label">Particles</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="battery-frame-time">0</span>
+            <div class="metric-label">Frame Time (ms)</div>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="battery-cpu">0</span>
+            <div class="metric-label">CPU Usage</div>
+          </div>
+        </div>
+        <button class="control-button" onclick="toggleConfig('battery')">
+          <span class="status-indicator status-stopped" id="battery-status"></span>
+          Start Battery Saver
+        </button>
+      </div>
+    </div>
+
+    <div class="benchmark-section">
+      <h3>🏁 Automated Benchmarks</h3>
+      <p>Run automated tests to find the optimal configuration for your device.</p>
+      
+      <div class="benchmark-controls">
+        <button class="benchmark-button" onclick="runQuickBenchmark()" id="quick-benchmark-btn">
+          Quick Benchmark (30s)
+        </button>
+        <button class="benchmark-button" onclick="runFullBenchmark()" id="full-benchmark-btn">
+          Full Benchmark (2min)
+        </button>
+        <button class="benchmark-button" onclick="runStressBenchmark()" id="stress-benchmark-btn">
+          Stress Test (5min)
+        </button>
+        <button class="benchmark-button" onclick="stopBenchmark()" id="stop-benchmark-btn" disabled>
+          Stop Benchmark
+        </button>
+      </div>
+
+      <div id="benchmark-progress" style="display: none;">
+        <div>
+          <strong>Running:</strong> <span id="current-test">-</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+        </div>
+        <div>
+          Progress: <span id="progress-text">0%</span>
+        </div>
+      </div>
+
+      <div class="benchmark-results" id="benchmark-results" style="display: none;">
+        <h4>Benchmark Results</h4>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Configuration</th>
+              <th>Avg FPS</th>
+              <th>Min FPS</th>
+              <th>Max FPS</th>
+              <th>Stability</th>
+              <th>Recommendation</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="recommendations" id="recommendations" style="display: none;">
+        <h4>📋 Recommendations</h4>
+        <div id="recommendation-content"></div>
+      </div>
+    </div>
+
+    <div class="performance-chart">
+      <canvas class="chart-canvas" id="performance-chart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // Performance comparison system
+    class PerformanceComparison {
+      constructor() {
+        this.configurations = {
+          high: {
+            particleCount: 300,
+            targetFPS: 60,
+            intensity: 1.0,
+            colors: { mode: 'rainbow' },
+            drag: 0.998
+          },
+          balanced: {
+            particleCount: 150,
+            targetFPS: 60,
+            intensity: 0.8,
+            colors: { mode: 'rainbow' },
+            drag: 0.997
+          },
+          mobile: {
+            particleCount: 75,
+            targetFPS: 30,
+            intensity: 0.6,
+            colors: { mode: 'single', baseHue: 240 },
+            drag: 0.95
+          },
+          battery: {
+            particleCount: 25,
+            targetFPS: 20,
+            intensity: 0.3,
+            colors: { mode: 'single', baseHue: 240 },
+            drag: 0.9
+          }
+        };
+
+        this.activeInstances = {};
+        this.performanceData = {};
+        this.benchmarkRunning = false;
+        this.benchmarkData = [];
+
+        this.initializeDeviceInfo();
+        this.setupPerformanceChart();
+      }
+
+      initializeDeviceInfo() {
+        document.getElementById('cpu-cores').textContent = navigator.hardwareConcurrency || 'Unknown';
+        document.getElementById('device-memory').textContent = 
+          (navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Unknown');
+        document.getElementById('user-agent').textContent = 
+          navigator.userAgent.split(' ').slice(-2).join(' ');
+        document.getElementById('screen-size').textContent = 
+          `${window.screen.width}x${window.screen.height}`;
+        document.getElementById('pixel-ratio').textContent = window.devicePixelRatio || 1;
+        
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        document.getElementById('connection-type').textContent = 
+          connection ? connection.effectiveType || 'Unknown' : 'Unknown';
+      }
+
+      setupPerformanceChart() {
+        this.chart = {
+          canvas: document.getElementById('performance-chart'),
+          ctx: null,
+          data: { high: [], balanced: [], mobile: [], battery: [] },
+          maxDataPoints: 100
+        };
+        
+        this.chart.ctx = this.chart.canvas.getContext('2d');
+        this.chart.canvas.width = this.chart.canvas.offsetWidth;
+        this.chart.canvas.height = this.chart.canvas.offsetHeight;
+        
+        this.drawChart();
+      }
+
+      drawChart() {
+        const ctx = this.chart.ctx;
+        const canvas = this.chart.canvas;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw grid
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 1;
+        
+        for (let i = 0; i <= 10; i++) {
+          const y = (canvas.height / 10) * i;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+        
+        // Draw FPS lines
+        const colors = {
+          high: '#ff6b6b',
+          balanced: '#4ecdc4',
+          mobile: '#45b7d1',
+          battery: '#96ceb4'
+        };
+        
+        Object.keys(this.chart.data).forEach(config => {
+          const data = this.chart.data[config];
+          if (data.length < 2) return;
+          
+          ctx.strokeStyle = colors[config];
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          
+          data.forEach((fps, index) => {
+            const x = (canvas.width / this.chart.maxDataPoints) * index;
+            const y = canvas.height - (fps / 60) * canvas.height;
+            
+            if (index === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          });
+          
+          ctx.stroke();
+        });
+        
+        // Draw legend
+        ctx.font = '12px Arial';
+        let legendY = 20;
+        Object.keys(colors).forEach(config => {
+          if (this.activeInstances[config]) {
+            ctx.fillStyle = colors[config];
+            ctx.fillRect(10, legendY - 10, 15, 10);
+            ctx.fillStyle = 'white';
+            ctx.fillText(config.charAt(0).toUpperCase() + config.slice(1), 30, legendY);
+            legendY += 20;
+          }
+        });
+      }
+
+      createSplashCursor(config) {
+        // Simulate SplashCursor for demo
+        return new DemoSplashCursor(config);
+      }
+
+      toggleConfig(configName) {
+        if (this.activeInstances[configName]) {
+          this.stopConfig(configName);
+        } else {
+          this.startConfig(configName);
+        }
+      }
+
+      startConfig(configName) {
+        if (this.activeInstances[configName]) return;
+
+        const config = this.configurations[configName];
+        const instance = this.createSplashCursor(config);
+        
+        this.activeInstances[configName] = instance;
+        this.performanceData[configName] = {
+          fps: [],
+          frameTime: [],
+          particles: [],
+          startTime: Date.now()
+        };
+
+        instance.start();
+        
+        // Update UI
+        const button = document.querySelector(`button[onclick="toggleConfig('${configName}')"]`);
+        const status = document.getElementById(`${configName}-status`);
+        
+        button.textContent = `Stop ${configName.charAt(0).toUpperCase() + configName.slice(1)}`;
+        button.classList.add('active');
+        status.className = 'status-indicator status-running';
+        
+        // Start monitoring
+        this.monitorPerformance(configName);
+      }
+
+      stopConfig(configName) {
+        if (!this.activeInstances[configName]) return;
+
+        this.activeInstances[configName].destroy();
+        delete this.activeInstances[configName];
+        
+        // Update UI
+        const button = document.querySelector(`button[onclick="toggleConfig('${configName}')"]`);
+        const status = document.getElementById(`${configName}-status`);
+        
+        button.textContent = `Start ${configName.charAt(0).toUpperCase() + configName.slice(1)}`;
+        button.classList.remove('active');
+        status.className = 'status-indicator status-stopped';
+      }
+
+      monitorPerformance(configName) {
+        const monitor = () => {
+          if (!this.activeInstances[configName]) return;
+
+          const instance = this.activeInstances[configName];
+          const fps = instance.getFPS();
+          const particles = instance.getParticleCount();
+          const frameTime = fps > 0 ? (1000 / fps) : 0;
+          
+          // Update performance data
+          const data = this.performanceData[configName];
+          data.fps.push(fps);
+          data.frameTime.push(frameTime);
+          data.particles.push(particles);
+          
+          // Keep only recent data
+          if (data.fps.length > 100) {
+            data.fps.shift();
+            data.frameTime.shift();
+            data.particles.shift();
+          }
+          
+          // Update chart data
+          this.chart.data[configName].push(fps);
+          if (this.chart.data[configName].length > this.chart.maxDataPoints) {
+            this.chart.data[configName].shift();
+          }
+          
+          // Update UI
+          this.updateMetricsUI(configName, fps, particles, frameTime);
+          
+          // Continue monitoring
+          setTimeout(monitor, 100);
+        };
+        
+        monitor();
+      }
+
+      updateMetricsUI(configName, fps, particles, frameTime) {
+        document.getElementById(`${configName}-fps`).textContent = Math.round(fps);
+        document.getElementById(`${configName}-particles`).textContent = particles;
+        document.getElementById(`${configName}-frame-time`).textContent = frameTime.toFixed(1);
+        document.getElementById(`${configName}-cpu`).textContent = 
+          frameTime > 16.67 ? 'High' : frameTime > 8.33 ? 'Medium' : 'Low';
+        
+        // Update FPS color
+        const fpsElement = document.getElementById(`${configName}-fps`);
+        fpsElement.className = fps >= 50 ? 'metric-value fps-excellent' :
+                              fps >= 30 ? 'metric-value fps-good' :
+                              'metric-value fps-poor';
+        
+        // Update chart
+        this.drawChart();
+      }
+
+      async runQuickBenchmark() {
+        await this.runBenchmark('quick', 30);
+      }
+
+      async runFullBenchmark() {
+        await this.runBenchmark('full', 120);
+      }
+
+      async runStressBenchmark() {
+        await this.runBenchmark('stress', 300);
+      }
+
+      async runBenchmark(type, duration) {
+        if (this.benchmarkRunning) return;
+
+        this.benchmarkRunning = true;
+        this.benchmarkData = [];
+        
+        // Update UI
+        document.getElementById('benchmark-progress').style.display = 'block';
+        document.getElementById('benchmark-results').style.display = 'none';
+        document.getElementById('recommendations').style.display = 'none';
+        
+        const buttons = document.querySelectorAll('.benchmark-button');
+        buttons.forEach(btn => btn.disabled = true);
+        document.getElementById('stop-benchmark-btn').disabled = false;
+
+        const configs = type === 'quick' ? ['balanced', 'mobile'] : 
+                      type === 'full' ? ['high', 'balanced', 'mobile', 'battery'] :
+                      ['high', 'balanced', 'mobile', 'battery'];
+        
+        const testDuration = duration / configs.length;
+        
+        for (let i = 0; i < configs.length && this.benchmarkRunning; i++) {
+          const config = configs[i];
+          
+          document.getElementById('current-test').textContent = 
+            `${config.charAt(0).toUpperCase() + config.slice(1)} Configuration`;
+          
+          await this.testConfiguration(config, testDuration, i / configs.length, 1 / configs.length);
+        }
+        
+        if (this.benchmarkRunning) {
+          this.displayBenchmarkResults();
+          this.generateRecommendations();
+        }
+        
+        this.benchmarkRunning = false;
+        buttons.forEach(btn => btn.disabled = false);
+        document.getElementById('stop-benchmark-btn').disabled = true;
+        document.getElementById('benchmark-progress').style.display = 'none';
+      }
+
+      async testConfiguration(configName, duration, baseProgress, progressRange) {
+        return new Promise((resolve) => {
+          // Stop all other configs
+          Object.keys(this.activeInstances).forEach(name => {
+            if (name !== configName) this.stopConfig(name);
+          });
+          
+          // Start test config
+          this.startConfig(configName);
+          
+          const startTime = Date.now();
+          const measurements = [];
+          
+          const measure = () => {
+            if (!this.benchmarkRunning) {
+              resolve();
+              return;
+            }
+            
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / (duration * 1000), 1);
+            
+            // Update progress
+            const totalProgress = (baseProgress + progress * progressRange) * 100;
+            document.getElementById('progress-fill').style.width = `${totalProgress}%`;
+            document.getElementById('progress-text').textContent = `${Math.round(totalProgress)}%`;
+            
+            if (this.activeInstances[configName]) {
+              const fps = this.activeInstances[configName].getFPS();
+              if (fps > 0) {
+                measurements.push(fps);
+              }
+            }
+            
+            if (progress >= 1) {
+              // Calculate results
+              const avgFPS = measurements.reduce((a, b) => a + b, 0) / measurements.length;
+              const minFPS = Math.min(...measurements);
+              const maxFPS = Math.max(...measurements);
+              const stability = this.calculateStability(measurements);
+              
+              this.benchmarkData.push({
+                config: configName,
+                avgFPS: avgFPS.toFixed(1),
+                minFPS: minFPS.toFixed(1),
+                maxFPS: maxFPS.toFixed(1),
+                stability: stability.toFixed(1),
+                measurements
+              });
+              
+              this.stopConfig(configName);
+              resolve();
+            } else {
+              setTimeout(measure, 100);
+            }
+          };
+          
+          // Wait a bit for initialization
+          setTimeout(measure, 1000);
+        });
+      }
+
+      calculateStability(measurements) {
+        if (measurements.length < 2) return 100;
+        
+        const avg = measurements.reduce((a, b) => a + b, 0) / measurements.length;
+        const variance = measurements.reduce((sum, fps) => sum + Math.pow(fps - avg, 2), 0) / measurements.length;
+        const stdDev = Math.sqrt(variance);
+        
+        return Math.max(0, 100 - (stdDev / avg) * 100);
+      }
+
+      displayBenchmarkResults() {
+        const tbody = document.getElementById('results-tbody');
+        tbody.innerHTML = '';
+        
+        this.benchmarkData.forEach(result => {
+          const row = tbody.insertRow();
+          row.innerHTML = `
+            <td>${result.config.charAt(0).toUpperCase() + result.config.slice(1)}</td>
+            <td class="${this.getFPSClass(result.avgFPS)}">${result.avgFPS}</td>
+            <td class="${this.getFPSClass(result.minFPS)}">${result.minFPS}</td>
+            <td class="${this.getFPSClass(result.maxFPS)}">${result.maxFPS}</td>
+            <td>${result.stability}%</td>
+            <td>${this.getRecommendation(result)}</td>
+          `;
+        });
+        
+        document.getElementById('benchmark-results').style.display = 'block';
+      }
+
+      getFPSClass(fps) {
+        const fpsNum = parseFloat(fps);
+        return fpsNum >= 50 ? 'fps-excellent' : fpsNum >= 30 ? 'fps-good' : 'fps-poor';
+      }
+
+      getRecommendation(result) {
+        const fps = parseFloat(result.avgFPS);
+        const stability = parseFloat(result.stability);
+        
+        if (fps >= 50 && stability >= 80) return '✅ Excellent';
+        if (fps >= 30 && stability >= 60) return '👍 Good';
+        if (fps >= 20) return '⚠️ Acceptable';
+        return '❌ Poor';
+      }
+
+      generateRecommendations() {
+        const content = document.getElementById('recommendation-content');
+        const bestConfig = this.benchmarkData.reduce((best, current) => {
+          const currentScore = parseFloat(current.avgFPS) + parseFloat(current.stability);
+          const bestScore = parseFloat(best.avgFPS) + parseFloat(best.stability);
+          return currentScore > bestScore ? current : best;
+        });
+        
+        let recommendations = [];
+        
+        recommendations.push({
+          title: 'Recommended Configuration',
+          text: `Based on your device performance, we recommend the <strong>${bestConfig.config}</strong> configuration for optimal experience.`
+        });
+        
+        if (parseFloat(bestConfig.avgFPS) < 30) {
+          recommendations.push({
+            title: 'Performance Warning',
+            text: 'Your device may struggle with cursor effects. Consider using the battery saver mode or disabling effects entirely.'
+          });
+        }
+        
+        if (parseFloat(bestConfig.stability) < 60) {
+          recommendations.push({
+            title: 'Stability Issues',
+            text: 'Performance appears unstable. Try closing other applications or reducing particle count further.'
+          });
+        }
+        
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+          recommendations.push({
+            title: 'Mobile Device Detected',
+            text: 'For better battery life, consider enabling "Pause on Hidden" and using lower particle counts.'
+          });
+        }
+        
+        content.innerHTML = recommendations.map(rec => `
+          <div class="recommendation-item">
+            <strong>${rec.title}:</strong> ${rec.text}
+          </div>
+        `).join('');
+        
+        document.getElementById('recommendations').style.display = 'block';
+      }
+
+      stopBenchmark() {
+        this.benchmarkRunning = false;
+        Object.keys(this.activeInstances).forEach(config => {
+          this.stopConfig(config);
+        });
+      }
+    }
+
+    // Demo SplashCursor implementation (simplified for demo)
+    class DemoSplashCursor {
+      constructor(config) {
+        this.config = config;
+        this.active = false;
+        this.fps = 0;
+        this.particleCount = 0;
+        this.particles = [];
+        this.canvas = null;
+        this.setupCanvas();
+      }
+
+      setupCanvas() {
+        this.canvas = document.createElement('canvas');
+        this.canvas.style.position = 'fixed';
+        this.canvas.style.top = '0';
+        this.canvas.style.left = '0';
+        this.canvas.style.width = '100vw';
+        this.canvas.style.height = '100vh';
+        this.canvas.style.pointerEvents = 'none';
+        this.canvas.style.zIndex = '9999';
+        document.body.appendChild(this.canvas);
+        
+        this.ctx = this.canvas.getContext('2d');
+        this.resizeCanvas();
+      }
+
+      resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = window.innerWidth * dpr;
+        this.canvas.height = window.innerHeight * dpr;
+        this.ctx.scale(dpr, dpr);
+      }
+
+      start() {
+        this.active = true;
+        this.animate();
+      }
+
+      stop() {
+        this.active = false;
+      }
+
+      destroy() {
+        this.stop();
+        if (this.canvas && this.canvas.parentNode) {
+          this.canvas.parentNode.removeChild(this.canvas);
+        }
+      }
+
+      animate() {
+        if (!this.active) return;
+
+        // Simulate performance based on config
+        const basePerformance = 60;
+        const particlePenalty = (this.config.particleCount - 50) * 0.1;
+        const intensityPenalty = this.config.intensity * 10;
+        
+        this.fps = Math.max(10, basePerformance - particlePenalty - intensityPenalty + (Math.random() - 0.5) * 10);
+        this.particleCount = Math.floor(this.config.particleCount * (0.7 + Math.random() * 0.3));
+        
+        // Simple rendering simulation
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        requestAnimationFrame(() => this.animate());
+      }
+
+      getFPS() {
+        return this.fps;
+      }
+
+      getParticleCount() {
+        return this.particleCount;
+      }
+    }
+
+    // Global functions
+    let performanceComparison;
+
+    function toggleConfig(configName) {
+      performanceComparison.toggleConfig(configName);
+    }
+
+    function runQuickBenchmark() {
+      performanceComparison.runQuickBenchmark();
+    }
+
+    function runFullBenchmark() {
+      performanceComparison.runFullBenchmark();
+    }
+
+    function runStressBenchmark() {
+      performanceComparison.runStressBenchmark();
+    }
+
+    function stopBenchmark() {
+      performanceComparison.stopBenchmark();
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      performanceComparison = new PerformanceComparison();
+    });
+  </script>
+</body>
+</html>

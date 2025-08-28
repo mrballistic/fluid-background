@@ -2,3 +2,4 @@
 export { useFluidSimulation } from './useFluidSimulation';
 export { useResponsive, useCanvasDimensions, useDeviceInfo } from './useResponsive';
 export { usePerformance, useAutoQuality, useReducedMotion, useBatteryStatus } from './usePerformance';
+export { useSplashCursor } from './useSplashCursor';

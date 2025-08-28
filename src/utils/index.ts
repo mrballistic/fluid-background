@@ -5,3 +5,8 @@ export * from './config';
 export * from './splash-cursor';
 export * from './error-handler';
 export * from './performance-monitor';
+export * from './browser-compatibility';
+export * from './polyfills';
+export * from './graceful-degradation';
+export * from './fallback-renderer';
+export * from './error-recovery';

@@ -74,6 +74,17 @@ export class PerformanceMonitor {
   private maxHistoryLength: number = 60; // Keep 1 second of history at 60fps
   private adaptiveQualityEnabled: boolean = true;
   private isMonitoring: boolean = false;
+  
+  // Performance thresholds for adaptive quality
+  private performanceThresholds = {
+    warning: 0.8,    // 80% of target FPS
+    critical: 0.6,   // 60% of target FPS
+    excellent: 1.1   // 110% of target FPS
+  };
+  
+  // Quality adjustment cooldown
+  private lastQualityAdjustment: number = 0;
+  private qualityAdjustmentCooldown: number = 2000; // 2 seconds
 
   private constructor() {}
 
@@ -201,25 +212,119 @@ export class PerformanceMonitor {
     }
   }
 
-  private adjustQualityIfNeeded(metrics: SplashCursorPerformanceMetrics): void {
-    const currentSettings = this.qualitySettings[this.currentQuality];
+  // Enhanced performance monitoring with benchmarking
+  public startBenchmark(name: string): void {
+    const startTime = getHighResolutionTime();
+    (this as any)[`benchmark_${name}_start`] = startTime;
+  }
+
+  public endBenchmark(name: string): number {
+    const endTime = getHighResolutionTime();
+    const startTime = (this as any)[`benchmark_${name}_start`];
     
-    // Reduce quality if performance is poor
-    if (metrics.averageFps < currentSettings.targetFPS * 0.8) {
-      const newQuality = this.getNextLowerQuality();
-      if (newQuality !== this.currentQuality) {
-        this.setQuality(newQuality);
-        console.log(`[SplashCursor] Quality reduced to ${newQuality} due to low FPS (${metrics.averageFps.toFixed(1)})`);
-      }
+    if (startTime) {
+      const duration = endTime - startTime;
+      delete (this as any)[`benchmark_${name}_start`];
+      return duration;
     }
-    // Increase quality if performance is good and stable
-    else if (metrics.averageFps > currentSettings.targetFPS * 1.1 && metrics.minFps > currentSettings.targetFPS * 0.9) {
-      const newQuality = this.getNextHigherQuality();
-      if (newQuality !== this.currentQuality) {
-        this.setQuality(newQuality);
-        console.log(`[SplashCursor] Quality increased to ${newQuality} due to good performance (${metrics.averageFps.toFixed(1)} FPS)`);
-      }
+    
+    return 0;
+  }
+
+  // Memory usage tracking
+  public getMemoryUsage(): { used: number; total: number; percentage: number } | null {
+    if ('memory' in performance) {
+      const memory = (performance as any).memory;
+      return {
+        used: memory.usedJSHeapSize,
+        total: memory.totalJSHeapSize,
+        percentage: (memory.usedJSHeapSize / memory.totalJSHeapSize) * 100
+      };
     }
+    return null;
+  }
+
+  // Performance profiling
+  public profileFunction<T>(fn: () => T, name: string): T {
+    this.startBenchmark(name);
+    try {
+      const result = fn();
+      const duration = this.endBenchmark(name);
+      console.log(`[Performance] ${name}: ${duration.toFixed(2)}ms`);
+      return result;
+    } catch (error) {
+      this.endBenchmark(name);
+      throw error;
+    }
+  }
+
+  // Adaptive quality with improved logic
+  public enableAdaptiveQuality(config?: {
+    warningThreshold?: number;
+    criticalThreshold?: number;
+    excellentThreshold?: number;
+    cooldownMs?: number;
+  }): void {
+    this.adaptiveQualityEnabled = true;
+    
+    if (config) {
+      if (config.warningThreshold) this.performanceThresholds.warning = config.warningThreshold;
+      if (config.criticalThreshold) this.performanceThresholds.critical = config.criticalThreshold;
+      if (config.excellentThreshold) this.performanceThresholds.excellent = config.excellentThreshold;
+      if (config.cooldownMs) this.qualityAdjustmentCooldown = config.cooldownMs;
+    }
+  }
+
+  public disableAdaptiveQuality(): void {
+    this.adaptiveQualityEnabled = false;
+  }
+
+  private adjustQualityIfNeeded(metrics: SplashCursorPerformanceMetrics): void {
+    const now = getHighResolutionTime();
+    
+    // Respect cooldown period
+    if (now - this.lastQualityAdjustment < this.qualityAdjustmentCooldown) {
+      return;
+    }
+    
+    const currentSettings = this.qualitySettings[this.currentQuality];
+    const targetFps = currentSettings.targetFPS;
+    const avgFps = metrics.averageFps;
+    const minFps = metrics.minFps;
+    
+    let newQuality = this.currentQuality;
+    let reason = '';
+    
+    // Critical performance - drop quality aggressively
+    if (avgFps < targetFps * this.performanceThresholds.critical) {
+      newQuality = this.getQualityForPerformance('critical');
+      reason = `critical performance (${avgFps.toFixed(1)} FPS)`;
+    }
+    // Warning performance - drop quality moderately
+    else if (avgFps < targetFps * this.performanceThresholds.warning) {
+      newQuality = this.getNextLowerQuality();
+      reason = `poor performance (${avgFps.toFixed(1)} FPS)`;
+    }
+    // Excellent performance - try to increase quality
+    else if (avgFps > targetFps * this.performanceThresholds.excellent && 
+             minFps > targetFps * this.performanceThresholds.warning) {
+      newQuality = this.getNextHigherQuality();
+      reason = `excellent performance (${avgFps.toFixed(1)} FPS)`;
+    }
+    
+    // Apply quality change if different
+    if (newQuality !== this.currentQuality) {
+      this.setQuality(newQuality);
+      this.lastQualityAdjustment = now;
+      console.log(`[SplashCursor] Quality adjusted from ${this.currentQuality} to ${newQuality} due to ${reason}`);
+    }
+  }
+
+  private getQualityForPerformance(level: 'critical' | 'warning'): QualityLevel {
+    if (level === 'critical') {
+      return 'minimal';
+    }
+    return this.getNextLowerQuality();
   }
 
   // Quality management
@@ -317,6 +422,111 @@ export class PerformanceMonitor {
     };
   }
 
+  // Performance testing and benchmarking
+  public runPerformanceTest(duration: number = 5000): Promise<{
+    averageFps: number;
+    minFps: number;
+    maxFps: number;
+    frameDrops: number;
+    averageFrameTime: number;
+    renderTime: number;
+    updateTime: number;
+    memoryUsage?: { used: number; total: number; percentage: number };
+  }> {
+    return new Promise((resolve) => {
+      const startTime = getHighResolutionTime();
+      const initialMetrics = this.getMetrics();
+      
+      const checkComplete = () => {
+        const elapsed = getHighResolutionTime() - startTime;
+        
+        if (elapsed >= duration) {
+          const finalMetrics = this.getMetrics();
+          const memoryUsage = this.getMemoryUsage();
+          
+          resolve({
+            averageFps: finalMetrics.averageFps,
+            minFps: finalMetrics.minFps,
+            maxFps: finalMetrics.maxFps,
+            frameDrops: finalMetrics.droppedFrames - initialMetrics.droppedFrames,
+            averageFrameTime: finalMetrics.frameTime,
+            renderTime: finalMetrics.renderTime,
+            updateTime: finalMetrics.updateTime,
+            memoryUsage: memoryUsage || undefined
+          });
+        } else {
+          requestAnimationFrame(checkComplete);
+        }
+      };
+      
+      requestAnimationFrame(checkComplete);
+    });
+  }
+
+  public createPerformanceBenchmark(): {
+    start: () => void;
+    end: () => { duration: number; fps: number; quality: QualityLevel };
+  } {
+    let startTime: number;
+    let startFrameCount: number;
+    
+    return {
+      start: () => {
+        startTime = getHighResolutionTime();
+        startFrameCount = this.frameCount;
+      },
+      end: () => {
+        const endTime = getHighResolutionTime();
+        const duration = endTime - startTime;
+        const framesDelta = this.frameCount - startFrameCount;
+        const fps = (framesDelta / duration) * 1000;
+        
+        return {
+          duration,
+          fps,
+          quality: this.currentQuality
+        };
+      }
+    };
+  }
+
+  // Performance comparison utilities
+  public compareQualityLevels(testDuration: number = 3000): Promise<Record<QualityLevel, {
+    fps: number;
+    frameTime: number;
+    renderTime: number;
+    updateTime: number;
+  }>> {
+    const results: Partial<Record<QualityLevel, any>> = {};
+    const qualities: QualityLevel[] = ['high', 'medium', 'low', 'minimal'];
+    
+    const testQuality = async (quality: QualityLevel): Promise<void> => {
+      // Temporarily disable adaptive quality
+      const wasAdaptive = this.adaptiveQualityEnabled;
+      this.adaptiveQualityEnabled = false;
+      
+      // Set quality and wait for stabilization
+      this.setQuality(quality);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Run test
+      const testResult = await this.runPerformanceTest(testDuration);
+      results[quality] = {
+        fps: testResult.averageFps,
+        frameTime: testResult.averageFrameTime,
+        renderTime: testResult.renderTime,
+        updateTime: testResult.updateTime
+      };
+      
+      // Restore adaptive quality
+      this.adaptiveQualityEnabled = wasAdaptive;
+    };
+    
+    return qualities.reduce((promise, quality) => {
+      return promise.then(() => testQuality(quality));
+    }, Promise.resolve()).then(() => results as Record<QualityLevel, any>);
+  }
+
   // Reset and cleanup
   public resetMetrics(): void {
     this.frameCount = 0;
@@ -327,6 +537,7 @@ export class PerformanceMonitor {
     this.updateTimeHistory.length = 0;
     this.lastFrameTime = getHighResolutionTime();
     this.lastPerformanceCheck = this.lastFrameTime;
+    this.lastQualityAdjustment = 0;
   }
 
   public cleanup(): void {

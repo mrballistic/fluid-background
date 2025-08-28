@@ -3,6 +3,7 @@
  * Tests metaball field calculations, color blending, and performance optimizations
  */
 
+import { describe, it, expect, beforeEach } from 'vitest';
 import { MetaballRenderer, MetaballRendererConfig } from './MetaballRenderer';
 import { Particle, Vector2, HSLColor } from '../types/splash-cursor';
 
@@ -10,10 +11,21 @@ import { Particle, Vector2, HSLColor } from '../types/splash-cursor';
 class MockCanvasRenderingContext2D {
   canvas: HTMLCanvasElement;
   imageSmoothingEnabled: boolean = true;
+  imageSmoothingQuality: ImageSmoothingQuality = 'high';
   filter: string = 'none';
+  globalCompositeOperation: GlobalCompositeOperation = 'source-over';
+  globalAlpha: number = 1.0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
+  }
+
+  save(): void {
+    // Mock implementation
+  }
+
+  restore(): void {
+    // Mock implementation
   }
 
   createImageData(width: number, height: number): ImageData {
@@ -234,6 +246,28 @@ describe('MetaballRenderer', () => {
       expect(gray.b).toBe(128);
     });
 
+    it('should convert RGB to HSL correctly', () => {
+      const rgbToHsl = (renderer as any).rgbToHsl.bind(renderer);
+      
+      // Test pure red
+      const red = rgbToHsl(255, 0, 0);
+      expect(red.h).toBe(0);
+      expect(red.s).toBe(100);
+      expect(red.l).toBe(50);
+      
+      // Test pure green
+      const green = rgbToHsl(0, 255, 0);
+      expect(green.h).toBe(120);
+      expect(green.s).toBe(100);
+      expect(green.l).toBe(50);
+      
+      // Test grayscale
+      const gray = rgbToHsl(128, 128, 128);
+      expect(gray.h).toBe(0);
+      expect(gray.s).toBe(0);
+      expect(Math.round(gray.l)).toBe(50);
+    });
+
     it('should blend particle colors based on influence', () => {
       const blendColors = (renderer as any).blendParticleColors.bind(renderer);
       
@@ -267,6 +301,62 @@ describe('MetaballRenderer', () => {
       expect(blendedColor.a).toBeGreaterThan(0);
     });
 
+    it('should handle single particle color blending', () => {
+      const blendColors = (renderer as any).blendParticleColors.bind(renderer);
+      
+      const particles: Particle[] = [
+        {
+          position: { x: 100, y: 100 },
+          velocity: { x: 0, y: 0 },
+          life: 0.5,
+          maxLife: 1.0,
+          size: 20,
+          color: { h: 180, s: 80, l: 60, a: 0.8 },
+          createdAt: 0
+        }
+      ];
+      
+      // Test color at particle center
+      const blendedColor = blendColors(100, 100, particles);
+      
+      // Should have color components based on the particle
+      expect(blendedColor.r).toBeGreaterThan(0);
+      expect(blendedColor.g).toBeGreaterThan(0);
+      expect(blendedColor.b).toBeGreaterThan(0);
+      expect(blendedColor.a).toBeGreaterThan(0);
+    });
+
+    it('should apply smooth alpha falloff', () => {
+      const calculateSmoothAlpha = (renderer as any).calculateSmoothAlpha.bind(renderer);
+      
+      // Test smooth alpha calculation
+      const alpha1 = calculateSmoothAlpha(1.0, 1.0, 1.0); // Maximum influence
+      const alpha2 = calculateSmoothAlpha(0.5, 1.0, 1.0); // Half influence
+      const alpha3 = calculateSmoothAlpha(0.0, 1.0, 1.0); // No influence
+      
+      expect(alpha1).toBe(1.0);
+      expect(alpha2).toBeLessThan(alpha1);
+      expect(alpha2).toBeGreaterThan(alpha3);
+      expect(alpha3).toBe(0);
+    });
+
+    it('should enhance colors for better vibrancy', () => {
+      const enhanceColor = (renderer as any).enhanceColor.bind(renderer);
+      
+      // Test color enhancement
+      const enhanced = enhanceColor(100, 150, 200);
+      
+      expect(typeof enhanced.r).toBe('number');
+      expect(typeof enhanced.g).toBe('number');
+      expect(typeof enhanced.b).toBe('number');
+      expect(enhanced.r).toBeGreaterThanOrEqual(0);
+      expect(enhanced.r).toBeLessThanOrEqual(255);
+      expect(enhanced.g).toBeGreaterThanOrEqual(0);
+      expect(enhanced.g).toBeLessThanOrEqual(255);
+      expect(enhanced.b).toBeGreaterThanOrEqual(0);
+      expect(enhanced.b).toBeLessThanOrEqual(255);
+    });
+
     it('should return transparent color when no particles have influence', () => {
       const blendColors = (renderer as any).blendParticleColors.bind(renderer);
       
@@ -289,6 +379,46 @@ describe('MetaballRenderer', () => {
       expect(blendedColor.g).toBe(0);
       expect(blendedColor.b).toBe(0);
       expect(blendedColor.a).toBe(0);
+    });
+
+    it('should blend multiple particles with additive mixing', () => {
+      const blendMultipleColors = (renderer as any).blendMultipleParticleColors.bind(renderer);
+      
+      const particleInfluences = [
+        {
+          particle: {
+            position: { x: 100, y: 100 },
+            velocity: { x: 0, y: 0 },
+            life: 0.5,
+            maxLife: 1.0,
+            size: 20,
+            color: { h: 0, s: 100, l: 50, a: 1.0 }, // Red
+            createdAt: 0
+          },
+          influence: 0.8,
+          rgb: { r: 255, g: 0, b: 0 }
+        },
+        {
+          particle: {
+            position: { x: 110, y: 100 },
+            velocity: { x: 0, y: 0 },
+            life: 0.5,
+            maxLife: 1.0,
+            size: 20,
+            color: { h: 120, s: 100, l: 50, a: 1.0 }, // Green
+            createdAt: 0
+          },
+          influence: 0.6,
+          rgb: { r: 0, g: 255, b: 0 }
+        }
+      ];
+      
+      const blended = blendMultipleColors(particleInfluences, 0.8);
+      
+      // Should have both red and green components
+      expect(blended.r).toBeGreaterThan(0);
+      expect(blended.g).toBeGreaterThan(0);
+      expect(blended.a).toBeGreaterThan(0);
     });
   });
 
@@ -428,6 +558,189 @@ describe('MetaballRenderer', () => {
       
       expect(() => {
         renderer.render(zeroSizeParticles);
+      }).not.toThrow();
+    });
+  });
+
+  describe('Visual Effects', () => {
+    it('should apply gradient smoothing without errors', () => {
+      const applyGradientSmoothing = (renderer as any).applyGradientSmoothing.bind(renderer);
+      
+      // Create test image data
+      const testImageData = renderer.ctx.createImageData(10, 10);
+      (renderer as any).imageData = testImageData;
+      
+      expect(() => {
+        applyGradientSmoothing();
+      }).not.toThrow();
+    });
+
+    it('should calculate gradient magnitude correctly', () => {
+      const calculateGradientMagnitude = (renderer as any).calculateGradientMagnitude.bind(renderer);
+      
+      // Create test data with a clear edge
+      const data = new Uint8ClampedArray(9 * 4); // 3x3 pixels
+      
+      // Create horizontal edge (top row white, bottom row black)
+      for (let i = 0; i < 3; i++) {
+        const topIdx = i * 4;
+        const bottomIdx = (i + 6) * 4;
+        
+        // Top row - white
+        data[topIdx] = 255;
+        data[topIdx + 1] = 255;
+        data[topIdx + 2] = 255;
+        data[topIdx + 3] = 255;
+        
+        // Bottom row - black
+        data[bottomIdx] = 0;
+        data[bottomIdx + 1] = 0;
+        data[bottomIdx + 2] = 0;
+        data[bottomIdx + 3] = 255;
+      }
+      
+      const gradient = calculateGradientMagnitude(data, 1, 1, 3);
+      expect(gradient).toBeGreaterThan(0);
+    });
+
+    it('should calculate smoothed pixel values', () => {
+      const calculateSmoothedPixel = (renderer as any).calculateSmoothedPixel.bind(renderer);
+      
+      // Create test data
+      const data = new Uint8ClampedArray(9 * 4); // 3x3 pixels
+      
+      // Fill with test pattern
+      for (let i = 0; i < 9; i++) {
+        const idx = i * 4;
+        data[idx] = 100 + i * 10;     // Red gradient
+        data[idx + 1] = 150;          // Constant green
+        data[idx + 2] = 200 - i * 5;  // Blue gradient
+        data[idx + 3] = 255;          // Full alpha
+      }
+      
+      const smoothed = calculateSmoothedPixel(data, 1, 1, 3);
+      
+      expect(smoothed.r).toBeGreaterThan(0);
+      expect(smoothed.g).toBeGreaterThan(0);
+      expect(smoothed.b).toBeGreaterThan(0);
+      expect(smoothed.a).toBeGreaterThan(0);
+    });
+
+    it('should enhance pixels for better contrast', () => {
+      const enhancePixel = (renderer as any).enhancePixel.bind(renderer);
+      
+      const enhanced = enhancePixel(128, 128, 128);
+      
+      expect(typeof enhanced.r).toBe('number');
+      expect(typeof enhanced.g).toBe('number');
+      expect(typeof enhanced.b).toBe('number');
+      expect(enhanced.r).toBeGreaterThanOrEqual(0);
+      expect(enhanced.r).toBeLessThanOrEqual(255);
+    });
+
+    it('should apply contrast curve correctly', () => {
+      const applyContrastCurve = (renderer as any).applyContrastCurve.bind(renderer);
+      
+      // Test S-curve behavior
+      const dark = applyContrastCurve(25);   // Dark input
+      const mid = applyContrastCurve(50);    // Mid input
+      const bright = applyContrastCurve(75); // Bright input
+      
+      expect(dark).toBeLessThan(25);    // Should be darker
+      expect(mid).toBe(50);             // Should remain the same
+      expect(bright).toBeGreaterThan(75); // Should be brighter
+    });
+
+    it('should apply smooth step function correctly', () => {
+      const smoothStep = (renderer as any).smoothStep.bind(renderer);
+      
+      const step0 = smoothStep(0, 1, 0);
+      const step1 = smoothStep(0, 1, 1);
+      const stepMid = smoothStep(0, 1, 0.5);
+      
+      expect(step0).toBe(0);
+      expect(step1).toBe(1);
+      expect(stepMid).toBe(0.5);
+      
+      // Test smooth interpolation
+      const step25 = smoothStep(0, 1, 0.25);
+      const step75 = smoothStep(0, 1, 0.75);
+      
+      expect(step25).toBeLessThan(0.25); // Should be smoother than linear
+      expect(step75).toBeGreaterThan(0.75);
+    });
+
+    it('should handle post-processing effects without errors', () => {
+      const applyPostProcessingEffects = (renderer as any).applyPostProcessingEffects.bind(renderer);
+      
+      expect(() => {
+        applyPostProcessingEffects();
+      }).not.toThrow();
+    });
+
+    it('should handle glow effect application', () => {
+      const applyGlowEffect = (renderer as any).applyGlowEffect.bind(renderer);
+      
+      expect(() => {
+        applyGlowEffect();
+      }).not.toThrow();
+    });
+
+    it('should handle color enhancement on image data', () => {
+      const applyColorEnhancement = (renderer as any).applyColorEnhancement.bind(renderer);
+      
+      expect(() => {
+        applyColorEnhancement();
+      }).not.toThrow();
+    });
+  });
+
+  describe('Optimization Controls', () => {
+    it('should enable and disable optimizations', () => {
+      renderer.setOptimizationsEnabled(false);
+      expect(() => {
+        renderer.render([]);
+      }).not.toThrow();
+
+      renderer.setOptimizationsEnabled(true);
+      expect(() => {
+        renderer.render([]);
+      }).not.toThrow();
+    });
+
+    it('should enable and disable spatial partitioning', () => {
+      renderer.setSpatialPartitioningEnabled(true);
+      expect(() => {
+        renderer.render([]);
+      }).not.toThrow();
+
+      renderer.setSpatialPartitioningEnabled(false);
+      expect(() => {
+        renderer.render([]);
+      }).not.toThrow();
+
+      // Re-enable to test grid creation
+      renderer.setSpatialPartitioningEnabled(true);
+      expect(() => {
+        renderer.render([]);
+      }).not.toThrow();
+    });
+
+    it('should enable and disable dirty rectangle tracking', () => {
+      renderer.setDirtyRectanglesEnabled(true);
+      expect(() => {
+        renderer.render([]);
+      }).not.toThrow();
+
+      renderer.setDirtyRectanglesEnabled(false);
+      expect(() => {
+        renderer.render([]);
+      }).not.toThrow();
+
+      // Re-enable to test tracker creation
+      renderer.setDirtyRectanglesEnabled(true);
+      expect(() => {
+        renderer.render([]);
       }).not.toThrow();
     });
   });

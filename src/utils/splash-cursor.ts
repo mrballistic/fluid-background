@@ -2,7 +2,7 @@
  * Utility functions for splash cursor system
  */
 
-import { Vector2, HSLColor } from '../types/splash-cursor';
+import { Vector2, HSLColor, SplashCursorConfig, ColorConfig, SplashCursorProps } from '../types/splash-cursor';
 
 // Vector2 utility functions
 export const createVector2 = (x: number = 0, y: number = 0): Vector2 => ({ x, y });
@@ -189,4 +189,91 @@ export const getHighResolutionTime = (): number => {
 
 export const calculateDeltaTime = (lastTime: number, currentTime: number): number => {
   return Math.min((currentTime - lastTime) / 1000, 1/30); // Cap at 30 FPS minimum
+};
+
+// Configuration utility functions
+export const createDefaultColorConfig = (): ColorConfig => ({
+  mode: 'rainbow',
+  saturation: 80,
+  lightness: 60,
+  cycleSpeed: 1
+});
+
+export const createSplashCursorConfig = (props: Partial<SplashCursorProps> = {}): SplashCursorConfig => ({
+  // Visual
+  intensity: props.intensity ?? 1,
+  colors: props.colors ?? createDefaultColorConfig(),
+  particleCount: props.particleCount ?? 150,
+  
+  // Physics
+  bounceEnabled: props.bounceEnabled ?? true,
+  gravity: props.gravity ?? 0.01,
+  drag: props.drag ?? 0.997,
+  
+  // Performance
+  targetFPS: props.targetFPS ?? 60,
+  pauseOnHidden: props.pauseOnHidden ?? true,
+  
+  // Rendering
+  metaballThreshold: 0.6,
+  blurAmount: 2,
+  fadeRate: 0.02
+});
+
+export const validateSplashCursorConfig = (config: Partial<SplashCursorConfig>): boolean => {
+  if (config.intensity !== undefined && (config.intensity < 0 || config.intensity > 1)) {
+    return false;
+  }
+  if (config.particleCount !== undefined && (config.particleCount < 1 || config.particleCount > 1000)) {
+    return false;
+  }
+  if (config.targetFPS !== undefined && (config.targetFPS < 1 || config.targetFPS > 120)) {
+    return false;
+  }
+  if (config.gravity !== undefined && (config.gravity < -1 || config.gravity > 1)) {
+    return false;
+  }
+  if (config.drag !== undefined && (config.drag < 0 || config.drag > 1)) {
+    return false;
+  }
+  return true;
+};
+
+export const rgbToHsl = (r: number, g: number, b: number): HSLColor => {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h: number, s: number, l: number;
+
+  l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+      default: h = 0;
+    }
+
+    h /= 6;
+  }
+
+  return {
+    h: h * 360,
+    s: s * 100,
+    l: l * 100,
+    a: 1
+  };
+};
+
+export const interpolateColors = (color1: HSLColor, color2: HSLColor, t: number): HSLColor => {
+  return blendHSLColors(color1, color2, t);
 };

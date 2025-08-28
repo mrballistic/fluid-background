@@ -1,5 +1,6 @@
-// Main component export
+// Main component exports
 export { default as FluidBackground } from './FluidBackground';
+export { SplashCursor } from './components/SplashCursor';
 
 // Simulation classes export
 export {
@@ -30,6 +31,19 @@ export type {
   FramebufferManager,
   FramebufferPair,
 } from './types';
+
+// SplashCursor type exports
+export type {
+  SplashCursorProps,
+  ColorConfig,
+  UseSplashCursorReturn,
+  Vector2,
+  HSLColor,
+  Rectangle,
+  MouseState,
+  Particle,
+  QualityLevel
+} from './types/splash-cursor';
 
 // Error exports
 export { WebGLError, ShaderCompilationError } from './types';

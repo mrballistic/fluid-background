@@ -19,7 +19,10 @@ if (!existsSync(distDir)) {
 const requiredFiles = [
   'dist/index.js',
   'dist/index.esm.js',
-  'dist/index.d.ts'
+  'dist/index.d.ts',
+  'dist/splash-cursor.js',
+  'dist/splash-cursor.esm.js',
+  'dist/splash-cursor.d.ts'
 ];
 
 let allFilesExist = true;
@@ -46,6 +49,7 @@ try {
   // Check for main exports
   const expectedExports = [
     'FluidBackground',
+    'SplashCursor',
     'WebGLContextImpl',
     'ShaderManagerImpl',
     'FramebufferManagerImpl',
@@ -65,6 +69,39 @@ try {
   console.log('✅ ESM exports test passed');
 } catch (error) {
   console.error('❌ ESM import failed:', error.message);
+  process.exit(1);
+}
+
+// Test splash-cursor specific exports
+try {
+  const splashCursorModule = await import(resolve(distDir, 'splash-cursor.esm.js'));
+  
+  const expectedSplashExports = [
+    'SplashCursor',
+    'useSplashCursor',
+    'ParticleSystem',
+    'PhysicsEngine',
+    'MetaballRenderer',
+    'MouseTracker',
+    'SplashCursorVanilla',
+    'createSplashCursor',
+    'SplashCursorError',
+    'CanvasInitializationError',
+    'PerformanceError'
+  ];
+  
+  for (const exportName of expectedSplashExports) {
+    if (!(exportName in splashCursorModule)) {
+      console.error(`❌ Missing splash-cursor export: ${exportName}`);
+      process.exit(1);
+    } else {
+      console.log(`✅ Splash-cursor export found: ${exportName}`);
+    }
+  }
+  
+  console.log('✅ Splash-cursor ESM exports test passed');
+} catch (error) {
+  console.error('❌ Splash-cursor ESM import failed:', error.message);
   process.exit(1);
 }
 
