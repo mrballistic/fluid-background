@@ -37,9 +37,10 @@ Thank you for your interest in contributing to the Fluid Background project! Thi
 ## 🏗️ Project Structure
 
 ```
-fluid-background/
+fluid-cursor/
 ├── src/
-│   ├── FluidBackground.tsx      # Main component
+│   ├── components/
+│   │   └── FluidCursor/         # Main component
 │   ├── hooks/                   # React hooks
 │   ├── simulation/              # WebGL simulation classes
 │   ├── shaders/                 # GLSL shader code
@@ -81,11 +82,11 @@ npm run test:build
 // Example test structure
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { FluidBackground } from '../FluidBackground';
+import FluidCursor from '../components/FluidCursor';
 
-describe('FluidBackground', () => {
+describe('FluidCursor', () => {
   it('should render without crashing', () => {
-    const { container } = render(<FluidBackground />);
+    const { container } = render(<FluidCursor />);
     expect(container.firstChild).toBeInTheDocument();
   });
   
@@ -94,7 +95,7 @@ describe('FluidBackground', () => {
     const mockGetContext = vi.fn().mockReturnValue({});
     HTMLCanvasElement.prototype.getContext = mockGetContext;
     
-    render(<FluidBackground />);
+    render(<FluidCursor />);
     expect(mockGetContext).toHaveBeenCalledWith('webgl2');
   });
 });

@@ -11,7 +11,5 @@ export type { FluidCursorProps } from '../components/FluidCursor';
 
 // Re-export shared types that are relevant for FluidCursor
 export type {
-  ColorRGB,
-  WebGLExtensions,
-  WebGLCapabilities
+  ColorRGB
 } from '../types';

@@ -19,13 +19,7 @@ if (!existsSync(distDir)) {
 const requiredFiles = [
   'dist/index.js',
   'dist/index.esm.js',
-  'dist/index.d.ts',
-  'dist/splash-cursor.js',
-  'dist/splash-cursor.esm.js',
-  'dist/splash-cursor.d.ts',
-  'dist/fluid-cursor.js',
-  'dist/fluid-cursor.esm.js',
-  'dist/fluid-cursor.d.ts'
+  'dist/index.d.ts'
 ];
 
 let allFilesExist = true;
@@ -51,11 +45,7 @@ try {
   
   // Check for main exports
   const expectedExports = [
-    'FluidBackground',
-    'SplashCursor',
-    'WebGLContextImpl',
-    'ShaderManagerImpl',
-    'FramebufferManagerImpl',
+    'FluidCursor',
     'WebGLError',
     'ShaderCompilationError'
   ];
@@ -75,61 +65,7 @@ try {
   process.exit(1);
 }
 
-// Test splash-cursor specific exports
-try {
-  const splashCursorModule = await import(resolve(distDir, 'splash-cursor.esm.js'));
-  
-  const expectedSplashExports = [
-    'SplashCursor',
-    'useSplashCursor',
-    'ParticleSystem',
-    'PhysicsEngine',
-    'MetaballRenderer',
-    'MouseTracker',
-    'SplashCursorVanilla',
-    'createSplashCursor',
-    'SplashCursorError',
-    'CanvasInitializationError',
-    'PerformanceError'
-  ];
-  
-  for (const exportName of expectedSplashExports) {
-    if (!(exportName in splashCursorModule)) {
-      console.error(`❌ Missing splash-cursor export: ${exportName}`);
-      process.exit(1);
-    } else {
-      console.log(`✅ Splash-cursor export found: ${exportName}`);
-    }
-  }
-  
-  console.log('✅ Splash-cursor ESM exports test passed');
-} catch (error) {
-  console.error('❌ Splash-cursor ESM import failed:', error.message);
-  process.exit(1);
-}
 
-// Test fluid-cursor specific exports
-try {
-  const fluidCursorModule = await import(resolve(distDir, 'fluid-cursor.esm.js'));
-  
-  const expectedFluidExports = [
-    'FluidCursor'
-  ];
-  
-  for (const exportName of expectedFluidExports) {
-    if (!(exportName in fluidCursorModule)) {
-      console.error(`❌ Missing fluid-cursor export: ${exportName}`);
-      process.exit(1);
-    } else {
-      console.log(`✅ Fluid-cursor export found: ${exportName}`);
-    }
-  }
-  
-  console.log('✅ Fluid-cursor ESM exports test passed');
-} catch (error) {
-  console.error('❌ Fluid-cursor ESM import failed:', error.message);
-  process.exit(1);
-}
 
 console.log('✅ ESM exports validation complete. CommonJS test will run separately.');
 

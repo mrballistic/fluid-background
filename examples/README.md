@@ -1,6 +1,6 @@
-# FluidBackground Examples
+# FluidCursor Examples
 
-This directory contains comprehensive examples demonstrating how to use the FluidBackground component and FluidCursor component in various scenarios and configurations.
+This directory contains comprehensive examples demonstrating how to use the FluidCursor component in various scenarios and configurations.
 
 ## FluidCursor Examples
 
@@ -87,137 +87,7 @@ Standalone HTML demo with interactive controls.
 - Cross-browser testing
 - No build process required
 
-## FluidBackground Examples
 
-## Basic Usage Examples
-
-### 1. Basic Usage (`basic-usage.tsx`)
-The simplest way to use FluidBackground with default settings.
-
-**Features:**
-- Zero configuration required
-- Automatic performance optimization
-- Responsive design support
-- Accessibility features built-in
-- SSR compatible
-
-**Usage:**
-```tsx
-import FluidBackground from 'fluid-background';
-
-export default function MyPage() {
-  return (
-    <div style={{ minHeight: '100vh', position: 'relative' }}>
-      <FluidBackground />
-      {/* Your content here */}
-    </div>
-  );
-}
-```
-
-### 2. Custom Colors (`custom-colors.tsx`)
-Demonstrates how to customize the visual appearance with different color modes.
-
-**Features:**
-- Rainbow, monochrome, and custom color palettes
-- Interactive color mode switching
-- Custom physics parameters
-- Real-time configuration updates
-
-**Key Props:**
-```tsx
-<FluidBackground
-  colors={{
-    background: { r: 0.1, g: 0.1, b: 0.2 },
-    fluid: 'rainbow' // or 'monochrome' or custom array
-  }}
-  physics={{
-    viscosity: 0.25,
-    curl: 30,
-    splatRadius: 0.25
-  }}
-/>
-```
-
-### 3. Performance Optimized (`performance-optimized.tsx`)
-Shows how to configure FluidBackground for optimal performance on different devices.
-
-**Features:**
-- Device capability detection
-- Performance mode presets (auto, mobile, desktop, battery)
-- Real-time performance monitoring
-- Automatic quality adjustment
-
-**Performance Modes:**
-- **Auto:** Automatically adjusts based on device capabilities
-- **Mobile:** Optimized for mobile devices with lower resolution and frame rate
-- **Desktop:** High-quality settings for powerful desktop computers
-- **Battery:** Minimal resource usage for battery-powered devices
-
-## Advanced Integration Examples
-
-### 4. App Router Compatibility (`app-router-compatibility.tsx`)
-Demonstrates proper integration with Next.js App Router.
-
-**Features:**
-- Client-side only rendering with 'use client'
-- Dynamic imports to prevent SSR issues
-- Suspense boundaries for graceful loading
-- Fallback backgrounds while loading
-- Reusable layout components
-
-**Key Concepts:**
-```tsx
-'use client'; // Required for App Router
-
-const FluidBackground = dynamic(() => import('fluid-background'), {
-  ssr: false,
-  loading: () => <FallbackBackground />
-});
-```
-
-### 5. TypeScript Integration (`typescript-integration.tsx`)
-Advanced TypeScript usage with type-safe configuration management.
-
-**Features:**
-- Full TypeScript support with proper type definitions
-- Type-safe configuration presets
-- Custom hooks for configuration management
-- Runtime type validation
-- Performance monitoring with typed metrics
-
-**Type Safety:**
-```tsx
-interface ConfigurationPreset {
-  name: string;
-  description: string;
-  config: FluidBackgroundProps;
-}
-
-const useFluidConfiguration = (initialPreset: ConfigurationPreset) => {
-  // Type-safe configuration management
-};
-```
-
-### 6. Responsive Design (`responsive-design.tsx`)
-Shows how to create responsive layouts with breakpoint-based configurations.
-
-**Features:**
-- Breakpoint-based configuration switching
-- Device type detection (mobile, tablet, desktop, ultrawide)
-- Responsive grid layouts
-- Performance optimization per device type
-- Real-time device information display
-
-**Breakpoints:**
-```tsx
-const BREAKPOINTS = {
-  mobile: 768,
-  tablet: 1024,
-  desktop: 1440,
-  ultrawide: 1920
-};
-```
 
 ## Running the Examples
 
@@ -228,7 +98,7 @@ const BREAKPOINTS = {
 
 ### Installation
 ```bash
-npm install fluid-background
+npm install fluid-cursor
 ```
 
 ### Usage in Next.js
@@ -251,7 +121,7 @@ npm test examples/__tests__
 - Consider user preferences (reduced motion, battery saver)
 
 ### Accessibility
-- FluidBackground automatically respects `prefers-reduced-motion`
+- FluidCursor automatically respects `prefers-reduced-motion`
 - Includes proper ARIA labels and screen reader support
 - Provides keyboard navigation compatibility
 - Offers fallback options for devices without WebGL

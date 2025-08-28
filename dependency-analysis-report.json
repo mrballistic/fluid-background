@@ -1,0 +1,2301 @@
+{
+  "timestamp": "2025-08-28T18:30:30.438Z",
+  "summary": {
+    "totalFiles": 129,
+    "usedByFluidCursor": 2,
+    "unused": 127,
+    "testFiles": 52,
+    "exampleFiles": 18
+  },
+  "fluidCursorDependencies": [
+    "src/components/FluidCursor/FluidCursor.tsx",
+    "src/components/FluidCursor/index.ts"
+  ],
+  "unusedFiles": [
+    {
+      "path": "src/FluidBackground.test.tsx",
+      "size": 12203,
+      "lines": 347,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/FluidBackground.tsx",
+      "size": 6328,
+      "lines": 201,
+      "isTest": false,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/components/SplashCursor/SplashCursor.test.tsx",
+      "size": 14450,
+      "lines": 440,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/components/SplashCursor/SplashCursor.tsx",
+      "size": 4857,
+      "lines": 159,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "SplashCursor"
+      ]
+    },
+    {
+      "path": "src/components/SplashCursor/index.ts",
+      "size": 166,
+      "lines": 6,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "SplashCursor",
+        "default"
+      ]
+    },
+    {
+      "path": "src/demo-fluid-cursor.tsx",
+      "size": 4107,
+      "lines": 123,
+      "isTest": false,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/demo.tsx",
+      "size": 706,
+      "lines": 19,
+      "isTest": false,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/fluid-cursor/index.ts",
+      "size": 410,
+      "lines": 17,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "default"
+      ]
+    },
+    {
+      "path": "src/hooks/index.ts",
+      "size": 354,
+      "lines": 5,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "useFluidSimulation",
+        "useResponsive",
+        "useCanvasDimensions",
+        "useDeviceInfo",
+        "usePerformance",
+        "useAutoQuality",
+        "useReducedMotion",
+        "useBatteryStatus",
+        "useSplashCursor"
+      ]
+    },
+    {
+      "path": "src/hooks/useFluidSimulation.test.ts",
+      "size": 7471,
+      "lines": 282,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/hooks/useFluidSimulation.ts",
+      "size": 10843,
+      "lines": 348,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "useFluidSimulation"
+      ]
+    },
+    {
+      "path": "src/hooks/usePerformance.test.ts",
+      "size": 16796,
+      "lines": 579,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/hooks/usePerformance.ts",
+      "size": 11659,
+      "lines": 374,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "usePerformance",
+        "useAutoQuality",
+        "useReducedMotion",
+        "useBatteryStatus"
+      ]
+    },
+    {
+      "path": "src/hooks/useResponsive.test.ts",
+      "size": 9963,
+      "lines": 357,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/hooks/useResponsive.ts",
+      "size": 8496,
+      "lines": 288,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "useResponsive",
+        "useCanvasDimensions",
+        "useDeviceInfo"
+      ]
+    },
+    {
+      "path": "src/hooks/useSplashCursor.test.ts",
+      "size": 6172,
+      "lines": 225,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/hooks/useSplashCursor.ts",
+      "size": 21956,
+      "lines": 715,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "useSplashCursor"
+      ]
+    },
+    {
+      "path": "src/index.ts",
+      "size": 1137,
+      "lines": 53,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "default",
+        "SplashCursor",
+        "default",
+        "WebGLContextImpl",
+        "ShaderManagerImpl",
+        "FramebufferManagerImpl",
+        "",
+        "WebGLError",
+        "ShaderCompilationError"
+      ]
+    },
+    {
+      "path": "src/main.tsx",
+      "size": 219,
+      "lines": 7,
+      "isTest": false,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/shaders/fragments/advection.ts",
+      "size": 1075,
+      "lines": 41,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "advectionShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/clear.ts",
+      "size": 381,
+      "lines": 23,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "clearShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/copy.ts",
+      "size": 387,
+      "lines": 22,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "copyShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/curl.ts",
+      "size": 760,
+      "lines": 29,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "curlShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/display.ts",
+      "size": 664,
+      "lines": 32,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "displayShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/divergence.ts",
+      "size": 1064,
+      "lines": 35,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "divergenceShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/fragments.test.ts",
+      "size": 4671,
+      "lines": 127,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/shaders/fragments/gradientSubtract.ts",
+      "size": 899,
+      "lines": 32,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "gradientSubtractShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/index.ts",
+      "size": 530,
+      "lines": 11,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "copyShaderSource",
+        "clearShaderSource",
+        "displayShaderSource",
+        "advectionShaderSource",
+        "divergenceShaderSource",
+        "pressureShaderSource",
+        "curlShaderSource",
+        "vorticityShaderSource",
+        "gradientSubtractShaderSource",
+        "splatShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/pressure.ts",
+      "size": 925,
+      "lines": 32,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "pressureShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/splat.ts",
+      "size": 681,
+      "lines": 31,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "splatShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/fragments/vorticity.ts",
+      "size": 1143,
+      "lines": 41,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "vorticityShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/index.test.ts",
+      "size": 971,
+      "lines": 43,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/shaders/index.ts",
+      "size": 525,
+      "lines": 14,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "vertexShaderSource",
+        "copyShaderSource",
+        "clearShaderSource",
+        "displayShaderSource",
+        "advectionShaderSource",
+        "divergenceShaderSource",
+        "pressureShaderSource",
+        "curlShaderSource",
+        "vorticityShaderSource",
+        "gradientSubtractShaderSource",
+        "splatShaderSource"
+      ]
+    },
+    {
+      "path": "src/shaders/vertex.test.ts",
+      "size": 1539,
+      "lines": 46,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/shaders/vertex.ts",
+      "size": 558,
+      "lines": 23,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "vertexShaderSource"
+      ]
+    },
+    {
+      "path": "src/simulation/AdvectionPass.test.ts",
+      "size": 5443,
+      "lines": 178,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/AdvectionPass.ts",
+      "size": 3739,
+      "lines": 114,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "AdvectionPass"
+      ]
+    },
+    {
+      "path": "src/simulation/CurlPass.test.ts",
+      "size": 4983,
+      "lines": 169,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/CurlPass.ts",
+      "size": 3175,
+      "lines": 103,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "CurlPass"
+      ]
+    },
+    {
+      "path": "src/simulation/DisplayPass.ts",
+      "size": 3746,
+      "lines": 121,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "DisplayPass"
+      ]
+    },
+    {
+      "path": "src/simulation/DivergencePass.test.ts",
+      "size": 5085,
+      "lines": 169,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/DivergencePass.ts",
+      "size": 3214,
+      "lines": 103,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "DivergencePass"
+      ]
+    },
+    {
+      "path": "src/simulation/FramebufferManager.test.ts",
+      "size": 10216,
+      "lines": 298,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/FramebufferManager.ts",
+      "size": 10126,
+      "lines": 338,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "FramebufferManagerImpl"
+      ]
+    },
+    {
+      "path": "src/simulation/InputHandler.test.ts",
+      "size": 13324,
+      "lines": 354,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/InputHandler.ts",
+      "size": 9859,
+      "lines": 308,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "InputHandlerImpl"
+      ]
+    },
+    {
+      "path": "src/simulation/PressurePass.test.ts",
+      "size": 7903,
+      "lines": 245,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/PressurePass.ts",
+      "size": 4858,
+      "lines": 151,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "PressurePass"
+      ]
+    },
+    {
+      "path": "src/simulation/ShaderManager.test.ts",
+      "size": 10119,
+      "lines": 283,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/ShaderManager.ts",
+      "size": 5828,
+      "lines": 218,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "ShaderManagerImpl"
+      ]
+    },
+    {
+      "path": "src/simulation/SimulationStep.test.ts",
+      "size": 10686,
+      "lines": 344,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/SimulationStep.ts",
+      "size": 12320,
+      "lines": 338,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "SimulationStepImpl"
+      ]
+    },
+    {
+      "path": "src/simulation/SplatPass.test.ts",
+      "size": 8545,
+      "lines": 262,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/SplatPass.ts",
+      "size": 6408,
+      "lines": 206,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "SplatPass"
+      ]
+    },
+    {
+      "path": "src/simulation/VorticityPass.test.ts",
+      "size": 7099,
+      "lines": 221,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/VorticityPass.ts",
+      "size": 4134,
+      "lines": 128,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "VorticityPass"
+      ]
+    },
+    {
+      "path": "src/simulation/WebGLContext.test.ts",
+      "size": 7170,
+      "lines": 214,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/WebGLContext.ts",
+      "size": 5595,
+      "lines": 202,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "WebGLContextImpl"
+      ]
+    },
+    {
+      "path": "src/simulation/index.test.ts",
+      "size": 1747,
+      "lines": 55,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/simulation/index.ts",
+      "size": 791,
+      "lines": 24,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "WebGLContextImpl",
+        "ShaderManagerImpl",
+        "FramebufferManagerImpl",
+        "AdvectionPass",
+        "DivergencePass",
+        "PressurePass",
+        "CurlPass",
+        "VorticityPass",
+        "SplatPass",
+        "DisplayPass",
+        "SimulationStepImpl",
+        "InputHandlerImpl"
+      ]
+    },
+    {
+      "path": "src/splash-cursor/MetaballRenderer.test.ts",
+      "size": 26224,
+      "lines": 823,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/splash-cursor/MetaballRenderer.ts",
+      "size": 39535,
+      "lines": 1308,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "MetaballRendererConfig",
+        "MetaballRenderer"
+      ]
+    },
+    {
+      "path": "src/splash-cursor/MouseTracker.test.ts",
+      "size": 14537,
+      "lines": 438,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/splash-cursor/MouseTracker.ts",
+      "size": 10551,
+      "lines": 366,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "MouseTrackerConfig",
+        "MouseTracker"
+      ]
+    },
+    {
+      "path": "src/splash-cursor/ParticleSystem.test.ts",
+      "size": 12518,
+      "lines": 354,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/splash-cursor/ParticleSystem.ts",
+      "size": 9363,
+      "lines": 310,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "ParticleSystem"
+      ]
+    },
+    {
+      "path": "src/splash-cursor/PhysicsEngine.test.ts",
+      "size": 18456,
+      "lines": 467,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/splash-cursor/PhysicsEngine.ts",
+      "size": 8040,
+      "lines": 253,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "PhysicsEngine"
+      ]
+    },
+    {
+      "path": "src/splash-cursor/comprehensive-integration.test.ts",
+      "size": 18802,
+      "lines": 568,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/splash-cursor/index.ts",
+      "size": 1360,
+      "lines": 59,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "SplashCursor",
+        "useSplashCursor",
+        "ParticleSystem",
+        "PhysicsEngine",
+        "MetaballRenderer",
+        "MouseTracker",
+        "createSplashCursorConfig",
+        "validateSplashCursorConfig",
+        "createDefaultColorConfig",
+        "hslToRgb",
+        "rgbToHsl",
+        "interpolateColors",
+        "SplashCursorVanilla",
+        "createSplashCursor",
+        "SplashCursorError",
+        "CanvasInitializationError",
+        "PerformanceError"
+      ]
+    },
+    {
+      "path": "src/splash-cursor/integration.test.ts",
+      "size": 11532,
+      "lines": 336,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/splash-cursor/performance-benchmarks.test.ts",
+      "size": 20547,
+      "lines": 630,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/test/setup.ts",
+      "size": 1413,
+      "lines": 49,
+      "isTest": false,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/types/index.ts",
+      "size": 5923,
+      "lines": 238,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "PerformanceMetrics",
+        "FluidBackgroundProps",
+        "FluidSimulationConfig",
+        "WebGLCapabilities",
+        "WebGLExtensions",
+        "RenderPassInputs",
+        "RenderPass",
+        "ShaderProgram",
+        "ShaderManager",
+        "FramebufferPair",
+        "FramebufferManager",
+        "WebGLContext",
+        "SimulationStep",
+        "InputState",
+        "InputHandler",
+        "UseFluidSimulationReturn",
+        "UseResponsiveReturn",
+        "UsePerformanceReturn",
+        "ColorRGB",
+        "ColorHSV",
+        "Resolution",
+        "FluidColorMode",
+        "WebGLError",
+        "ShaderCompilationError"
+      ]
+    },
+    {
+      "path": "src/types/splash-cursor.ts",
+      "size": 4091,
+      "lines": 173,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "Vector2",
+        "HSLColor",
+        "Rectangle",
+        "MouseState",
+        "ColorConfig",
+        "SplashCursorProps",
+        "SplashCursorConfig",
+        "Particle",
+        "ParticleSystemConfig",
+        "PhysicsConfig",
+        "UseSplashCursorReturn",
+        "SplashCursorPerformanceMetrics",
+        "SplashCursorError",
+        "CanvasInitializationError",
+        "PerformanceError",
+        "QualityLevel",
+        "QualitySettings"
+      ]
+    },
+    {
+      "path": "src/utils/__tests__/browser-compatibility.test.ts",
+      "size": 11765,
+      "lines": 338,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/cross-browser-compatibility.test.ts",
+      "size": 8843,
+      "lines": 241,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/error-handler.test.ts",
+      "size": 5205,
+      "lines": 179,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/error-recovery.test.ts",
+      "size": 13383,
+      "lines": 432,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/fallback-integration.test.ts",
+      "size": 6319,
+      "lines": 197,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/fallback-renderer.test.ts",
+      "size": 13205,
+      "lines": 430,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/graceful-degradation.test.ts",
+      "size": 18748,
+      "lines": 585,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/performance-monitor-advanced.test.ts",
+      "size": 10870,
+      "lines": 358,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/performance-monitor.test.ts",
+      "size": 5780,
+      "lines": 191,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/polyfills.test.ts",
+      "size": 11279,
+      "lines": 367,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/rendering-performance.test.ts",
+      "size": 10978,
+      "lines": 352,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/__tests__/splash-cursor.test.ts",
+      "size": 6397,
+      "lines": 214,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/browser-compatibility.ts",
+      "size": 7663,
+      "lines": 266,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "BrowserCapabilities",
+        "PerformanceCapabilities",
+        "BrowserCompatibility"
+      ]
+    },
+    {
+      "path": "src/utils/color.test.ts",
+      "size": 5601,
+      "lines": 179,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/color.ts",
+      "size": 2901,
+      "lines": 127,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "RGB",
+        "HSV",
+        "hsvToRgb",
+        "rgbToHsv",
+        "generateRainbowColor",
+        "generateRandomColor",
+        "blendColors",
+        "rgbToHex",
+        "hexToRgb"
+      ]
+    },
+    {
+      "path": "src/utils/config.test.ts",
+      "size": 11338,
+      "lines": 378,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/config.ts",
+      "size": 7365,
+      "lines": 294,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "FluidSimulationConfig",
+        "PerformanceMetrics",
+        "DEFAULT_CONFIG",
+        "PERFORMANCE_PRESETS",
+        "mergeConfig",
+        "validateConfig",
+        "createAutoConfig",
+        "getResolutionMultiplier",
+        "detectMobileDevice",
+        "createInitialMetrics"
+      ]
+    },
+    {
+      "path": "src/utils/dirty-rectangle.ts",
+      "size": 13783,
+      "lines": 514,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "DirtyRegion",
+        "DirtyRectangleTracker"
+      ]
+    },
+    {
+      "path": "src/utils/error-handler.ts",
+      "size": 7350,
+      "lines": 240,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "ErrorHandler",
+        "errorHandler"
+      ]
+    },
+    {
+      "path": "src/utils/error-recovery.ts",
+      "size": 8627,
+      "lines": 338,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "ErrorRecoveryConfig",
+        "RecoveryState",
+        "ErrorRecovery",
+        "ErrorRecoveryManager"
+      ]
+    },
+    {
+      "path": "src/utils/fallback-renderer.ts",
+      "size": 10466,
+      "lines": 402,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "RenderingMode",
+        "Particle",
+        "FallbackRendererConfig",
+        "IRenderer",
+        "MetaballRenderer",
+        "SimpleRenderer",
+        "BasicRenderer",
+        "DisabledRenderer",
+        "RendererFactory"
+      ]
+    },
+    {
+      "path": "src/utils/graceful-degradation.ts",
+      "size": 9742,
+      "lines": 305,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "DegradationConfig",
+        "DegradationLevel",
+        "DegradedFeatures",
+        "GracefulDegradation"
+      ]
+    },
+    {
+      "path": "src/utils/index.ts",
+      "size": 385,
+      "lines": 12,
+      "isTest": false,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/math.test.ts",
+      "size": 2215,
+      "lines": 75,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/math.ts",
+      "size": 1025,
+      "lines": 45,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "clamp",
+        "normalize",
+        "map",
+        "lerp",
+        "smoothstep"
+      ]
+    },
+    {
+      "path": "src/utils/particle-pool.ts",
+      "size": 13800,
+      "lines": 552,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "PooledParticle",
+        "ParticlePoolConfig",
+        "ParticlePool",
+        "SplashCursorParticlePool"
+      ]
+    },
+    {
+      "path": "src/utils/performance-monitor.ts",
+      "size": 17438,
+      "lines": 552,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "PerformanceMonitor",
+        "performanceMonitor"
+      ]
+    },
+    {
+      "path": "src/utils/polyfills.ts",
+      "size": 6225,
+      "lines": 219,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "installPolyfills",
+        "getRequestAnimationFrame",
+        "getCancelAnimationFrame",
+        "getVisibilityAPI",
+        "getDevicePixelRatio"
+      ]
+    },
+    {
+      "path": "src/utils/spatial-partitioning.ts",
+      "size": 9589,
+      "lines": 352,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "SpatialGrid",
+        "SpatialPartitioning",
+        "MetaballSpatialGrid"
+      ]
+    },
+    {
+      "path": "src/utils/splash-cursor.ts",
+      "size": 7706,
+      "lines": 279,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "createVector2",
+        "addVectors",
+        "subtractVectors",
+        "multiplyVector",
+        "divideVector",
+        "dotProduct",
+        "vectorLength",
+        "vectorLengthSquared",
+        "normalizeVector",
+        "distanceBetween",
+        "distanceSquaredBetween",
+        "lerpVector",
+        "clampVector",
+        "createHSLColor",
+        "hslToRgb",
+        "hslToString",
+        "blendHSLColors",
+        "generateRainbowHSL",
+        "generateVelocityBasedColor",
+        "easeOutQuad",
+        "easeInOutQuad",
+        "randomBetween",
+        "randomVector2",
+        "randomUnitVector",
+        "getHighResolutionTime",
+        "calculateDeltaTime",
+        "createDefaultColorConfig",
+        "createSplashCursorConfig",
+        "validateSplashCursorConfig",
+        "rgbToHsl",
+        "interpolateColors"
+      ]
+    },
+    {
+      "path": "src/utils/webgl.test.ts",
+      "size": 9193,
+      "lines": 272,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "src/utils/webgl.ts",
+      "size": 7105,
+      "lines": 225,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "WebGLCapabilities",
+        "WebGLExtensions",
+        "createWebGLContext",
+        "detectWebGLCapabilities",
+        "loadWebGLExtensions",
+        "isTextureFormatSupported",
+        "getBestFloatTextureFormat",
+        "validateFramebuffer",
+        "checkWebGLError"
+      ]
+    },
+    {
+      "path": "src/vanilla/SplashCursorVanilla.ts",
+      "size": 12293,
+      "lines": 434,
+      "isTest": false,
+      "isExample": false,
+      "exports": [
+        "SplashCursorVanillaOptions",
+        "SplashCursorVanillaAPI",
+        "SplashCursorVanilla",
+        "createSplashCursor"
+      ]
+    },
+    {
+      "path": "src/vanilla/__tests__/SplashCursorVanilla.test.ts",
+      "size": 5043,
+      "lines": 199,
+      "isTest": true,
+      "isExample": false,
+      "exports": []
+    },
+    {
+      "path": "examples/__tests__/basic-usage.test.tsx",
+      "size": 2702,
+      "lines": 82,
+      "isTest": true,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/__tests__/custom-colors.test.tsx",
+      "size": 4122,
+      "lines": 121,
+      "isTest": true,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/__tests__/fluid-cursor-basic.test.tsx",
+      "size": 3443,
+      "lines": 116,
+      "isTest": true,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/__tests__/fluid-cursor-custom.test.tsx",
+      "size": 6274,
+      "lines": 184,
+      "isTest": true,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/__tests__/performance-optimized.test.tsx",
+      "size": 6593,
+      "lines": 187,
+      "isTest": true,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/__tests__/responsive-design.test.tsx",
+      "size": 8278,
+      "lines": 240,
+      "isTest": true,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/__tests__/typescript-integration.test.tsx",
+      "size": 6059,
+      "lines": 174,
+      "isTest": true,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/app-router-compatibility.tsx",
+      "size": 4581,
+      "lines": 159,
+      "isTest": false,
+      "isExample": true,
+      "exports": [
+        "AppRouterLayout"
+      ]
+    },
+    {
+      "path": "examples/basic-usage.tsx",
+      "size": 1636,
+      "lines": 53,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/custom-colors.tsx",
+      "size": 4338,
+      "lines": 131,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/fluid-cursor-basic.tsx",
+      "size": 1184,
+      "lines": 48,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/fluid-cursor-custom.tsx",
+      "size": 6802,
+      "lines": 227,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/fluid-cursor-module-import.tsx",
+      "size": 1266,
+      "lines": 46,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/fluid-cursor-performance.tsx",
+      "size": 6638,
+      "lines": 216,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/performance-optimized.tsx",
+      "size": 7300,
+      "lines": 228,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/responsive-design.tsx",
+      "size": 12756,
+      "lines": 426,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    },
+    {
+      "path": "examples/splash-cursor-react-examples.tsx",
+      "size": 29498,
+      "lines": 1103,
+      "isTest": false,
+      "isExample": true,
+      "exports": [
+        "BasicExample",
+        "EcommerceExample",
+        "GamingExample",
+        "ArtPortfolioExample",
+        "MusicExample",
+        "MobileOptimizedExample",
+        "ThemeAwareExample",
+        "CustomHookExample",
+        "AccessibilityAwareExample",
+        "MultiInstanceExample",
+        "exampleStyles"
+      ]
+    },
+    {
+      "path": "examples/typescript-integration.tsx",
+      "size": 13818,
+      "lines": 463,
+      "isTest": false,
+      "isExample": true,
+      "exports": []
+    }
+  ],
+  "brokenTests": [
+    {
+      "path": "src/FluidBackground.test.tsx",
+      "testedFile": "src/FluidBackground.tsx",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/components/SplashCursor/SplashCursor.test.tsx",
+      "testedFile": "src/components/SplashCursor/SplashCursor.tsx",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/hooks/useFluidSimulation.test.ts",
+      "testedFile": "src/hooks/useFluidSimulation.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/hooks/usePerformance.test.ts",
+      "testedFile": "src/hooks/usePerformance.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/hooks/useResponsive.test.ts",
+      "testedFile": "src/hooks/useResponsive.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/hooks/useSplashCursor.test.ts",
+      "testedFile": "src/hooks/useSplashCursor.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/shaders/fragments/fragments.test.ts",
+      "testedFile": "src/shaders/fragments/fragments.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/shaders/index.test.ts",
+      "testedFile": "src/shaders/index.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/shaders/vertex.test.ts",
+      "testedFile": "src/shaders/vertex.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/AdvectionPass.test.ts",
+      "testedFile": "src/simulation/AdvectionPass.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/CurlPass.test.ts",
+      "testedFile": "src/simulation/CurlPass.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/DivergencePass.test.ts",
+      "testedFile": "src/simulation/DivergencePass.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/FramebufferManager.test.ts",
+      "testedFile": "src/simulation/FramebufferManager.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/InputHandler.test.ts",
+      "testedFile": "src/simulation/InputHandler.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/PressurePass.test.ts",
+      "testedFile": "src/simulation/PressurePass.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/ShaderManager.test.ts",
+      "testedFile": "src/simulation/ShaderManager.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/SimulationStep.test.ts",
+      "testedFile": "src/simulation/SimulationStep.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/SplatPass.test.ts",
+      "testedFile": "src/simulation/SplatPass.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/VorticityPass.test.ts",
+      "testedFile": "src/simulation/VorticityPass.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/WebGLContext.test.ts",
+      "testedFile": "src/simulation/WebGLContext.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/simulation/index.test.ts",
+      "testedFile": "src/simulation/index.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/splash-cursor/MetaballRenderer.test.ts",
+      "testedFile": "src/splash-cursor/MetaballRenderer.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/splash-cursor/MouseTracker.test.ts",
+      "testedFile": "src/splash-cursor/MouseTracker.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/splash-cursor/ParticleSystem.test.ts",
+      "testedFile": "src/splash-cursor/ParticleSystem.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/splash-cursor/PhysicsEngine.test.ts",
+      "testedFile": "src/splash-cursor/PhysicsEngine.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/splash-cursor/comprehensive-integration.test.ts",
+      "testedFile": "src/splash-cursor/comprehensive-integration.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/splash-cursor/integration.test.ts",
+      "testedFile": "src/splash-cursor/integration.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/splash-cursor/performance-benchmarks.test.ts",
+      "testedFile": "src/splash-cursor/performance-benchmarks.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/browser-compatibility.test.ts",
+      "testedFile": "src/utils/__tests__/browser-compatibility.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/cross-browser-compatibility.test.ts",
+      "testedFile": "src/utils/__tests__/cross-browser-compatibility.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/error-handler.test.ts",
+      "testedFile": "src/utils/__tests__/error-handler.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/error-recovery.test.ts",
+      "testedFile": "src/utils/__tests__/error-recovery.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/fallback-integration.test.ts",
+      "testedFile": "src/utils/__tests__/fallback-integration.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/fallback-renderer.test.ts",
+      "testedFile": "src/utils/__tests__/fallback-renderer.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/graceful-degradation.test.ts",
+      "testedFile": "src/utils/__tests__/graceful-degradation.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/performance-monitor-advanced.test.ts",
+      "testedFile": "src/utils/__tests__/performance-monitor-advanced.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/performance-monitor.test.ts",
+      "testedFile": "src/utils/__tests__/performance-monitor.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/polyfills.test.ts",
+      "testedFile": "src/utils/__tests__/polyfills.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/rendering-performance.test.ts",
+      "testedFile": "src/utils/__tests__/rendering-performance.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/__tests__/splash-cursor.test.ts",
+      "testedFile": "src/utils/__tests__/splash-cursor.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "src/utils/color.test.ts",
+      "testedFile": "src/utils/color.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/utils/config.test.ts",
+      "testedFile": "src/utils/config.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/utils/math.test.ts",
+      "testedFile": "src/utils/math.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/utils/webgl.test.ts",
+      "testedFile": "src/utils/webgl.ts",
+      "exists": true,
+      "used": false,
+      "reason": "File not used by FluidCursor"
+    },
+    {
+      "path": "src/vanilla/__tests__/SplashCursorVanilla.test.ts",
+      "testedFile": "src/vanilla/__tests__/SplashCursorVanilla.ts",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "examples/__tests__/basic-usage.test.tsx",
+      "testedFile": "examples/__tests__/basic-usage.tsx",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "examples/__tests__/custom-colors.test.tsx",
+      "testedFile": "examples/__tests__/custom-colors.tsx",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "examples/__tests__/fluid-cursor-basic.test.tsx",
+      "testedFile": "examples/__tests__/fluid-cursor-basic.tsx",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "examples/__tests__/fluid-cursor-custom.test.tsx",
+      "testedFile": "examples/__tests__/fluid-cursor-custom.tsx",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "examples/__tests__/performance-optimized.test.tsx",
+      "testedFile": "examples/__tests__/performance-optimized.tsx",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "examples/__tests__/responsive-design.test.tsx",
+      "testedFile": "examples/__tests__/responsive-design.tsx",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    },
+    {
+      "path": "examples/__tests__/typescript-integration.test.tsx",
+      "testedFile": "examples/__tests__/typescript-integration.tsx",
+      "exists": false,
+      "used": false,
+      "reason": "File does not exist"
+    }
+  ],
+  "workingExamples": [
+    "examples/fluid-cursor-basic.tsx",
+    "examples/fluid-cursor-custom.tsx",
+    "examples/fluid-cursor-performance.tsx"
+  ],
+  "brokenExamples": [
+    {
+      "path": "examples/__tests__/basic-usage.test.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": [
+        "examples/basic-usage.tsx"
+      ]
+    },
+    {
+      "path": "examples/__tests__/custom-colors.test.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": [
+        "examples/custom-colors.tsx"
+      ]
+    },
+    {
+      "path": "examples/__tests__/fluid-cursor-basic.test.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": [
+        "examples/fluid-cursor-basic.tsx"
+      ]
+    },
+    {
+      "path": "examples/__tests__/fluid-cursor-custom.test.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": [
+        "examples/fluid-cursor-custom.tsx"
+      ]
+    },
+    {
+      "path": "examples/__tests__/performance-optimized.test.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": [
+        "examples/performance-optimized.tsx"
+      ]
+    },
+    {
+      "path": "examples/__tests__/responsive-design.test.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": [
+        "examples/responsive-design.tsx"
+      ]
+    },
+    {
+      "path": "examples/__tests__/typescript-integration.test.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": [
+        "examples/typescript-integration.tsx"
+      ]
+    },
+    {
+      "path": "examples/app-router-compatibility.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": []
+    },
+    {
+      "path": "examples/basic-usage.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": []
+    },
+    {
+      "path": "examples/custom-colors.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": []
+    },
+    {
+      "path": "examples/fluid-cursor-module-import.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": []
+    },
+    {
+      "path": "examples/performance-optimized.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": []
+    },
+    {
+      "path": "examples/responsive-design.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": []
+    },
+    {
+      "path": "examples/splash-cursor-react-examples.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": []
+    },
+    {
+      "path": "examples/typescript-integration.tsx",
+      "reason": "Does not use FluidCursor",
+      "imports": []
+    }
+  ],
+  "componentAnalysis": {
+    "FluidBackground": {
+      "files": [
+        "src/FluidBackground.tsx"
+      ],
+      "used": false,
+      "mainFile": "src/FluidBackground.tsx",
+      "dependencies": []
+    },
+    "SplashCursor": {
+      "files": [
+        "src/components/SplashCursor/SplashCursor.tsx",
+        "src/components/SplashCursor/index.ts",
+        "src/hooks/useSplashCursor.ts",
+        "src/vanilla/SplashCursorVanilla.ts"
+      ],
+      "used": false,
+      "mainFile": "src/components/SplashCursor/SplashCursor.tsx",
+      "dependencies": []
+    },
+    "FluidCursor": {
+      "files": [
+        "src/components/FluidCursor/FluidCursor.tsx",
+        "src/components/FluidCursor/index.ts"
+      ],
+      "used": true,
+      "mainFile": "src/components/FluidCursor/FluidCursor.tsx",
+      "dependencies": [
+        "src/components/FluidCursor/FluidCursor.tsx",
+        "src/components/FluidCursor/index.ts"
+      ]
+    }
+  },
+  "utilityAnalysis": {
+    "src/utils/__tests__/browser-compatibility.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 11765,
+      "imports": [
+        "src/utils/browser-compatibility.ts"
+      ]
+    },
+    "src/utils/__tests__/cross-browser-compatibility.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 8843,
+      "imports": [
+        "src/utils/browser-compatibility.ts",
+        "src/utils/graceful-degradation.ts",
+        "src/utils/polyfills.ts"
+      ]
+    },
+    "src/utils/__tests__/error-handler.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 5205,
+      "imports": [
+        "src/utils/error-handler.ts",
+        "src/types/splash-cursor.ts"
+      ]
+    },
+    "src/utils/__tests__/error-recovery.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 13383,
+      "imports": [
+        "src/utils/error-recovery.ts",
+        "src/utils/fallback-renderer.ts",
+        "src/utils/browser-compatibility.ts"
+      ]
+    },
+    "src/utils/__tests__/fallback-integration.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 6319,
+      "imports": [
+        "src/utils/fallback-renderer.ts",
+        "src/utils/browser-compatibility.ts"
+      ]
+    },
+    "src/utils/__tests__/fallback-renderer.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 13205,
+      "imports": [
+        "src/utils/fallback-renderer.ts"
+      ]
+    },
+    "src/utils/__tests__/graceful-degradation.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 18748,
+      "imports": [
+        "src/utils/graceful-degradation.ts",
+        "src/utils/browser-compatibility.ts",
+        "src/utils/polyfills.ts",
+        "src/utils/polyfills.ts"
+      ]
+    },
+    "src/utils/__tests__/performance-monitor-advanced.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 10870,
+      "imports": [
+        "src/utils/performance-monitor.ts",
+        "src/types/splash-cursor.ts"
+      ]
+    },
+    "src/utils/__tests__/performance-monitor.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 5780,
+      "imports": [
+        "src/utils/performance-monitor.ts"
+      ]
+    },
+    "src/utils/__tests__/polyfills.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 11279,
+      "imports": [
+        "src/utils/polyfills.ts"
+      ]
+    },
+    "src/utils/__tests__/rendering-performance.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 10978,
+      "imports": [
+        "src/splash-cursor/MetaballRenderer.ts",
+        "src/utils/spatial-partitioning.ts",
+        "src/utils/dirty-rectangle.ts",
+        "src/utils/particle-pool.ts",
+        "src/types/splash-cursor.ts"
+      ]
+    },
+    "src/utils/__tests__/splash-cursor.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 6397,
+      "imports": [
+        "src/utils/splash-cursor.ts"
+      ]
+    },
+    "src/utils/browser-compatibility.ts": {
+      "used": false,
+      "exports": [
+        "BrowserCapabilities",
+        "PerformanceCapabilities",
+        "BrowserCompatibility"
+      ],
+      "size": 7663,
+      "imports": []
+    },
+    "src/utils/color.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 5601,
+      "imports": [
+        "src/utils/color.ts"
+      ]
+    },
+    "src/utils/color.ts": {
+      "used": false,
+      "exports": [
+        "RGB",
+        "HSV",
+        "hsvToRgb",
+        "rgbToHsv",
+        "generateRainbowColor",
+        "generateRandomColor",
+        "blendColors",
+        "rgbToHex",
+        "hexToRgb"
+      ],
+      "size": 2901,
+      "imports": []
+    },
+    "src/utils/config.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 11338,
+      "imports": [
+        "src/utils/config.ts"
+      ]
+    },
+    "src/utils/config.ts": {
+      "used": false,
+      "exports": [
+        "FluidSimulationConfig",
+        "PerformanceMetrics",
+        "DEFAULT_CONFIG",
+        "PERFORMANCE_PRESETS",
+        "mergeConfig",
+        "validateConfig",
+        "createAutoConfig",
+        "getResolutionMultiplier",
+        "detectMobileDevice",
+        "createInitialMetrics"
+      ],
+      "size": 7365,
+      "imports": []
+    },
+    "src/utils/dirty-rectangle.ts": {
+      "used": false,
+      "exports": [
+        "DirtyRegion",
+        "DirtyRectangleTracker"
+      ],
+      "size": 13783,
+      "imports": [
+        "src/types/splash-cursor.ts"
+      ]
+    },
+    "src/utils/error-handler.ts": {
+      "used": false,
+      "exports": [
+        "ErrorHandler",
+        "errorHandler"
+      ],
+      "size": 7350,
+      "imports": [
+        "src/types/splash-cursor.ts"
+      ]
+    },
+    "src/utils/error-recovery.ts": {
+      "used": false,
+      "exports": [
+        "ErrorRecoveryConfig",
+        "RecoveryState",
+        "ErrorRecovery",
+        "ErrorRecoveryManager"
+      ],
+      "size": 8627,
+      "imports": [
+        "src/utils/fallback-renderer.ts",
+        "src/utils/browser-compatibility.ts"
+      ]
+    },
+    "src/utils/fallback-renderer.ts": {
+      "used": false,
+      "exports": [
+        "RenderingMode",
+        "Particle",
+        "FallbackRendererConfig",
+        "IRenderer",
+        "MetaballRenderer",
+        "SimpleRenderer",
+        "BasicRenderer",
+        "DisabledRenderer",
+        "RendererFactory"
+      ],
+      "size": 10466,
+      "imports": [
+        "src/types/index.ts"
+      ]
+    },
+    "src/utils/graceful-degradation.ts": {
+      "used": false,
+      "exports": [
+        "DegradationConfig",
+        "DegradationLevel",
+        "DegradedFeatures",
+        "GracefulDegradation"
+      ],
+      "size": 9742,
+      "imports": [
+        "src/utils/browser-compatibility.ts",
+        "src/utils/polyfills.ts"
+      ]
+    },
+    "src/utils/index.ts": {
+      "used": false,
+      "exports": [],
+      "size": 385,
+      "imports": []
+    },
+    "src/utils/math.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 2215,
+      "imports": [
+        "src/utils/math.ts"
+      ]
+    },
+    "src/utils/math.ts": {
+      "used": false,
+      "exports": [
+        "clamp",
+        "normalize",
+        "map",
+        "lerp",
+        "smoothstep"
+      ],
+      "size": 1025,
+      "imports": []
+    },
+    "src/utils/particle-pool.ts": {
+      "used": false,
+      "exports": [
+        "PooledParticle",
+        "ParticlePoolConfig",
+        "ParticlePool",
+        "SplashCursorParticlePool"
+      ],
+      "size": 13800,
+      "imports": [
+        "src/types/splash-cursor.ts"
+      ]
+    },
+    "src/utils/performance-monitor.ts": {
+      "used": false,
+      "exports": [
+        "PerformanceMonitor",
+        "performanceMonitor"
+      ],
+      "size": 17438,
+      "imports": [
+        "src/types/splash-cursor.ts",
+        "src/utils/error-handler.ts",
+        "src/utils/splash-cursor.ts"
+      ]
+    },
+    "src/utils/polyfills.ts": {
+      "used": false,
+      "exports": [
+        "installPolyfills",
+        "getRequestAnimationFrame",
+        "getCancelAnimationFrame",
+        "getVisibilityAPI",
+        "getDevicePixelRatio"
+      ],
+      "size": 6225,
+      "imports": []
+    },
+    "src/utils/spatial-partitioning.ts": {
+      "used": false,
+      "exports": [
+        "SpatialGrid",
+        "SpatialPartitioning",
+        "MetaballSpatialGrid"
+      ],
+      "size": 9589,
+      "imports": [
+        "src/types/splash-cursor.ts"
+      ]
+    },
+    "src/utils/splash-cursor.ts": {
+      "used": false,
+      "exports": [
+        "createVector2",
+        "addVectors",
+        "subtractVectors",
+        "multiplyVector",
+        "divideVector",
+        "dotProduct",
+        "vectorLength",
+        "vectorLengthSquared",
+        "normalizeVector",
+        "distanceBetween",
+        "distanceSquaredBetween",
+        "lerpVector",
+        "clampVector",
+        "createHSLColor",
+        "hslToRgb",
+        "hslToString",
+        "blendHSLColors",
+        "generateRainbowHSL",
+        "generateVelocityBasedColor",
+        "easeOutQuad",
+        "easeInOutQuad",
+        "randomBetween",
+        "randomVector2",
+        "randomUnitVector",
+        "getHighResolutionTime",
+        "calculateDeltaTime",
+        "createDefaultColorConfig",
+        "createSplashCursorConfig",
+        "validateSplashCursorConfig",
+        "rgbToHsl",
+        "interpolateColors"
+      ],
+      "size": 7706,
+      "imports": [
+        "src/types/splash-cursor.ts",
+        "src/utils/math.ts"
+      ]
+    },
+    "src/utils/webgl.test.ts": {
+      "used": false,
+      "exports": [],
+      "size": 9193,
+      "imports": [
+        "src/utils/webgl.ts"
+      ]
+    },
+    "src/utils/webgl.ts": {
+      "used": false,
+      "exports": [
+        "WebGLCapabilities",
+        "WebGLExtensions",
+        "createWebGLContext",
+        "detectWebGLCapabilities",
+        "loadWebGLExtensions",
+        "isTextureFormatSupported",
+        "getBestFloatTextureFormat",
+        "validateFramebuffer",
+        "checkWebGLError"
+      ],
+      "size": 7105,
+      "imports": []
+    }
+  },
+  "typeAnalysis": {
+    "src/types/index.ts": {
+      "used": false,
+      "exports": [
+        "PerformanceMetrics",
+        "FluidBackgroundProps",
+        "FluidSimulationConfig",
+        "WebGLCapabilities",
+        "WebGLExtensions",
+        "RenderPassInputs",
+        "RenderPass",
+        "ShaderProgram",
+        "ShaderManager",
+        "FramebufferPair",
+        "FramebufferManager",
+        "WebGLContext",
+        "SimulationStep",
+        "InputState",
+        "InputHandler",
+        "UseFluidSimulationReturn",
+        "UseResponsiveReturn",
+        "UsePerformanceReturn",
+        "ColorRGB",
+        "ColorHSV",
+        "Resolution",
+        "FluidColorMode",
+        "WebGLError",
+        "ShaderCompilationError"
+      ],
+      "size": 5923
+    },
+    "src/types/splash-cursor.ts": {
+      "used": false,
+      "exports": [
+        "Vector2",
+        "HSLColor",
+        "Rectangle",
+        "MouseState",
+        "ColorConfig",
+        "SplashCursorProps",
+        "SplashCursorConfig",
+        "Particle",
+        "ParticleSystemConfig",
+        "PhysicsConfig",
+        "UseSplashCursorReturn",
+        "SplashCursorPerformanceMetrics",
+        "SplashCursorError",
+        "CanvasInitializationError",
+        "PerformanceError",
+        "QualityLevel",
+        "QualitySettings"
+      ],
+      "size": 4091
+    },
+    "examples/__tests__/typescript-integration.test.tsx": {
+      "used": false,
+      "exports": [],
+      "size": 6059
+    },
+    "examples/typescript-integration.tsx": {
+      "used": false,
+      "exports": [],
+      "size": 13818
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "name": "fluid-background",
+  "name": "fluid-cursor",
   "version": "1.0.0",
-  "description": "Interactive fluid simulation background component for Next.js applications",
+  "description": "Interactive WebGL fluid dynamics cursor effect component for React applications",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -12,18 +12,6 @@
       "import": "./dist/index.esm.js",
       "require": "./dist/index.js",
       "default": "./dist/index.esm.js"
-    },
-    "./splash-cursor": {
-      "types": "./dist/splash-cursor.d.ts",
-      "import": "./dist/splash-cursor.esm.js",
-      "require": "./dist/splash-cursor.js",
-      "default": "./dist/splash-cursor.esm.js"
-    },
-    "./fluid-cursor": {
-      "types": "./dist/fluid-cursor.d.ts",
-      "import": "./dist/fluid-cursor.esm.js",
-      "require": "./dist/fluid-cursor.js",
-      "default": "./dist/fluid-cursor.esm.js"
     },
     "./package.json": "./package.json"
   },
@@ -52,23 +40,24 @@
   },
   "keywords": [
     "react",
-    "nextjs",
     "fluid",
-    "simulation",
+    "cursor",
     "webgl",
-    "background",
-    "animation"
+    "simulation",
+    "interactive",
+    "animation",
+    "mouse-effects"
   ],
   "author": "mrballistic",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mrballistic/fluid-background.git"
+    "url": "https://github.com/mrballistic/fluid-cursor.git"
   },
   "bugs": {
-    "url": "https://github.com/mrballistic/fluid-background/issues"
+    "url": "https://github.com/mrballistic/fluid-cursor/issues"
   },
-  "homepage": "https://github.com/mrballistic/fluid-background#readme",
+  "homepage": "https://github.com/mrballistic/fluid-cursor#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"

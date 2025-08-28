@@ -1,0 +1,2 @@
+src/components/FluidCursor/FluidCursor.tsx
+src/components/FluidCursor/index.ts
