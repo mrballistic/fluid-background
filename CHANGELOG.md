@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-01-XX
+
+### BREAKING CHANGES
+This is a major cleanup release that removes all non-functional code and focuses solely on the working FluidCursor component.
+
+### Removed
+- **SplashCursor Component**: Completely removed all SplashCursor related code, components, and examples
+- **FluidBackground Component**: Removed FluidBackground component and related simulation classes
+- **Unused Utilities**: Removed utility files and functions not used by FluidCursor
+- **Broken Examples**: Removed all non-working example files and demos
+- **Misleading Documentation**: Removed documentation for non-existent functionality
+- **Unused Dependencies**: Cleaned up package.json to only include necessary dependencies
+- **Test Files**: Removed test files for deleted components and functionality
+- **Build Artifacts**: Cleaned up coverage reports and unnecessary build outputs
+
+### Changed
+- **Package Focus**: Package now exclusively provides FluidCursor component functionality
+- **File Structure**: Simplified directory structure with FluidCursor as the main component
+- **Documentation**: Completely rewritten to focus only on FluidCursor usage and API
+- **Examples**: Streamlined to only include working FluidCursor demonstrations
+- **Build System**: Optimized build configuration for simplified codebase
+
+### Migration Guide
+- **FluidCursor users**: No changes needed - component API remains the same
+- **SplashCursor users**: Component has been removed - consider alternative cursor effect libraries
+- **FluidBackground users**: Component has been removed - consider using FluidCursor or alternative fluid simulation libraries
+- **Package imports**: Main FluidCursor import path remains unchanged
+
+### Fixed
+- Removed all broken and misleading code examples
+- Eliminated confusion from non-working component exports
+- Cleaned up package structure for better maintainability
+
 ## [1.0.0] - 2025-01-XX
 
 ### Added

@@ -14,11 +14,6 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "**/*.spec.tsx",
-    "src/splash-cursor/**/*",
-    "src/components/SplashCursor/**/*",
-    "src/FluidBackground.tsx",
-    "src/FluidBackground.test.tsx",
-    "src/simulation/**/*",
     "src/demo-fluid-cursor.tsx",
     "src/main.tsx"
   ]

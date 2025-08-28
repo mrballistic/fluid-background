@@ -5,14 +5,14 @@ The FluidCursor component creates a WebGL-based fluid dynamics simulation that r
 ## Installation
 
 ```bash
-npm install your-package-name
+npm install fluid-cursor
 ```
 
 ## Basic Usage
 
 ```tsx
 import React from 'react';
-import FluidCursor from 'your-package-name/FluidCursor';
+import FluidCursor from 'fluid-cursor';
 
 function App() {
   return (
@@ -149,7 +149,7 @@ interface ColorRGB {
 
 ## Performance Recommendations
 
-### High Performance (Desktop/Gaming)
+### High Performance (Desktop)
 ```tsx
 <FluidCursor
   SIM_RESOLUTION={256}
@@ -245,22 +245,29 @@ function DynamicFluidCursor() {
 }
 ```
 
-### Performance Monitoring
+### Responsive Design
 
 ```tsx
-function MonitoredFluidCursor() {
-  const [fps, setFps] = useState(60);
+function ResponsiveFluidCursor() {
+  const [isMobile, setIsMobile] = useState(false);
   
-  // Adjust quality based on performance
-  const quality = fps > 50 ? 'high' : fps > 30 ? 'medium' : 'low';
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
-  const configs = {
-    high: { SIM_RESOLUTION: 256, DYE_RESOLUTION: 2048 },
-    medium: { SIM_RESOLUTION: 128, DYE_RESOLUTION: 1440 },
-    low: { SIM_RESOLUTION: 64, DYE_RESOLUTION: 512 }
-  };
-  
-  return <FluidCursor {...configs[quality]} />;
+  return (
+    <FluidCursor
+      SIM_RESOLUTION={isMobile ? 64 : 128}
+      DYE_RESOLUTION={isMobile ? 512 : 1440}
+      PRESSURE_ITERATIONS={isMobile ? 10 : 20}
+      SHADING={!isMobile}
+    />
+  );
 }
 ```
 

@@ -76,7 +76,7 @@
   - Ensure build process works with simplified structure
   - _Requirements: 4.1, 4.2, 4.3, 9.1, 9.2_
 
-- [-] 11. Rewrite README.md for FluidCursor focus
+- [x] 11. Rewrite README.md for FluidCursor focus
   - Replace current README content with FluidCursor-specific documentation
   - Remove all references to SplashCursor and FluidBackground
   - Update installation instructions for new package name
@@ -84,35 +84,35 @@
   - Update feature list to reflect actual functionality
   - _Requirements: 3.1, 3.2, 3.4_
 
-- [ ] 12. Update API documentation
+- [x] 12. Update API documentation
   - Rewrite docs/API.md to only document FluidCursor component
   - Remove documentation files for deleted components
   - Update prop documentation to match FluidCursor interface
   - Remove misleading performance claims and feature lists
   - _Requirements: 3.2, 3.3_
 
-- [ ] 13. Clean up configuration files
+- [x] 13. Clean up configuration files
   - Update tsconfig.json to exclude deleted directories
   - Update vite.config.ts and vitest.config.ts for simplified structure
   - Update eslint.config.js to only process existing files
   - Remove any configuration specific to deleted components
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 14. Remove build artifacts and coverage reports
+- [x] 14. Remove build artifacts and coverage reports
   - Delete dist/ directory contents (will be regenerated)
   - Delete coverage/ directory completely
   - Remove any cached build files
   - Clean up any temporary files from previous builds
   - _Requirements: 4.4, 5.4_
 
-- [ ] 15. Update version and prepare changelog
+- [x] 15. Update version and prepare changelog
   - Bump version to indicate breaking changes (major version)
   - Create CHANGELOG.md entry documenting what was removed
   - Update package.json version field
   - Prepare migration notes for users of deleted components
   - _Requirements: 10.1, 10.2, 10.3, 10.4_
 
-- [ ] 16. Validate cleaned package
+- [x] 16. Validate cleaned package
   - Run npm run build to ensure package builds correctly
   - Run npm test to verify all remaining tests pass
   - Test example files to ensure they work with cleaned package
@@ -120,7 +120,7 @@
   - Check that no broken imports or references remain
   - _Requirements: 4.3, 7.3, 8.2_
 
-- [ ] 17. Final cleanup and optimization
+- [x] 17. Final cleanup and optimization
   - Remove any remaining unused files or directories
   - Optimize remaining code for better tree-shaking
   - Ensure no dead code remains in the package

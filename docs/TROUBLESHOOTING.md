@@ -1,4 +1,4 @@
-# Troubleshooting Guide
+# FluidCursor Troubleshooting Guide
 
 ## Common Issues and Solutions
 
@@ -8,8 +8,8 @@
 
 **Symptoms:**
 - Console error: "WebGL not supported"
-- Background shows static gradient instead of fluid animation
-- Component renders but no animation occurs
+- FluidCursor shows no animation
+- Component renders but no visual effect occurs
 
 **Causes:**
 1. Browser doesn't support WebGL
@@ -51,11 +51,11 @@
 **Solutions:**
 
 ```tsx
-import { FluidBackground } from 'fluid-background';
+import FluidCursor from 'fluid-cursor';
 
 // The component automatically handles context loss
 // No additional code needed - it will attempt to restore
-<FluidBackground />
+<FluidCursor />
 ```
 
 **Manual Recovery:**
@@ -86,46 +86,39 @@ canvas.addEventListener('webglcontextrestored', () => {
 
 1. **Use Mobile-Optimized Settings:**
    ```tsx
-   <FluidBackground 
-     performance={{
-       resolution: 'low',
-       frameRate: 24
-     }}
-     physics={{
-       viscosity: 0.6,
-       curl: 15,
-       splatForce: 3000
-     }}
+   <FluidCursor 
+     SIM_RESOLUTION={64}
+     DYE_RESOLUTION={512}
+     PRESSURE_ITERATIONS={10}
+     SHADING={false}
+     DENSITY_DISSIPATION={5.0}
+     VELOCITY_DISSIPATION={3.0}
    />
    ```
 
 2. **Detect Mobile Devices:**
    ```tsx
-   import { detectMobileDevice } from 'fluid-background';
+   import { useState, useEffect } from 'react';
+   import FluidCursor from 'fluid-cursor';
    
-   const isMobile = detectMobileDevice();
-   
-   <FluidBackground 
-     performance={{
-       resolution: isMobile ? 'low' : 'medium',
-       frameRate: isMobile ? 24 : 60
-     }}
-   />
-   ```
-
-3. **Use Performance Monitoring:**
-   ```tsx
-   import { usePerformance } from 'fluid-background';
-   
-   function AdaptiveFluid() {
-     const { fps, shouldOptimize } = usePerformance();
+   function ResponsiveFluidCursor() {
+     const [isMobile, setIsMobile] = useState(false);
+     
+     useEffect(() => {
+       const checkMobile = () => {
+         setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+       };
+       checkMobile();
+       window.addEventListener('resize', checkMobile);
+       return () => window.removeEventListener('resize', checkMobile);
+     }, []);
      
      return (
-       <FluidBackground 
-         performance={{
-           resolution: shouldOptimize ? 'low' : 'medium',
-           frameRate: fps < 30 ? 24 : 60
-         }}
+       <FluidCursor 
+         SIM_RESOLUTION={isMobile ? 64 : 128}
+         DYE_RESOLUTION={isMobile ? 512 : 1440}
+         PRESSURE_ITERATIONS={isMobile ? 10 : 20}
+         SHADING={!isMobile}
        />
      );
    }
@@ -142,32 +135,21 @@ canvas.addEventListener('webglcontextrestored', () => {
 
 1. **Reduce Simulation Complexity:**
    ```tsx
-   <FluidBackground 
-     physics={{
-       viscosity: 0.8,    // Higher viscosity = less computation
-       curl: 10,          // Lower curl = fewer calculations
-       iterations: 1      // Fewer pressure iterations
-     }}
-     performance={{
-       frameRate: 30      // Lower frame rate
-     }}
+   <FluidCursor 
+     SIM_RESOLUTION={64}        // Lower simulation resolution
+     CURL={1}                   // Lower curl = fewer calculations
+     PRESSURE_ITERATIONS={5}    // Fewer pressure iterations
+     DENSITY_DISSIPATION={5.0}  // Faster dissipation = less computation
+     VELOCITY_DISSIPATION={3.0}
    />
    ```
 
-2. **Enable Automatic Pausing:**
-   ```tsx
-   <FluidBackground 
-     performance={{
-       pauseOnHidden: true  // Pause when tab is hidden
-     }}
-   />
-   ```
-
-3. **Use Visibility API:**
+2. **Use Visibility API for Pausing:**
    ```tsx
    import { useState, useEffect } from 'react';
+   import FluidCursor from 'fluid-cursor';
    
-   function ConditionalFluid() {
+   function ConditionalFluidCursor() {
      const [isVisible, setIsVisible] = useState(true);
      
      useEffect(() => {
@@ -179,7 +161,7 @@ canvas.addEventListener('webglcontextrestored', () => {
        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
      }, []);
      
-     return isVisible ? <FluidBackground /> : null;
+     return isVisible ? <FluidCursor /> : null;
    }
    ```
 
@@ -198,15 +180,11 @@ canvas.addEventListener('webglcontextrestored', () => {
    ```tsx
    import dynamic from 'next/dynamic';
    
-   const FluidBackground = dynamic(
-     () => import('fluid-background').then(mod => mod.FluidBackground),
+   const FluidCursor = dynamic(
+     () => import('fluid-cursor'),
      { 
        ssr: false,
-       loading: () => <div style={{ 
-         position: 'fixed', 
-         inset: 0, 
-         background: 'linear-gradient(45deg, #000, #111)' 
-       }} />
+       loading: () => null
      }
    );
    ```
@@ -214,9 +192,9 @@ canvas.addEventListener('webglcontextrestored', () => {
 2. **Client-Side Only Rendering:**
    ```tsx
    import { useState, useEffect } from 'react';
-   import { FluidBackground } from 'fluid-background';
+   import FluidCursor from 'fluid-cursor';
    
-   function ClientOnlyFluid() {
+   function ClientOnlyFluidCursor() {
      const [mounted, setMounted] = useState(false);
      
      useEffect(() => {
@@ -225,7 +203,7 @@ canvas.addEventListener('webglcontextrestored', () => {
      
      if (!mounted) return null;
      
-     return <FluidBackground />;
+     return <FluidCursor />;
    }
    ```
 
@@ -241,49 +219,39 @@ canvas.addEventListener('webglcontextrestored', () => {
    ```tsx
    'use client';
    
-   import { FluidBackground } from 'fluid-background';
+   import FluidCursor from 'fluid-cursor';
    
-   export default function ClientFluid() {
-     return <FluidBackground />;
+   export default function ClientFluidCursor() {
+     return <FluidCursor />;
    }
    ```
 
 2. **Server Component Wrapper:**
    ```tsx
-   // app/components/FluidWrapper.tsx
+   // app/components/FluidCursorWrapper.tsx
    import dynamic from 'next/dynamic';
    
-   const FluidBackground = dynamic(
-     () => import('fluid-background').then(mod => mod.FluidBackground),
+   const FluidCursor = dynamic(
+     () => import('fluid-cursor'),
      { ssr: false }
    );
    
-   export default function FluidWrapper() {
-     return <FluidBackground />;
+   export default function FluidCursorWrapper() {
+     return <FluidCursor />;
    }
    ```
 
 ### Styling Issues
 
-#### Background Not Visible
+#### FluidCursor Not Visible
 
 **Symptoms:**
 - No visual effect
-- Component renders but no background appears
+- Component renders but no cursor trail appears
 
 **Solutions:**
 
-1. **Check Z-Index:**
-   ```tsx
-   <div>
-     <FluidBackground zIndex={-1} />
-     <main style={{ position: 'relative', zIndex: 1 }}>
-       Content here
-     </main>
-   </div>
-   ```
-
-2. **Ensure Container Height:**
+1. **Ensure Container Height:**
    ```css
    html, body {
      height: 100%;
@@ -295,13 +263,20 @@ canvas.addEventListener('webglcontextrestored', () => {
    }
    ```
 
-3. **Check Opacity:**
+2. **Check Background Color:**
    ```tsx
-   <FluidBackground 
-     style={{ opacity: 1 }}  // Ensure it's visible
-     colors={{
-       background: { r: 0.1, g: 0.1, b: 0.1 }  // Not pure black
-     }}
+   <FluidCursor 
+     BACK_COLOR={{ r: 0.1, g: 0.1, b: 0.1 }}  // Not pure black
+     TRANSPARENT={true}
+   />
+   ```
+
+3. **Increase Intensity:**
+   ```tsx
+   <FluidCursor 
+     SPLAT_FORCE={8000}
+     SPLAT_RADIUS={0.3}
+     DENSITY_DISSIPATION={2.0}  // Slower fade
    />
    ```
 
@@ -313,29 +288,23 @@ canvas.addEventListener('webglcontextrestored', () => {
 
 **Solutions:**
 
-1. **Fix Pointer Events:**
+1. **FluidCursor automatically sets pointer-events: none:**
    ```tsx
-   <FluidBackground 
-     style={{ pointerEvents: 'none' }}
-   />
-   <main style={{ 
-     position: 'relative', 
-     zIndex: 1,
-     pointerEvents: 'auto'
-   }}>
-     Content here
+   // FluidCursor canvas doesn't block interactions by default
+   <FluidCursor />
+   <main>
+     Content here (clickable)
    </main>
    ```
 
 2. **Proper Layering:**
    ```css
-   .fluid-background {
+   .fluid-cursor-canvas {
      position: fixed;
      top: 0;
      left: 0;
      width: 100%;
      height: 100%;
-     z-index: -1;
      pointer-events: none;
    }
    
@@ -350,15 +319,15 @@ canvas.addEventListener('webglcontextrestored', () => {
 #### Module Not Found
 
 **Symptoms:**
-- Import error: "Cannot resolve 'fluid-background'"
+- Import error: "Cannot resolve 'fluid-cursor'"
 - Build fails with module resolution error
 
 **Solutions:**
 
 1. **Check Installation:**
    ```bash
-   npm list fluid-background
-   npm install fluid-background
+   npm list fluid-cursor
+   npm install fluid-cursor
    ```
 
 2. **Clear Cache:**
@@ -370,10 +339,10 @@ canvas.addEventListener('webglcontextrestored', () => {
 3. **Check Import Syntax:**
    ```tsx
    // Correct
-   import { FluidBackground } from 'fluid-background';
+   import FluidCursor from 'fluid-cursor';
    
    // Incorrect
-   import FluidBackground from 'fluid-background';
+   import { FluidCursor } from 'fluid-cursor';
    ```
 
 #### TypeScript Errors
@@ -402,55 +371,58 @@ canvas.addEventListener('webglcontextrestored', () => {
 
 3. **Explicit Type Import:**
    ```tsx
-   import type { FluidBackgroundProps } from 'fluid-background';
-   import { FluidBackground } from 'fluid-background';
+   import type { FluidCursorProps } from 'fluid-cursor';
+   import FluidCursor from 'fluid-cursor';
    ```
 
 ## Debug Mode
 
-Enable debug logging to get more information about issues:
+Check browser console for WebGL and performance information:
 
-```bash
-# Development
-DEBUG=fluid-background npm run dev
-
-# Production
-DEBUG=fluid-background npm start
-```
-
-**Debug Output Example:**
-```
-fluid-background WebGL context created successfully
-fluid-background Shaders compiled: 12/12
-fluid-background Framebuffers initialized: 6
-fluid-background Performance: 60 FPS, resolution: medium
-fluid-background Auto-optimization: disabled (good performance)
+```javascript
+// Check WebGL context in browser console
+const canvas = document.createElement('canvas');
+const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+console.log('WebGL supported:', !!gl);
+if (gl) {
+  console.log('WebGL version:', gl.getParameter(gl.VERSION));
+  console.log('Renderer:', gl.getParameter(gl.RENDERER));
+}
 ```
 
 ## Performance Monitoring
 
-Use the built-in performance monitoring to identify issues:
+Monitor FluidCursor performance manually:
 
 ```tsx
-import { usePerformance } from 'fluid-background';
+import { useEffect, useRef } from 'react';
+import FluidCursor from 'fluid-cursor';
 
 function PerformanceMonitor() {
-  const { fps, getMetrics } = usePerformance();
+  const frameCount = useRef(0);
+  const lastTime = useRef(Date.now());
   
   useEffect(() => {
     const interval = setInterval(() => {
-      const metrics = getMetrics();
-      console.log('Performance:', {
-        fps: metrics.fps,
-        averageFps: metrics.averageFps,
-        droppedFrames: metrics.droppedFrames
-      });
-    }, 5000);
+      const now = Date.now();
+      const fps = (frameCount.current * 1000) / (now - lastTime.current);
+      console.log('Estimated FPS:', fps.toFixed(1));
+      frameCount.current = 0;
+      lastTime.current = now;
+    }, 1000);
     
     return () => clearInterval(interval);
-  }, [getMetrics]);
+  }, []);
   
-  return <FluidBackground />;
+  useEffect(() => {
+    const countFrames = () => {
+      frameCount.current++;
+      requestAnimationFrame(countFrames);
+    };
+    countFrames();
+  }, []);
+  
+  return <FluidCursor />;
 }
 ```
 
@@ -510,14 +482,15 @@ If you're still experiencing issues:
 
 **Minimal Test Case:**
 ```tsx
-import { FluidBackground } from 'fluid-background';
+import FluidCursor from 'fluid-cursor';
 
 export default function MinimalTest() {
   return (
     <div style={{ height: '100vh' }}>
-      <FluidBackground />
+      <FluidCursor />
       <div style={{ position: 'relative', zIndex: 1, padding: '20px' }}>
         <h1>Test Content</h1>
+        <p>Move your cursor to see the fluid effect</p>
       </div>
     </div>
   );

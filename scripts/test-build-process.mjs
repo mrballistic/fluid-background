@@ -46,10 +46,7 @@ console.log('4. Verifying build artifacts...');
 const requiredFiles = [
   'dist/index.js',
   'dist/index.esm.js', 
-  'dist/index.d.ts',
-  'dist/splash-cursor.js',
-  'dist/splash-cursor.esm.js',
-  'dist/splash-cursor.d.ts'
+  'dist/index.d.ts'
 ];
 
 let allArtifactsExist = true;

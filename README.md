@@ -89,6 +89,7 @@ All props are optional and have sensible defaults for immediate use.
 interface FluidCursorProps {
   SIM_RESOLUTION?: number;        // Simulation resolution (32-512, default: 128)
   DYE_RESOLUTION?: number;        // Visual resolution (256-4096, default: 1440)
+  CAPTURE_RESOLUTION?: number;    // Capture resolution (256-2048, default: 512)
   DENSITY_DISSIPATION?: number;   // How fast trails fade (0.1-10, default: 3.5)
   VELOCITY_DISSIPATION?: number;  // How fast motion decays (0.1-5, default: 2.0)
   PRESSURE?: number;              // Pressure strength (0.01-1, default: 0.1)
@@ -118,6 +119,7 @@ interface ColorRGB {
 <FluidCursor
   SIM_RESOLUTION={256}
   DYE_RESOLUTION={2048}
+  CAPTURE_RESOLUTION={1024}
   PRESSURE_ITERATIONS={30}
   SHADING={true}
 />
@@ -126,6 +128,7 @@ interface ColorRGB {
 <FluidCursor
   SIM_RESOLUTION={128}
   DYE_RESOLUTION={1440}
+  CAPTURE_RESOLUTION={512}
   PRESSURE_ITERATIONS={20}
   SHADING={true}
 />
@@ -134,6 +137,7 @@ interface ColorRGB {
 <FluidCursor
   SIM_RESOLUTION={64}
   DYE_RESOLUTION={512}
+  CAPTURE_RESOLUTION={256}
   PRESSURE_ITERATIONS={10}
   SHADING={false}
 />
@@ -370,7 +374,7 @@ console.log('WebGL version:', gl ? gl.getParameter(gl.VERSION) : 'None');
 
 ---
 
-## �️ Live Examples
+## 🛠️ Live Examples
 
 We've created comprehensive examples to help you get started quickly. Each example includes full source code, tests, and detailed documentation:
 
@@ -393,59 +397,75 @@ Each example includes:
 
 ## 🏗️ Advanced Usage
 
-### Custom Styling
+### Dynamic Configuration
 
 ```tsx
-<FluidBackground 
-  className="custom-fluid"
-  style={{
-    opacity: 0.7,
-    mixBlendMode: 'multiply',
-    filter: 'hue-rotate(45deg)'
-  }}
-/>
+import { useState } from 'react';
+import FluidCursor from 'fluid-cursor';
+
+function DynamicFluidCursor() {
+  const [intensity, setIntensity] = useState(1.0);
+  
+  return (
+    <>
+      <FluidCursor
+        SPLAT_FORCE={6000 * intensity}
+        SPLAT_RADIUS={0.2 * intensity}
+        CURL={3 * intensity}
+      />
+      <input 
+        type="range" 
+        min="0.1" 
+        max="2.0" 
+        step="0.1"
+        value={intensity}
+        onChange={(e) => setIntensity(parseFloat(e.target.value))}
+      />
+    </>
+  );
+}
 ```
 
 ### Responsive Configuration
 
 ```tsx
-import { FluidBackground } from 'fluid-background';
+import FluidCursor from 'fluid-cursor';
 import { useMediaQuery } from 'your-media-query-hook';
 
 export default function ResponsiveFluid() {
   const isMobile = useMediaQuery('(max-width: 768px)');
   
   return (
-    <FluidBackground 
-      performance={{
-        resolution: isMobile ? 'low' : 'high',
-        frameRate: isMobile ? 30 : 60
-      }}
-      physics={{
-        splatForce: isMobile ? 4000 : 6000
-      }}
+    <FluidCursor 
+      SIM_RESOLUTION={isMobile ? 64 : 128}
+      DYE_RESOLUTION={isMobile ? 512 : 1440}
+      PRESSURE_ITERATIONS={isMobile ? 10 : 20}
+      SHADING={!isMobile}
+      SPLAT_FORCE={isMobile ? 4000 : 6000}
     />
   );
 }
 ```
 
-### Integration with Theme Systems
+### Performance Monitoring
 
 ```tsx
-import { FluidBackground } from 'fluid-background';
-import { useTheme } from 'your-theme-provider';
+import { useState, useEffect } from 'react';
+import FluidCursor from 'fluid-cursor';
 
-export default function ThemedFluid() {
-  const theme = useTheme();
+function MonitoredFluidCursor() {
+  const [fps, setFps] = useState(60);
   
-  return (
-    <FluidBackground 
-      colors={{
-        background: theme.colors.background,
-        fluid: theme.colors.accent
-      }}
-    />
-  );
+  // Adjust quality based on performance
+  const quality = fps > 50 ? 'high' : fps > 30 ? 'medium' : 'low';
+  
+  const configs = {
+    high: { SIM_RESOLUTION: 256, DYE_RESOLUTION: 2048, SHADING: true },
+    medium: { SIM_RESOLUTION: 128, DYE_RESOLUTION: 1440, SHADING: true },
+    low: { SIM_RESOLUTION: 64, DYE_RESOLUTION: 512, SHADING: false }
+  };
+  
+  return <FluidCursor {...configs[quality]} />;
 }
 ```
 
@@ -453,11 +473,9 @@ export default function ThemedFluid() {
 
 ## 📚 Documentation
 
-- **[API Reference](./docs/API.md)** - Complete API documentation with examples
-- **[Usage Examples](./docs/EXAMPLES.md)** - Comprehensive usage examples and patterns
-- **[Performance Guide](./docs/PERFORMANCE.md)** - Optimization strategies and best practices
+- **[FluidCursor API](./docs/FLUID-CURSOR-API.md)** - Complete API documentation with examples
+- **[Examples](./examples/README.md)** - Comprehensive usage examples and patterns
 - **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Example Implementations](./examples/README.md)** - Live examples with source code and tests
 
 ---
 
@@ -466,9 +484,9 @@ export default function ThemedFluid() {
 This package includes comprehensive testing and quality assurance:
 
 ### Test Coverage
-- **56 passing tests** across all components and examples
-- **Unit tests** for individual components and hooks
-- **Integration tests** for user interactions and responsive behavior
+- **Comprehensive test suite** for FluidCursor component
+- **Unit tests** for WebGL utilities and math functions
+- **Integration tests** for user interactions and performance
 - **Example tests** ensuring all demos work correctly
 
 ### Code Quality
@@ -491,24 +509,27 @@ This package includes comprehensive testing and quality assurance:
 # 📦 Install dependencies
 npm install
 
-# 🧑‍💻 Start development
+# 🧑‍💻 Start development server
 npm run dev
 
 # 🧪 Run tests
 npm test
 
-# 🧪 Run example tests
-npm test examples/__tests__
+# 🧪 Run tests in watch mode
+npm run test:run
 
 # 🏗️ Build package
 npm run build
 
 # 📊 Type check
 npm run type-check
+
+# 🔍 Lint code
+npm run lint
 ```
 
 ---
 
-## � License
+## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
