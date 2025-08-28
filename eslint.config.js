@@ -64,6 +64,16 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'src/splash-cursor/**',
+      'src/components/SplashCursor/**',
+      'src/FluidBackground.tsx',
+      'src/FluidBackground.test.tsx',
+      'src/simulation/**',
+      'src/demo-fluid-cursor.tsx',
+      'src/main.tsx'
+    ],
   },
 ];

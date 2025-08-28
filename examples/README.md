@@ -1,13 +1,13 @@
 # FluidCursor Examples
 
-This directory contains comprehensive examples demonstrating how to use the FluidCursor component in various scenarios and configurations.
+This directory contains examples demonstrating how to use the FluidCursor component in various scenarios and configurations.
 
-## FluidCursor Examples
-
-### FluidCursor Component
+## FluidCursor Component
 The FluidCursor component creates a WebGL-based fluid dynamics simulation that responds to mouse movement, creating beautiful smoke-like trails through real-time fluid physics.
 
-#### 1. Basic FluidCursor (`fluid-cursor-basic.tsx`)
+## Available Examples
+
+### 1. Basic FluidCursor (`fluid-cursor-basic.tsx`)
 The simplest way to use FluidCursor with default settings.
 
 **Features:**
@@ -18,7 +18,7 @@ The simplest way to use FluidCursor with default settings.
 
 **Usage:**
 ```tsx
-import FluidCursor from 'fluid-background/FluidCursor';
+import FluidCursor from '../src/components/FluidCursor';
 
 export default function MyPage() {
   return (
@@ -30,7 +30,7 @@ export default function MyPage() {
 }
 ```
 
-#### 2. Custom FluidCursor (`fluid-cursor-custom.tsx`)
+### 2. Custom FluidCursor (`fluid-cursor-custom.tsx`)
 Demonstrates how to customize the fluid simulation with interactive controls.
 
 **Features:**
@@ -54,7 +54,7 @@ Demonstrates how to customize the fluid simulation with interactive controls.
 />
 ```
 
-#### 3. Performance-Optimized FluidCursor (`fluid-cursor-performance.tsx`)
+### 3. Performance-Optimized FluidCursor (`fluid-cursor-performance.tsx`)
 Shows how to configure FluidCursor for optimal performance on different devices.
 
 **Features:**
@@ -68,7 +68,7 @@ Shows how to configure FluidCursor for optimal performance on different devices.
 - **Medium:** Balanced performance (128 sim resolution, 1440 dye resolution)
 - **Low:** Mobile/weak GPU optimization (64 sim resolution, 512 dye resolution)
 
-#### 4. Cross-Browser Compatibility Test (`fluid-cursor-compatibility-test.html`)
+### 4. Cross-Browser Compatibility Test (`fluid-cursor-compatibility-test.html`)
 Comprehensive WebGL compatibility testing across different browsers.
 
 **Features:**
@@ -78,7 +78,7 @@ Comprehensive WebGL compatibility testing across different browsers.
 - Performance benchmarking
 - Browser-specific recommendations
 
-#### 5. Interactive Demo (`fluid-cursor-demo.html`)
+### 5. Interactive Demo (`fluid-cursor-demo.html`)
 Standalone HTML demo with interactive controls.
 
 **Features:**
@@ -87,22 +87,20 @@ Standalone HTML demo with interactive controls.
 - Cross-browser testing
 - No build process required
 
-
-
 ## Running the Examples
 
 ### Prerequisites
 - Node.js 16+ 
-- Next.js 13+ (for App Router examples)
+- React 18+ (for React examples)
 - TypeScript (for TypeScript examples)
 
 ### Installation
 ```bash
-npm install fluid-cursor
+npm install
 ```
 
-### Usage in Next.js
-1. Copy the example file to your Next.js project
+### Usage in React
+1. Copy the example file to your React project
 2. Import and use the component in your pages or components
 3. Customize the configuration as needed
 
@@ -115,7 +113,7 @@ npm test examples/__tests__
 ## Best Practices
 
 ### Performance
-- Use 'auto' performance mode for most applications
+- Use medium performance mode for most applications
 - Test on actual mobile devices, not just browser dev tools
 - Monitor frame rate and adjust settings accordingly
 - Consider user preferences (reduced motion, battery saver)
@@ -126,7 +124,7 @@ npm test examples/__tests__
 - Provides keyboard navigation compatibility
 - Offers fallback options for devices without WebGL
 
-### Next.js Integration
+### React Integration
 - Always use dynamic imports for client-side only components
 - Implement proper loading states with Suspense
 - Use 'use client' directive for App Router compatibility
@@ -142,21 +140,17 @@ npm test examples/__tests__
 
 ### Common Issues
 
-1. **Hydration Mismatch in Next.js**
-   - Use dynamic imports with `ssr: false`
-   - Implement proper client-side only rendering
-
-2. **Performance Issues on Mobile**
-   - Use 'mobile' or 'battery' performance presets
+1. **Performance Issues on Mobile**
+   - Use 'low' performance preset
    - Reduce resolution and frame rate
    - Disable interaction if needed
 
-3. **TypeScript Errors**
+2. **TypeScript Errors**
    - Ensure proper type imports
    - Use type assertions carefully
    - Implement runtime validation for user inputs
 
-4. **Layout Issues**
+3. **Layout Issues**
    - Set proper z-index values
    - Use `position: relative` on parent containers
    - Ensure proper CSS layering
@@ -175,7 +169,7 @@ To add new examples:
 4. Ensure all tests pass
 
 Example contributions are welcome, especially for:
-- Framework integrations (Remix, Gatsby, etc.)
+- Framework integrations (Next.js, Remix, Gatsby, etc.)
 - UI library integrations (Material-UI, Chakra UI, etc.)
 - Advanced use cases and patterns
 - Performance optimization techniques

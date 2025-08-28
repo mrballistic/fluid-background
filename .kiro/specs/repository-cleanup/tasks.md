@@ -52,7 +52,7 @@
   - Add proper TypeScript type exports for FluidCursor
   - _Requirements: 2.2, 2.3_
 
-- [-] 8. Clean up test suite
+- [x] 8. Clean up test suite
   - Delete all test files for removed components
   - Update test configuration to only run tests for existing code
   - Ensure FluidCursor tests still pass after restructuring
@@ -60,7 +60,7 @@
   - Update test scripts in package.json
   - _Requirements: 7.1, 7.2, 7.3_
 
-- [ ] 9. Remove broken and misleading examples
+- [x] 9. Remove broken and misleading examples
   - Delete all example files that don't demonstrate FluidCursor
   - Keep only working FluidCursor examples (basic-usage, custom-colors)
   - Update example HTML files to use correct import paths
@@ -68,7 +68,7 @@
   - Update examples/README.md to only document remaining examples
   - _Requirements: 1.5, 8.1, 8.2, 8.4_
 
-- [ ] 10. Update build system configuration
+- [x] 10. Update build system configuration
   - Update rollup.config.js to only build FluidCursor related code
   - Update TypeScript configuration to exclude deleted directories
   - Update ESLint configuration to only lint existing files
@@ -76,7 +76,7 @@
   - Ensure build process works with simplified structure
   - _Requirements: 4.1, 4.2, 4.3, 9.1, 9.2_
 
-- [ ] 11. Rewrite README.md for FluidCursor focus
+- [-] 11. Rewrite README.md for FluidCursor focus
   - Replace current README content with FluidCursor-specific documentation
   - Remove all references to SplashCursor and FluidBackground
   - Update installation instructions for new package name

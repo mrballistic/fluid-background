@@ -1,33 +1,32 @@
 
+# 🌊 Fluid Cursor
 
-# 💧 Fluid Background
+Interactive WebGL fluid dynamics cursor effect component for React applications. Create stunning, performant fluid simulations that respond to mouse movement with beautiful smoke-like trails.
 
-Interactive fluid simulation background component for Next.js applications. Create stunning, performant fluid animations that respond to user interactions.
-
-[![npm version](https://badge.fury.io/js/fluid-background.svg)](https://badge.fury.io/js/fluid-background)
+[![npm version](https://badge.fury.io/js/fluid-cursor.svg)](https://badge.fury.io/js/fluid-cursor)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-Compatible-black.svg)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-Compatible-blue.svg)](https://reactjs.org/)
 
 ---
 
 ## ✨ Features
 
-- 🎨 **Interactive Fluid Simulation** - Real-time WebGL-based fluid dynamics
-- 📱 **Mobile Optimized** - Automatic performance scaling for mobile devices
+- 🎨 **Real-time Fluid Physics** - WebGL-based fluid dynamics simulation with mouse interaction
+- 🖱️ **Mouse-Responsive** - Beautiful smoke-like trails that follow cursor movement
+- 📱 **Mobile Optimized** - Touch-friendly with automatic performance scaling
 - 🎯 **TypeScript Ready** - Full type definitions included
 - ⚡ **Performance First** - Automatic quality adjustment based on device capabilities
-- 🎛️ **Highly Customizable** - Extensive configuration options for colors, physics, and behavior
-- ♿ **Accessible** - Respects `prefers-reduced-motion` and includes ARIA labels
-- 🔧 **Next.js Optimized** - SSR-safe with app router support
-- 📚 **Production Examples** - 6 comprehensive examples with 56 tests
-- 📱 **Responsive Design** - Breakpoint-based configurations for all screen sizes
+- 🎛️ **Highly Customizable** - Extensive physics and visual configuration options
+- ♿ **Accessible** - Respects `prefers-reduced-motion` and includes proper fallbacks
+- 🔧 **React Optimized** - Works with all React frameworks and SSR
+- 📚 **Production Ready** - Comprehensive examples and test coverage
 
 ---
 
 ## 🚀 Installation
 
 ```bash
-npm install fluid-background
+npm install fluid-cursor
 ```
 
 ---
@@ -37,43 +36,41 @@ npm install fluid-background
 ### Basic Usage
 
 ```tsx
-import FluidBackground from 'fluid-background';
+import FluidCursor from 'fluid-cursor';
 
 export default function MyPage() {
   return (
-    <div>
-      <FluidBackground />
+    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+      <FluidCursor />
       <main style={{ position: 'relative', zIndex: 1 }}>
         <h1>Your content here</h1>
-        <p>The fluid background will render behind this content.</p>
+        <p>Move your mouse to see the fluid cursor effect!</p>
       </main>
     </div>
   );
 }
 ```
 
-> 💡 **Want more examples?** Check out our [comprehensive examples](./examples/README.md) with live demos, TypeScript integration, and responsive design patterns.
+> 💡 **Want more examples?** Check out our [comprehensive examples](./examples/README.md) with interactive demos, performance optimization, and customization patterns.
 
-### Custom Colors
+### Custom Configuration
 
 ```tsx
-import FluidBackground from 'fluid-background';
+import FluidCursor from 'fluid-cursor';
 
 export default function CustomPage() {
   return (
-    <div>
-      <FluidBackground
-        colors={{
-          background: { r: 0.1, g: 0.1, b: 0.2 },
-          fluid: [
-            { r: 0.8, g: 0.2, b: 0.4 },
-            { r: 0.2, g: 0.6, b: 0.8 },
-            { r: 0.9, g: 0.7, b: 0.3 }
-          ]
-        }}
+    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+      <FluidCursor
+        SPLAT_RADIUS={0.3}
+        SPLAT_FORCE={8000}
+        DENSITY_DISSIPATION={2.5}
+        CURL={5}
+        BACK_COLOR={{ r: 0.1, g: 0.1, b: 0.2 }}
+        TRANSPARENT={true}
       />
       <main style={{ position: 'relative', zIndex: 1 }}>
-        <h1>Custom Colored Fluid</h1>
+        <h1>Custom Fluid Effect</h1>
       </main>
     </div>
   );
@@ -84,237 +81,151 @@ export default function CustomPage() {
 
 ## 📖 API Reference
 
-### FluidBackground Props
+### FluidCursor Props
 
-#### `colors?: ColorConfiguration`
-
-Configure the visual appearance of the fluid simulation.
+All props are optional and have sensible defaults for immediate use.
 
 ```tsx
-interface ColorConfiguration {
-  background?: { r: number; g: number; b: number };
-  fluid?: 'rainbow' | 'monochrome' | { r: number; g: number; b: number }[];
+interface FluidCursorProps {
+  SIM_RESOLUTION?: number;        // Simulation resolution (32-512, default: 128)
+  DYE_RESOLUTION?: number;        // Visual resolution (256-4096, default: 1440)
+  DENSITY_DISSIPATION?: number;   // How fast trails fade (0.1-10, default: 3.5)
+  VELOCITY_DISSIPATION?: number;  // How fast motion decays (0.1-5, default: 2.0)
+  PRESSURE?: number;              // Pressure strength (0.01-1, default: 0.1)
+  PRESSURE_ITERATIONS?: number;   // Pressure solver iterations (5-50, default: 20)
+  CURL?: number;                  // Vorticity/swirl strength (0-10, default: 3.0)
+  SPLAT_RADIUS?: number;          // Mouse influence radius (0.05-1, default: 0.2)
+  SPLAT_FORCE?: number;           // Mouse force strength (1000-15000, default: 6000)
+  SHADING?: boolean;              // Enable 3D shading effects (default: true)
+  COLOR_UPDATE_SPEED?: number;    // Color cycling speed (1-50, default: 10)
+  BACK_COLOR?: ColorRGB;          // Background color (default: {r:0.5, g:0, b:0})
+  TRANSPARENT?: boolean;          // Transparent background (default: true)
+}
+
+interface ColorRGB {
+  r: number; // Red component (0-1)
+  g: number; // Green component (0-1)  
+  b: number; // Blue component (0-1)
 }
 ```
 
-**Examples:**
+### Configuration Examples
+
+#### Performance Presets
+
 ```tsx
-// Rainbow colors (default)
-<FluidBackground colors={{ fluid: 'rainbow' }} />
+// High Performance (Desktop/Gaming)
+<FluidCursor
+  SIM_RESOLUTION={256}
+  DYE_RESOLUTION={2048}
+  PRESSURE_ITERATIONS={30}
+  SHADING={true}
+/>
 
-// Monochrome
-<FluidBackground colors={{ fluid: 'monochrome' }} />
+// Balanced (Most Devices)
+<FluidCursor
+  SIM_RESOLUTION={128}
+  DYE_RESOLUTION={1440}
+  PRESSURE_ITERATIONS={20}
+  SHADING={true}
+/>
 
-// Custom colors
-<FluidBackground 
-  colors={{
-    background: { r: 0, g: 0, b: 0 },
-    fluid: [
-      { r: 1, g: 0, b: 0 },
-      { r: 0, g: 1, b: 0 },
-      { r: 0, g: 0, b: 1 }
-    ]
-  }}
+// Mobile/Low-End
+<FluidCursor
+  SIM_RESOLUTION={64}
+  DYE_RESOLUTION={512}
+  PRESSURE_ITERATIONS={10}
+  SHADING={false}
 />
 ```
 
-#### `physics?: PhysicsConfiguration`
-
-Control the fluid simulation physics parameters.
+#### Visual Styles
 
 ```tsx
-interface PhysicsConfiguration {
-  viscosity?: number;    // Fluid thickness (0.0 - 1.0, default: 0.3)
-  density?: number;      // Fluid density (0.0 - 1.0, default: 0.8)
-  pressure?: number;     // Pressure strength (0.0 - 1.0, default: 0.8)
-  curl?: number;         // Vorticity strength (0.0 - 50.0, default: 30.0)
-  splatRadius?: number;  // Interaction radius (0.0 - 1.0, default: 0.25)
-  splatForce?: number;   // Interaction force (0.0 - 1.0, default: 6000.0)
-}
-```
-
-**Examples:**
-```tsx
-// Thick, slow fluid
-<FluidBackground 
-  physics={{
-    viscosity: 0.8,
-    density: 0.9,
-    splatForce: 3000
-  }}
+// Subtle, elegant trails
+<FluidCursor
+  DENSITY_DISSIPATION={5.0}
+  VELOCITY_DISSIPATION={3.0}
+  SPLAT_FORCE={4000}
+  CURL={1.5}
 />
 
-// Fast, chaotic fluid
-<FluidBackground 
-  physics={{
-    viscosity: 0.1,
-    curl: 45,
-    splatForce: 8000
-  }}
-/>
-```
-
-#### `performance?: PerformanceConfiguration`
-
-Optimize performance for different devices and use cases.
-
-```tsx
-interface PerformanceConfiguration {
-  resolution?: 'low' | 'medium' | 'high' | 'auto';
-  frameRate?: number;        // Target FPS (default: 60)
-  pauseOnHidden?: boolean;   // Pause when tab is hidden (default: true)
-}
-```
-
-**Examples:**
-```tsx
-// High performance for desktop
-<FluidBackground 
-  performance={{
-    resolution: 'high',
-    frameRate: 60
-  }}
+// Dramatic, swirling effects
+<FluidCursor
+  DENSITY_DISSIPATION={1.5}
+  VELOCITY_DISSIPATION={1.0}
+  SPLAT_FORCE={10000}
+  CURL={8.0}
 />
 
-// Battery-friendly mobile
-<FluidBackground 
-  performance={{
-    resolution: 'low',
-    frameRate: 30,
-    pauseOnHidden: true
-  }}
+// Custom background color
+<FluidCursor
+  TRANSPARENT={false}
+  BACK_COLOR={{ r: 0.05, g: 0.05, b: 0.1 }}
 />
-
-// Auto-adjust based on device (recommended)
-<FluidBackground performance={{ resolution: 'auto' }} />
-```
-
-#### `interaction?: InteractionConfiguration`
-
-Control user interaction behavior.
-
-```tsx
-interface InteractionConfiguration {
-  enabled?: boolean;    // Enable/disable interactions (default: true)
-  mouse?: boolean;      // Mouse interactions (default: true)
-  touch?: boolean;      // Touch interactions (default: true)
-  intensity?: number;   // Interaction strength multiplier (default: 1.0)
-}
-```
-
-**Examples:**
-```tsx
-// Non-interactive background
-<FluidBackground interaction={{ enabled: false }} />
-
-// Touch-only (mobile)
-<FluidBackground 
-  interaction={{
-    mouse: false,
-    touch: true
-  }}
-/>
-
-// Subtle interactions
-<FluidBackground 
-  interaction={{
-    intensity: 0.5
-  }}
-/>
-```
-
-#### `style?: React.CSSProperties`
-
-Apply custom CSS styles to the background container.
-
-```tsx
-<FluidBackground 
-  style={{
-    opacity: 0.8,
-    filter: 'blur(1px)'
-  }}
-/>
-```
-
-#### `className?: string`
-
-Add custom CSS classes.
-
-```tsx
-<FluidBackground className="my-fluid-background" />
-```
-
-#### `zIndex?: number`
-
-Set the z-index of the background (default: -1).
-
-```tsx
-<FluidBackground zIndex={-10} />
 ```
 
 ---
 
-## 🎨 Color Formats
+## 🎨 Visual Customization
+
+### Color Format
 
 Colors are specified as RGB objects with values between 0 and 1:
 
 ```tsx
 { r: 1.0, g: 0.5, b: 0.0 }  // Orange
-{ r: 0.0, g: 0.0, b: 0.0 }  // Black
+{ r: 0.0, g: 0.0, b: 0.0 }  // Black  
 { r: 1.0, g: 1.0, b: 1.0 }  // White
 ```
 
-### Predefined Color Modes
+### Dynamic Colors
 
-- **`'rainbow'`** - Cycles through vibrant rainbow colors
-- **`'monochrome'`** - Uses grayscale colors for a subtle effect
+The FluidCursor automatically cycles through a spectrum of colors. You can control the cycling speed with `COLOR_UPDATE_SPEED` and set a custom background with `BACK_COLOR`.
 
 ---
 
 ## 🔧 Performance Optimization
 
-### Automatic Optimization
+### Performance Guidelines
 
-The component automatically optimizes performance based on:
-- Device capabilities (mobile vs desktop)
-- WebGL support level
-- Current frame rate
-- Battery status (when available)
+The FluidCursor component is designed to run smoothly across devices. Here are the key performance factors:
 
-### Manual Optimization
+**Most Impact on Performance:**
+- `SIM_RESOLUTION` - Lower values = better performance
+- `PRESSURE_ITERATIONS` - Fewer iterations = better performance  
+- `DYE_RESOLUTION` - Lower values = better performance
+
+**Moderate Impact:**
+- `SHADING` - Disable for better performance on mobile
+- Canvas size - Smaller containers perform better
+
+### Device-Specific Optimization
 
 ```tsx
-// For low-end devices
-<FluidBackground 
-  performance={{
-    resolution: 'low',
-    frameRate: 30
-  }}
-  physics={{
-    viscosity: 0.5,  // Simpler simulation
-    curl: 15         // Reduced complexity
-  }}
-/>
-
-// For high-end devices
-<FluidBackground 
-  performance={{
-    resolution: 'high',
-    frameRate: 60
-  }}
-  physics={{
-    curl: 40,        // More complex simulation
-    splatForce: 8000 // Stronger interactions
-  }}
-/>
+// Detect device capabilities and adjust accordingly
+function AdaptiveFluidCursor() {
+  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  return (
+    <FluidCursor
+      SIM_RESOLUTION={isMobile ? 64 : 128}
+      DYE_RESOLUTION={isMobile ? 512 : 1440}
+      PRESSURE_ITERATIONS={isMobile ? 10 : 20}
+      SHADING={!isMobile}
+    />
+  );
+}
 ```
 
 ### Performance Monitoring
 
-The component includes built-in performance monitoring that automatically:
-- Reduces quality when frame rate drops
-- Pauses animation when the tab is hidden
-- Adjusts resolution based on device pixel ratio
+Monitor your application's frame rate and adjust settings accordingly. If you notice performance issues:
+
+1. Reduce `SIM_RESOLUTION` first (biggest impact)
+2. Lower `DYE_RESOLUTION` 
+3. Decrease `PRESSURE_ITERATIONS`
+4. Disable `SHADING` on mobile devices
 
 ---
 
@@ -322,23 +233,26 @@ The component includes built-in performance monitoring that automatically:
 
 ### Reduced Motion Support
 
-The component respects the `prefers-reduced-motion` CSS media query:
+The FluidCursor component automatically respects user accessibility preferences:
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  /* Fluid animation is automatically disabled */
+  /* Fluid animation is automatically disabled or reduced */
 }
 ```
 
 ### Screen Reader Support
 
-- Includes appropriate ARIA labels
-- Provides descriptive text for screen readers
-- Uses semantic HTML structure
+- Canvas element includes appropriate ARIA labels
+- Provides descriptive text for assistive technologies
+- Uses semantic HTML structure where applicable
 
 ### Keyboard Navigation
 
-The background doesn't interfere with keyboard navigation and maintains proper focus management.
+The cursor effect doesn't interfere with keyboard navigation:
+- Canvas uses `pointer-events: none` to allow interaction with content behind
+- Maintains proper focus management for underlying content
+- No keyboard traps or focus issues
 
 ---
 
@@ -346,18 +260,23 @@ The background doesn't interfere with keyboard navigation and maintains proper f
 
 ### WebGL Requirements
 
-- **Chrome/Edge**: Version 56+
-- **Firefox**: Version 51+
-- **Safari**: Version 15+
-- **Mobile Safari**: iOS 15+
-- **Chrome Mobile**: Version 56+
+| Browser | WebGL1 | WebGL2 | Notes |
+|---------|--------|--------|-------|
+| Chrome 60+ | ✅ | ✅ | Full support |
+| Firefox 55+ | ✅ | ✅ | Full support |
+| Safari 12+ | ✅ | ✅ | May need linear filtering fallback |
+| Edge 79+ | ✅ | ✅ | Full support |
+
+**Minimum Requirements:**
+- WebGL 1.0 with `OES_texture_half_float` extension
+- Modern browser with ES6+ support
 
 ### Fallback Behavior
 
 When WebGL is not supported, the component:
-- Renders a static gradient background
-- Logs a helpful warning message
-- Maintains the same API for consistency
+- Fails gracefully without breaking your application
+- Logs helpful debugging information to console
+- Renders nothing (transparent) to avoid layout issues
 
 ---
 
@@ -370,9 +289,10 @@ When WebGL is not supported, the component:
 **Problem**: The browser doesn't support WebGL or it's disabled.
 
 **Solutions**:
-1. Update to a modern browser
+1. Update to a modern browser (Chrome 60+, Firefox 55+, Safari 12+)
 2. Enable hardware acceleration in browser settings
 3. Check if WebGL is blocked by browser extensions
+4. Test WebGL support at [webglreport.com](https://webglreport.com)
 
 #### Poor Performance on Mobile
 
@@ -380,61 +300,72 @@ When WebGL is not supported, the component:
 
 **Solutions**:
 ```tsx
-<FluidBackground 
-  performance={{
-    resolution: 'low',
-    frameRate: 30
-  }}
-  physics={{
-    viscosity: 0.6,
-    curl: 20
-  }}
+<FluidCursor
+  SIM_RESOLUTION={64}
+  DYE_RESOLUTION={512}
+  PRESSURE_ITERATIONS={10}
+  SHADING={false}
 />
 ```
 
-#### Background Not Visible
+#### Effect Not Visible
 
-**Problem**: The fluid background doesn't appear.
+**Problem**: The fluid cursor effect doesn't appear.
 
 **Solutions**:
-1. Ensure content has `position: relative` and `zIndex: 1`
-2. Check that the container has sufficient height
-3. Verify WebGL support in the browser
+1. Ensure the container has proper dimensions (`width` and `height`)
+2. Check that content has `position: relative` and `zIndex: 1`
+3. Verify WebGL support in browser console
+4. Move your mouse to trigger the effect
 
-#### Hydration Mismatch in Next.js
+#### Effect Too Subtle
 
-**Problem**: Server/client rendering mismatch.
+**Problem**: The fluid effect is barely visible.
 
-**Solution**: The component is designed to be SSR-safe, but if issues persist:
+**Solutions**:
+```tsx
+<FluidCursor
+  SPLAT_FORCE={10000}
+  SPLAT_RADIUS={0.3}
+  DENSITY_DISSIPATION={2.0}
+  CURL={5.0}
+/>
+```
+
+#### Effect Too Intense
+
+**Problem**: The fluid effect is overwhelming or too chaotic.
+
+**Solutions**:
+```tsx
+<FluidCursor
+  SPLAT_FORCE={3000}
+  DENSITY_DISSIPATION={5.0}
+  VELOCITY_DISSIPATION={3.0}
+  CURL={1.0}
+/>
+```
+
+#### SSR Issues with React Frameworks
+
+**Problem**: Server-side rendering errors.
+
+**Solution**: Use dynamic imports for client-side only rendering:
 ```tsx
 import dynamic from 'next/dynamic';
 
-const FluidBackground = dynamic(
-  () => import('fluid-background').then(mod => mod.FluidBackground),
-  { ssr: false }
-);
+const FluidCursor = dynamic(() => import('fluid-cursor'), { ssr: false });
 ```
 
-#### High CPU/Battery Usage
+### Debug Information
 
-**Problem**: The animation consumes too many resources.
-
-**Solutions**:
+Check WebGL support and capabilities:
 ```tsx
-<FluidBackground 
-  performance={{
-    resolution: 'low',
-    frameRate: 24,
-    pauseOnHidden: true
-  }}
-/>
-```
-
-### Debug Mode
-
-Enable debug logging by setting the environment variable:
-```bash
-DEBUG=fluid-background npm run dev
+// Check WebGL support
+const canvas = document.createElement('canvas');
+const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+console.log('WebGL supported:', !!gl);
+console.log('WebGL version:', gl ? gl.getParameter(gl.VERSION) : 'None');
 ```
 
 ---
@@ -443,23 +374,20 @@ DEBUG=fluid-background npm run dev
 
 We've created comprehensive examples to help you get started quickly. Each example includes full source code, tests, and detailed documentation:
 
-### Basic Examples
-- **[Basic Usage](./examples/basic-usage.tsx)** - Zero configuration setup
-- **[Custom Colors](./examples/custom-colors.tsx)** - Interactive color customization
-- **[Performance Optimized](./examples/performance-optimized.tsx)** - Device-specific optimization
-
-### Advanced Examples  
-- **[App Router Compatibility](./examples/app-router-compatibility.tsx)** - Next.js App Router integration
-- **[TypeScript Integration](./examples/typescript-integration.tsx)** - Type-safe configuration management
-- **[Responsive Design](./examples/responsive-design.tsx)** - Breakpoint-based responsive behavior
+### Available Examples
+- **[Basic Usage](./examples/fluid-cursor-basic.tsx)** - Zero configuration setup
+- **[Custom Configuration](./examples/fluid-cursor-custom.tsx)** - Interactive parameter controls
+- **[Performance Optimized](./examples/fluid-cursor-performance.tsx)** - Device-specific optimization
+- **[Interactive Demo](./examples/fluid-cursor-demo.html)** - Standalone HTML demo
+- **[Compatibility Test](./examples/fluid-cursor-compatibility-test.html)** - Cross-browser testing
 
 **[📖 View All Examples →](./examples/README.md)**
 
-Each example is production-ready and includes:
+Each example includes:
 - ✅ Complete source code with TypeScript
-- ✅ Comprehensive test coverage (56 tests total)
+- ✅ Comprehensive test coverage
 - ✅ Detailed documentation and usage instructions
-- ✅ Best practices and optimization tips
+- ✅ Performance optimization techniques
 
 ---
 

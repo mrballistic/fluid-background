@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import FluidCursor from '../src/components/FluidCursor/FluidCursor';
+import FluidCursor from '../src/components/FluidCursor';
 
 /**
  * Custom FluidCursor Example

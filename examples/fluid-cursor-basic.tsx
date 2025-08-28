@@ -1,5 +1,5 @@
 import React from 'react';
-import FluidCursor from '../src/components/FluidCursor/FluidCursor';
+import FluidCursor from '../src/components/FluidCursor';
 
 /**
  * Basic FluidCursor Example

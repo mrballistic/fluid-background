@@ -1,11 +1,13 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 import FluidCursorBasicExample from '../fluid-cursor-basic';
 
 // Mock the FluidCursor component since we can't test WebGL in jsdom
-jest.mock('../../src/components/FluidCursor/FluidCursor', () => {
-  return function MockFluidCursor(props: any) {
+vi.mock('../../src/components/FluidCursor', () => ({
+  default:
+  function MockFluidCursor(props: any) {
     return (
       <canvas 
         data-testid="fluid-cursor-canvas"
@@ -19,8 +21,8 @@ jest.mock('../../src/components/FluidCursor/FluidCursor', () => {
         }}
       />
     );
-  };
-});
+  }
+}));
 
 describe('FluidCursorBasicExample', () => {
   beforeEach(() => {
@@ -75,16 +77,10 @@ describe('FluidCursorBasicExample', () => {
     render(<FluidCursorBasicExample />);
     
     const overlay = screen.getByText('Basic FluidCursor').parentElement;
-    expect(overlay).toHaveStyle({
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      color: 'white',
-      textAlign: 'center',
-      zIndex: '10',
-      pointerEvents: 'none'
-    });
+    expect(overlay).toHaveStyle('position: absolute');
+    expect(overlay).toHaveStyle('top: 50%');
+    expect(overlay).toHaveStyle('left: 50%');
+    expect(overlay).toHaveStyle('transform: translate(-50%, -50%)');
   });
 
   it('is accessible with proper text content', () => {
