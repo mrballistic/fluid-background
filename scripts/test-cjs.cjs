@@ -83,3 +83,36 @@ if (allSplashExportsFound) {
   console.error('❌ Some splash-cursor CommonJS exports are missing');
   process.exit(1);
 }
+
+// Test fluid-cursor CommonJS exports
+const fluidCjsFile = path.resolve(__dirname, '..', 'dist', 'fluid-cursor.js');
+
+if (!fs.existsSync(fluidCjsFile)) {
+  console.error('❌ Fluid-cursor CommonJS build file does not exist:', fluidCjsFile);
+  process.exit(1);
+}
+
+const fluidContent = fs.readFileSync(fluidCjsFile, 'utf8');
+
+const expectedFluidExports = [
+  'FluidCursor'
+];
+
+let allFluidExportsFound = true;
+
+for (const exportName of expectedFluidExports) {
+  const exportPattern = new RegExp(`exports\\.${exportName}\\s*=`);
+  if (exportPattern.test(fluidContent)) {
+    console.log(`✅ Fluid-cursor CommonJS export found: ${exportName}`);
+  } else {
+    console.error(`❌ Missing fluid-cursor CommonJS export: ${exportName}`);
+    allFluidExportsFound = false;
+  }
+}
+
+if (allFluidExportsFound) {
+  console.log('✅ Fluid-cursor CommonJS exports test passed');
+} else {
+  console.error('❌ Some fluid-cursor CommonJS exports are missing');
+  process.exit(1);
+}

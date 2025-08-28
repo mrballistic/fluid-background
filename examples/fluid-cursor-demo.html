@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluidCursor Component Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        .demo-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+        
+        .instructions {
+            font-size: 1rem;
+            opacity: 0.6;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 250px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        .control-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .value-display {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        #fluidCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <canvas id="fluidCanvas"></canvas>
+        
+        <div class="content">
+            <h1 class="title">FluidCursor Demo</h1>
+            <p class="subtitle">WebGL Fluid Dynamics Cursor Effect</p>
+            <p class="instructions">
+                Move your mouse around to create beautiful fluid trails.<br>
+                Click and drag for enhanced effects.<br>
+                Use the controls on the right to customize the simulation.
+            </p>
+        </div>
+        
+        <div class="controls">
+            <h3>Simulation Controls</h3>
+            
+            <div class="control-group">
+                <label for="splatRadius">Splat Radius</label>
+                <input type="range" id="splatRadius" min="0.1" max="1.0" step="0.05" value="0.2">
+                <div class="value-display" id="splatRadiusValue">0.2</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="splatForce">Splat Force</label>
+                <input type="range" id="splatForce" min="1000" max="10000" step="500" value="6000">
+                <div class="value-display" id="splatForceValue">6000</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="densityDissipation">Density Dissipation</label>
+                <input type="range" id="densityDissipation" min="0.5" max="10" step="0.1" value="3.5">
+                <div class="value-display" id="densityDissipationValue">3.5</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="velocityDissipation">Velocity Dissipation</label>
+                <input type="range" id="velocityDissipation" min="0.1" max="5" step="0.1" value="2">
+                <div class="value-display" id="velocityDissipationValue">2</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="curl">Curl Strength</label>
+                <input type="range" id="curl" min="0" max="10" step="0.5" value="3">
+                <div class="value-display" id="curlValue">3</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="pressure">Pressure</label>
+                <input type="range" id="pressure" min="0.01" max="1" step="0.01" value="0.1">
+                <div class="value-display" id="pressureValue">0.1</div>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="shading" checked>
+                    Enable Shading
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="transparent" checked>
+                    Transparent Background
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- React and ReactDOM from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- FluidCursor Component (would be imported from the package in real usage) -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        
+        // This would normally be: import FluidCursor from 'your-package/FluidCursor'
+        // For demo purposes, we'll create a placeholder that shows the expected interface
+        function FluidCursor(props) {
+            const canvasRef = useRef(null);
+            
+            useEffect(() => {
+                // In the real implementation, this would contain the full WebGL fluid simulation
+                // For this demo, we'll show a simple placeholder
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                
+                // Simple placeholder animation
+                let animationId;
+                const particles = [];
+                
+                function animate() {
+                    ctx.fillStyle = props.TRANSPARENT ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,1)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Simple particle effect as placeholder
+                    ctx.fillStyle = 'rgba(255,100,150,0.8)';
+                    particles.forEach((particle, index) => {
+                        particle.x += particle.vx;
+                        particle.y += particle.vy;
+                        particle.life -= 0.02;
+                        
+                        if (particle.life <= 0) {
+                            particles.splice(index, 1);
+                        } else {
+                            ctx.globalAlpha = particle.life;
+                            ctx.beginPath();
+                            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    });
+                    
+                    ctx.globalAlpha = 1;
+                    animationId = requestAnimationFrame(animate);
+                }
+                
+                function handleMouseMove(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Add particles at mouse position
+                    for (let i = 0; i < 3; i++) {
+                        particles.push({
+                            x: x + (Math.random() - 0.5) * 20,
+                            y: y + (Math.random() - 0.5) * 20,
+                            vx: (Math.random() - 0.5) * 2,
+                            vy: (Math.random() - 0.5) * 2,
+                            size: Math.random() * 5 + 2,
+                            life: 1
+                        });
+                    }
+                }
+                
+                canvas.addEventListener('mousemove', handleMouseMove);
+                animate();
+                
+                return () => {
+                    cancelAnimationFrame(animationId);
+                    canvas.removeEventListener('mousemove', handleMouseMove);
+                };
+            }, [props]);
+            
+            return React.createElement('canvas', {
+                ref: canvasRef,
+                id: 'fluidCanvas',
+                width: window.innerWidth,
+                height: window.innerHeight,
+                style: {
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 1
+                }
+            });
+        }
+        
+        function App() {
+            const [config, setConfig] = useState({
+                SIM_RESOLUTION: 128,
+                DYE_RESOLUTION: 1440,
+                DENSITY_DISSIPATION: 3.5,
+                VELOCITY_DISSIPATION: 2,
+                PRESSURE: 0.1,
+                PRESSURE_ITERATIONS: 20,
+                CURL: 3,
+                SPLAT_RADIUS: 0.2,
+                SPLAT_FORCE: 6000,
+                SHADING: true,
+                COLOR_UPDATE_SPEED: 10,
+                BACK_COLOR: { r: 0.5, g: 0, b: 0 },
+                TRANSPARENT: true
+            });
+            
+            const updateConfig = (key, value) => {
+                setConfig(prev => ({ ...prev, [key]: value }));
+            };
+            
+            useEffect(() => {
+                // Update control displays
+                const controls = [
+                    'splatRadius', 'splatForce', 'densityDissipation', 
+                    'velocityDissipation', 'curl', 'pressure'
+                ];
+                
+                controls.forEach(control => {
+                    const input = document.getElementById(control);
+                    const display = document.getElementById(control + 'Value');
+                    
+                    if (input && display) {
+                        const updateDisplay = () => {
+                            display.textContent = input.value;
+                            const configKey = control.replace(/([A-Z])/g, '_$1').toUpperCase();
+                            updateConfig(configKey, parseFloat(input.value));
+                        };
+                        
+                        input.addEventListener('input', updateDisplay);
+                        updateDisplay();
+                    }
+                });
+                
+                // Handle checkboxes
+                const shadingCheckbox = document.getElementById('shading');
+                const transparentCheckbox = document.getElementById('transparent');
+                
+                if (shadingCheckbox) {
+                    shadingCheckbox.addEventListener('change', (e) => {
+                        updateConfig('SHADING', e.target.checked);
+                    });
+                }
+                
+                if (transparentCheckbox) {
+                    transparentCheckbox.addEventListener('change', (e) => {
+                        updateConfig('TRANSPARENT', e.target.checked);
+                    });
+                }
+            }, []);
+            
+            return React.createElement(FluidCursor, config);
+        }
+        
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root') || document.body);
+        root.render(React.createElement(App));
+    </script>
+    
+    <div style="position: absolute; bottom: 20px; left: 20px; z-index: 20; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; font-size: 0.9rem;">
+        <strong>Note:</strong> This demo shows the FluidCursor component interface.<br>
+        The actual WebGL fluid simulation would be rendered here in the real implementation.
+    </div>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluidCursor Verification Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #111;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+        }
+        
+        .test-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+            z-index: 1000;
+            font-size: 12px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .test-title {
+            color: #00ffff;
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .test-item {
+            margin: 8px 0;
+            padding: 5px;
+            border-left: 3px solid #333;
+        }
+        
+        .test-item.pass {
+            border-left-color: #00ff00;
+            color: #00ff00;
+        }
+        
+        .test-item.fail {
+            border-left-color: #ff0000;
+            color: #ff0000;
+        }
+        
+        .test-item.pending {
+            border-left-color: #ffff00;
+            color: #ffff00;
+        }
+        
+        .test-details {
+            font-size: 10px;
+            opacity: 0.8;
+            margin-top: 3px;
+        }
+
+        .mouse-tracker {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .instructions {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h3>FluidCursor Test Instructions</h3>
+        <p>1. Move your mouse around the screen</p>
+        <p>2. Click anywhere to create splashes</p>
+        <p>3. Watch for colorful fluid trails</p>
+        <p>4. Check the test results panel →</p>
+    </div>
+
+    <div class="mouse-tracker">
+        <div>Mouse: <span id="mouse-pos">0, 0</span></div>
+        <div>Clicks: <span id="click-count">0</span></div>
+        <div>Movement: <span id="movement-count">0</span></div>
+    </div>
+
+    <div class="test-panel">
+        <div class="test-title">FluidCursor Verification Tests</div>
+        <div id="test-results"></div>
+    </div>
+
+    <!-- React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script type="module">
+        const tests = [];
+        let mouseMovements = 0;
+        let clickCount = 0;
+        let componentLoaded = false;
+        let webglActive = false;
+        let fluidSimulationActive = false;
+
+        function addTest(name, status, details = '') {
+            tests.push({ name, status, details, timestamp: Date.now() });
+            updateTestDisplay();
+        }
+
+        function updateTest(name, status, details = '') {
+            const test = tests.find(t => t.name === name);
+            if (test) {
+                test.status = status;
+                test.details = details;
+                test.timestamp = Date.now();
+                updateTestDisplay();
+            }
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = tests.map(test => `
+                <div class="test-item ${test.status}">
+                    ${test.status === 'pass' ? '✅' : test.status === 'fail' ? '❌' : '⏳'} ${test.name}
+                    ${test.details ? `<div class="test-details">${test.details}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Initialize tests
+        addTest('Component Import', 'pending', 'Loading FluidCursor component...');
+        addTest('WebGL Context', 'pending', 'Checking WebGL support...');
+        addTest('Canvas Creation', 'pending', 'Waiting for canvas element...');
+        addTest('Shader Compilation', 'pending', 'Waiting for WebGL initialization...');
+        addTest('Mouse Responsiveness', 'pending', 'Move mouse to test...');
+        addTest('Click Interaction', 'pending', 'Click anywhere to test...');
+        addTest('Fluid Simulation', 'pending', 'Checking for fluid rendering...');
+        addTest('Performance', 'pending', 'Monitoring frame rate...');
+
+        // Track mouse movement
+        let lastMouseTime = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseMovements++;
+            document.getElementById('mouse-pos').textContent = `${e.clientX}, ${e.clientY}`;
+            document.getElementById('movement-count').textContent = mouseMovements;
+            
+            const now = Date.now();
+            if (now - lastMouseTime > 100) { // Throttle test updates
+                if (mouseMovements > 5 && componentLoaded) {
+                    updateTest('Mouse Responsiveness', 'pass', `${mouseMovements} movements detected`);
+                }
+                lastMouseTime = now;
+            }
+        });
+
+        // Track clicks
+        document.addEventListener('mousedown', (e) => {
+            clickCount++;
+            document.getElementById('click-count').textContent = clickCount;
+            
+            if (clickCount > 0 && componentLoaded) {
+                updateTest('Click Interaction', 'pass', `${clickCount} clicks detected`);
+            }
+        });
+
+        // WebGL support check
+        function checkWebGLSupport() {
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+                
+                if (!gl) {
+                    updateTest('WebGL Context', 'fail', 'WebGL not supported');
+                    return false;
+                }
+                
+                const isWebGL2 = 'drawBuffers' in gl;
+                updateTest('WebGL Context', 'pass', `WebGL ${isWebGL2 ? '2' : '1'} supported`);
+                webglActive = true;
+                return true;
+            } catch (error) {
+                updateTest('WebGL Context', 'fail', error.message);
+                return false;
+            }
+        }
+
+        // Monitor for canvas creation and WebGL activity
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.tagName === 'CANVAS' && node.id === 'fluid') {
+                        updateTest('Canvas Creation', 'pass', 'Fluid canvas element created');
+                        
+                        // Check for WebGL context on the canvas
+                        setTimeout(() => {
+                            const gl = node.getContext('webgl2') || node.getContext('webgl');
+                            if (gl) {
+                                updateTest('Shader Compilation', 'pass', 'WebGL context active on canvas');
+                                
+                                // Monitor for actual rendering
+                                monitorFluidSimulation(node, gl);
+                            } else {
+                                updateTest('Shader Compilation', 'fail', 'No WebGL context on canvas');
+                            }
+                        }, 500);
+                    }
+                });
+            });
+        });
+
+        function monitorFluidSimulation(canvas, gl) {
+            let frameCount = 0;
+            let lastFrameTime = Date.now();
+            
+            function checkFrame() {
+                frameCount++;
+                const now = Date.now();
+                
+                if (frameCount > 10) {
+                    const fps = frameCount / ((now - lastFrameTime) / 1000);
+                    updateTest('Performance', 'pass', `~${Math.round(fps)} FPS`);
+                    
+                    // Check if there's actual rendering happening
+                    const pixels = new Uint8Array(4);
+                    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+                    
+                    if (pixels[0] > 0 || pixels[1] > 0 || pixels[2] > 0) {
+                        updateTest('Fluid Simulation', 'pass', 'Fluid rendering detected');
+                        fluidSimulationActive = true;
+                    } else if (frameCount > 60) {
+                        updateTest('Fluid Simulation', 'fail', 'No fluid rendering detected');
+                    }
+                }
+                
+                if (frameCount < 120) {
+                    requestAnimationFrame(checkFrame);
+                }
+            }
+            
+            requestAnimationFrame(checkFrame);
+        }
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // Load and test the FluidCursor component
+        if (checkWebGLSupport()) {
+            import('./dist/index.esm.js').then(({ FluidCursor }) => {
+                updateTest('Component Import', 'pass', 'FluidCursor imported successfully');
+                componentLoaded = true;
+
+                const { createElement } = React;
+                const { createRoot } = ReactDOM;
+
+                function TestApp() {
+                    return createElement(FluidCursor, {
+                        SIM_RESOLUTION: 128,
+                        DYE_RESOLUTION: 1024,
+                        DENSITY_DISSIPATION: 1.0,
+                        VELOCITY_DISSIPATION: 0.2,
+                        PRESSURE: 0.8,
+                        PRESSURE_ITERATIONS: 20,
+                        CURL: 30,
+                        SPLAT_RADIUS: 0.25,
+                        SPLAT_FORCE: 6000,
+                        SHADING: true,
+                        COLOR_UPDATE_SPEED: 10,
+                        TRANSPARENT: true
+                    });
+                }
+
+                // Create container and render
+                const container = document.createElement('div');
+                container.style.position = 'fixed';
+                container.style.top = '0';
+                container.style.left = '0';
+                container.style.width = '100%';
+                container.style.height = '100%';
+                container.style.zIndex = '1';
+                document.body.appendChild(container);
+                
+                const root = createRoot(container);
+                
+                try {
+                    root.render(createElement(TestApp));
+                } catch (error) {
+                    updateTest('Component Import', 'fail', `Render error: ${error.message}`);
+                    console.error('FluidCursor render error:', error);
+                }
+
+            }).catch(error => {
+                updateTest('Component Import', 'fail', `Import error: ${error.message}`);
+                console.error('FluidCursor import error:', error);
+            });
+        }
+
+        // Auto-test after 5 seconds if no interaction
+        setTimeout(() => {
+            if (mouseMovements === 0 && componentLoaded) {
+                updateTest('Mouse Responsiveness', 'fail', 'No mouse movement detected');
+            }
+            if (clickCount === 0 && componentLoaded) {
+                updateTest('Click Interaction', 'fail', 'No clicks detected');
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

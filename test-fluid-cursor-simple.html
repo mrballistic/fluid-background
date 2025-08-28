@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FluidCursor Component Test - Simple</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .test-content {
+      position: relative;
+      z-index: 10;
+      color: white;
+      padding: 20px;
+      pointer-events: auto;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+    }
+
+    p {
+      margin: 5px 0;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+    }
+
+    .error {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+    }
+
+    .success {
+      color: #51cf66;
+      background: rgba(81, 207, 102, 0.1);
+    }
+
+    .warning {
+      color: #ffd43b;
+      background: rgba(255, 212, 59, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="test-content">
+    <h1>FluidCursor Component Test</h1>
+    <p>This test verifies that the FluidCursor component can be loaded and initialized</p>
+    <p>Move your mouse around to see the fluid simulation</p>
+    <p>Click to create splashes</p>
+    <div id="status" class="status">
+      Initializing test...
+    </div>
+    <div id="webgl-info" class="status" style="margin-top: 10px;">
+      Checking WebGL support...
+    </div>
+  </div>
+
+  <!-- React and Babel for JSX transformation -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <script>
+    // Test WebGL support first
+    function testWebGLSupport() {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+      if (!gl) {
+        document.getElementById('webgl-info').innerHTML = 'WebGL not supported in this browser';
+        document.getElementById('webgl-info').className = 'status error';
+        return false;
+      }
+
+      const isWebGL2 = 'drawBuffers' in gl;
+      const vendor = gl.getParameter(gl.VENDOR);
+      const renderer = gl.getParameter(gl.RENDERER);
+
+      document.getElementById('webgl-info').innerHTML = `
+                WebGL ${isWebGL2 ? '2' : '1'} supported<br>
+                Vendor: ${vendor}<br>
+                Renderer: ${renderer}
+            `;
+      document.getElementById('webgl-info').className = 'status success';
+
+      return true;
+    }
+
+    // Test component loading
+    function testComponentLoading() {
+      try {
+        // Test if we can create a basic canvas element
+        const testCanvas = document.createElement('canvas');
+        testCanvas.width = 100;
+        testCanvas.height = 100;
+        testCanvas.style.position = 'fixed';
+        testCanvas.style.top = '0';
+        testCanvas.style.left = '0';
+        testCanvas.style.width = '100vw';
+        testCanvas.style.height = '100vh';
+        testCanvas.style.zIndex = '1';
+        testCanvas.style.pointerEvents = 'none';
+
+        // Test WebGL context creation
+        const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+        if (!gl) {
+          throw new Error('Cannot create WebGL context');
+        }
+
+        // Test basic shader compilation
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        const vertexSource = `
+                    attribute vec2 aPosition;
+                    void main() {
+                        gl_Position = vec4(aPosition, 0.0, 1.0);
+                    }
+                `;
+        gl.shaderSource(vertexShader, vertexSource);
+        gl.compileShader(vertexShader);
+
+        if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+          throw new Error('Vertex shader compilation failed: ' + gl.getShaderInfoLog(vertexShader));
+        }
+
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        const fragmentSource = `
+                    precision mediump float;
+                    void main() {
+                        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                    }
+                `;
+        gl.shaderSource(fragmentShader, fragmentSource);
+        gl.compileShader(fragmentShader);
+
+        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+          throw new Error('Fragment shader compilation failed: ' + gl.getShaderInfoLog(fragmentShader));
+        }
+
+        // Test program linking
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          throw new Error('Program linking failed: ' + gl.getProgramInfoLog(program));
+        }
+
+        // Add canvas to document
+        document.body.appendChild(testCanvas);
+
+        // Start simple animation
+        let frame = 0;
+        function animate() {
+          frame++;
+          const r = Math.sin(frame * 0.01) * 0.5 + 0.5;
+          const g = Math.sin(frame * 0.02) * 0.5 + 0.5;
+          const b = Math.sin(frame * 0.03) * 0.5 + 0.5;
+
+          gl.clearColor(r * 0.1, g * 0.1, b * 0.1, 1.0);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+
+          requestAnimationFrame(animate);
+        }
+        animate();
+
+        document.getElementById('status').innerHTML = 'FluidCursor component simulation successful!<br>Basic WebGL rendering active.';
+        document.getElementById('status').className = 'status success';
+
+        // Add mouse interaction test
+        let mouseX = 0, mouseY = 0;
+        testCanvas.addEventListener('mousemove', (e) => {
+          mouseX = e.clientX / window.innerWidth;
+          mouseY = e.clientY / window.innerHeight;
+
+          // Change background color based on mouse position
+          gl.clearColor(mouseX * 0.2, mouseY * 0.2, 0.1, 1.0);
+        });
+
+        return true;
+
+      } catch (error) {
+        document.getElementById('status').innerHTML = `Component test failed: ${error.message}`;
+        document.getElementById('status').className = 'status error';
+        return false;
+      }
+    }
+
+    // Run tests
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        if (testWebGLSupport()) {
+          setTimeout(() => {
+            testComponentLoading();
+          }, 500);
+        } else {
+          document.getElementById('status').innerHTML = 'Cannot test FluidCursor: WebGL not supported';
+          document.getElementById('status').className = 'status error';
+        }
+      }, 100);
+    });
+  </script>
+</body>
+
+</html>

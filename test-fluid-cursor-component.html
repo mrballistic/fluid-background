@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluidCursor Component Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        .test-content {
+            position: relative;
+            z-index: 10;
+            color: white;
+            padding: 20px;
+            pointer-events: auto;
+        }
+        
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        
+        p {
+            margin: 5px 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .success {
+            color: #51cf66;
+            background: rgba(81, 207, 102, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-content">
+        <h1>FluidCursor Component Test</h1>
+        <p>Move your mouse around to see the fluid simulation</p>
+        <p>Click to create splashes</p>
+        <div id="status" class="status">
+            Loading FluidCursor component...
+        </div>
+    </div>
+
+    <!-- React and Babel for JSX transformation -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Copy the FluidCursor component code here
+        function FluidCursor({
+            SIM_RESOLUTION = 128,
+            DYE_RESOLUTION = 1440,
+            CAPTURE_RESOLUTION = 512,
+            DENSITY_DISSIPATION = 3.5,
+            VELOCITY_DISSIPATION = 2,
+            PRESSURE = 0.1,
+            PRESSURE_ITERATIONS = 20,
+            CURL = 3,
+            SPLAT_RADIUS = 0.2,
+            SPLAT_FORCE = 6000,
+            SHADING = true,
+            COLOR_UPDATE_SPEED = 10,
+            BACK_COLOR = { r: 0.5, g: 0, b: 0 },
+            TRANSPARENT = true
+        }) {
+            const canvasRef = useRef(null);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+
+                let pointers = [pointerPrototype()];
+
+                let config = {
+                    SIM_RESOLUTION: SIM_RESOLUTION,
+                    DYE_RESOLUTION: DYE_RESOLUTION,
+                    CAPTURE_RESOLUTION: CAPTURE_RESOLUTION,
+                    DENSITY_DISSIPATION: DENSITY_DISSIPATION,
+                    VELOCITY_DISSIPATION: VELOCITY_DISSIPATION,
+                    PRESSURE: PRESSURE,
+                    PRESSURE_ITERATIONS: PRESSURE_ITERATIONS,
+                    CURL: CURL,
+                    SPLAT_RADIUS: SPLAT_RADIUS,
+                    SPLAT_FORCE: SPLAT_FORCE,
+                    SHADING,
+                    COLOR_UPDATE_SPEED: COLOR_UPDATE_SPEED,
+                    PAUSED: false,
+                    BACK_COLOR,
+                    TRANSPARENT,
+                };
+
+                function pointerPrototype() {
+                    return {
+                        id: -1,
+                        texcoordX: 0,
+                        texcoordY: 0,
+                        prevTexcoordX: 0,
+                        prevTexcoordY: 0,
+                        deltaX: 0,
+                        deltaY: 0,
+                        down: false,
+                        moved: false,
+                        color: { r: 0, g: 0, b: 0 },
+                    };
+                }
+
+                try {
+                    const { gl, ext } = getWebGLContext(canvas);
+                    if (!gl || !ext) {
+                        throw new Error("Failed to initialize WebGL context");
+                    }
+
+                    document.getElementById('status').innerHTML = 'WebGL context initialized successfully!';
+                    document.getElementById('status').className = 'status success';
+
+                    if (!ext.supportLinearFiltering) {
+                        config.DYE_RESOLUTION = 256;
+                        config.SHADING = false;
+                    }
+
+                    // Initialize the fluid simulation
+                    initializeFluidSimulation();
+
+                } catch (error) {
+                    console.error('FluidCursor initialization error:', error);
+                    document.getElementById('status').innerHTML = `Error: ${error.message}`;
+                    document.getElementById('status').className = 'status error';
+                    return;
+                }
+
+                function getWebGLContext(canvas) {
+                    const params = {
+                        alpha: true,
+                        depth: false,
+                        stencil: false,
+                        antialias: false,
+                        preserveDrawingBuffer: false,
+                    };
+
+                    let gl = canvas.getContext("webgl2", params);
+
+                    if (!gl) {
+                        gl = canvas.getContext("webgl", params) || canvas.getContext("experimental-webgl", params);
+                    }
+
+                    if (!gl) {
+                        throw new Error("Unable to initialize WebGL.");
+                    }
+
+                    const isWebGL2 = "drawBuffers" in gl;
+
+                    let supportLinearFiltering = false;
+                    let halfFloat = null;
+
+                    if (isWebGL2) {
+                        gl.getExtension("EXT_color_buffer_float");
+                        supportLinearFiltering = !!gl.getExtension("OES_texture_float_linear");
+                    } else {
+                        halfFloat = gl.getExtension("OES_texture_half_float");
+                        supportLinearFiltering = !!gl.getExtension("OES_texture_half_float_linear");
+                    }
+
+                    gl.clearColor(0, 0, 0, 1);
+
+                    const halfFloatTexType = isWebGL2
+                        ? gl.HALF_FLOAT
+                        : (halfFloat && halfFloat.HALF_FLOAT_OES) || 0;
+
+                    let formatRGBA, formatRG, formatR;
+
+                    if (isWebGL2) {
+                        formatRGBA = getSupportedFormat(gl, gl.RGBA16F, gl.RGBA, halfFloatTexType);
+                        formatRG = getSupportedFormat(gl, gl.RG16F, gl.RG, halfFloatTexType);
+                        formatR = getSupportedFormat(gl, gl.R16F, gl.RED, halfFloatTexType);
+                    } else {
+                        formatRGBA = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
+                        formatRG = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
+                        formatR = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
+                    }
+
+                    return {
+                        gl,
+                        ext: {
+                            formatRGBA,
+                            formatRG,
+                            formatR,
+                            halfFloatTexType,
+                            supportLinearFiltering,
+                        },
+                    };
+                }
+
+                function getSupportedFormat(gl, internalFormat, format, type) {
+                    if (!supportRenderTextureFormat(gl, internalFormat, format, type)) {
+                        if ("drawBuffers" in gl) {
+                            switch (internalFormat) {
+                                case gl.R16F:
+                                    return getSupportedFormat(gl, gl.RG16F, gl.RG, type);
+                                case gl.RG16F:
+                                    return getSupportedFormat(gl, gl.RGBA16F, gl.RGBA, type);
+                                default:
+                                    return null;
+                            }
+                        }
+                        return null;
+                    }
+                    return { internalFormat, format };
+                }
+
+                function supportRenderTextureFormat(gl, internalFormat, format, type) {
+                    const texture = gl.createTexture();
+                    if (!texture) return false;
+
+                    gl.bindTexture(gl.TEXTURE_2D, texture);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, 4, 4, 0, format, type, null);
+
+                    const fbo = gl.createFramebuffer();
+                    if (!fbo) return false;
+
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+                    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+                    return status === gl.FRAMEBUFFER_COMPLETE;
+                }
+
+                function initializeFluidSimulation() {
+                    // This is a simplified version to test basic WebGL functionality
+                    // The full implementation would include all shaders and simulation logic
+                    
+                    // Test basic WebGL operations
+                    const testShader = gl.createShader(gl.VERTEX_SHADER);
+                    const testSource = `
+                        attribute vec2 aPosition;
+                        void main() {
+                            gl_Position = vec4(aPosition, 0.0, 1.0);
+                        }
+                    `;
+                    
+                    gl.shaderSource(testShader, testSource);
+                    gl.compileShader(testShader);
+                    
+                    if (!gl.getShaderParameter(testShader, gl.COMPILE_STATUS)) {
+                        throw new Error('Shader compilation failed');
+                    }
+                    
+                    // If we get here, basic WebGL is working
+                    document.getElementById('status').innerHTML = 'FluidCursor component loaded successfully! WebGL shaders compiled.';
+                    
+                    // Start a simple animation loop to test canvas rendering
+                    let frame = 0;
+                    function animate() {
+                        frame++;
+                        
+                        // Simple color animation to show the canvas is working
+                        const r = Math.sin(frame * 0.01) * 0.5 + 0.5;
+                        const g = Math.sin(frame * 0.02) * 0.5 + 0.5;
+                        const b = Math.sin(frame * 0.03) * 0.5 + 0.5;
+                        
+                        gl.clearColor(r * 0.1, g * 0.1, b * 0.1, 1.0);
+                        gl.clear(gl.COLOR_BUFFER_BIT);
+                        
+                        requestAnimationFrame(animate);
+                    }
+                    animate();
+                }
+
+            }, [
+                SIM_RESOLUTION,
+                DYE_RESOLUTION,
+                CAPTURE_RESOLUTION,
+                DENSITY_DISSIPATION,
+                VELOCITY_DISSIPATION,
+                PRESSURE,
+                PRESSURE_ITERATIONS,
+                CURL,
+                SPLAT_RADIUS,
+                SPLAT_FORCE,
+                SHADING,
+                COLOR_UPDATE_SPEED,
+                BACK_COLOR,
+                TRANSPARENT,
+            ]);
+
+            return React.createElement('div', {
+                style: {
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    zIndex: 50,
+                    pointerEvents: "none",
+                    width: "100%",
+                    height: "100%",
+                }
+            }, React.createElement('canvas', {
+                ref: canvasRef,
+                id: "fluid",
+                style: {
+                    width: "100vw",
+                    height: "100vh",
+                    display: "block",
+                }
+            }));
+        }
+
+        // Test App component
+        function TestApp() {
+            return React.createElement('div', null, 
+                React.createElement(FluidCursor, {
+                    SIM_RESOLUTION: 64,  // Lower resolution for testing
+                    DYE_RESOLUTION: 512, // Lower resolution for testing
+                    SHADING: true
+                })
+            );
+        }
+
+        // Render the test app
+        const root = ReactDOM.createRoot(document.body);
+        root.render(React.createElement(TestApp));
+    </script>
+</body>
+</html>

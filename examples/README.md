@@ -1,6 +1,93 @@
 # FluidBackground Examples
 
-This directory contains comprehensive examples demonstrating how to use the FluidBackground component in various scenarios and configurations.
+This directory contains comprehensive examples demonstrating how to use the FluidBackground component and FluidCursor component in various scenarios and configurations.
+
+## FluidCursor Examples
+
+### FluidCursor Component
+The FluidCursor component creates a WebGL-based fluid dynamics simulation that responds to mouse movement, creating beautiful smoke-like trails through real-time fluid physics.
+
+#### 1. Basic FluidCursor (`fluid-cursor-basic.tsx`)
+The simplest way to use FluidCursor with default settings.
+
+**Features:**
+- Zero configuration required
+- Full-screen WebGL fluid simulation
+- Mouse and touch interaction
+- Automatic WebGL fallbacks
+
+**Usage:**
+```tsx
+import FluidCursor from 'fluid-background/FluidCursor';
+
+export default function MyPage() {
+  return (
+    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+      <FluidCursor />
+      {/* Your content here */}
+    </div>
+  );
+}
+```
+
+#### 2. Custom FluidCursor (`fluid-cursor-custom.tsx`)
+Demonstrates how to customize the fluid simulation with interactive controls.
+
+**Features:**
+- Real-time parameter adjustment
+- Interactive control panel
+- Preset configurations
+- Performance monitoring
+
+**Key Props:**
+```tsx
+<FluidCursor
+  SIM_RESOLUTION={128}
+  DYE_RESOLUTION={1440}
+  SPLAT_RADIUS={0.2}
+  SPLAT_FORCE={6000}
+  DENSITY_DISSIPATION={3.5}
+  VELOCITY_DISSIPATION={2}
+  CURL={3}
+  SHADING={true}
+  TRANSPARENT={true}
+/>
+```
+
+#### 3. Performance-Optimized FluidCursor (`fluid-cursor-performance.tsx`)
+Shows how to configure FluidCursor for optimal performance on different devices.
+
+**Features:**
+- Automatic performance adjustment
+- FPS monitoring
+- Quality presets (high, medium, low)
+- Device-specific optimizations
+
+**Performance Modes:**
+- **High:** Desktop/gaming performance (256 sim resolution, 2048 dye resolution)
+- **Medium:** Balanced performance (128 sim resolution, 1440 dye resolution)
+- **Low:** Mobile/weak GPU optimization (64 sim resolution, 512 dye resolution)
+
+#### 4. Cross-Browser Compatibility Test (`fluid-cursor-compatibility-test.html`)
+Comprehensive WebGL compatibility testing across different browsers.
+
+**Features:**
+- WebGL 1.0/2.0 support detection
+- Extension compatibility testing
+- Texture format support verification
+- Performance benchmarking
+- Browser-specific recommendations
+
+#### 5. Interactive Demo (`fluid-cursor-demo.html`)
+Standalone HTML demo with interactive controls.
+
+**Features:**
+- Real-time parameter adjustment
+- Visual performance monitoring
+- Cross-browser testing
+- No build process required
+
+## FluidBackground Examples
 
 ## Basic Usage Examples
 

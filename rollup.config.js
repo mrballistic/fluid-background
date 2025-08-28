@@ -97,6 +97,51 @@ export default [
     ],
     external: ['react', 'react-dom'],
   },
+  // Fluid Cursor ESM build
+  {
+    input: 'src/fluid-cursor/index.ts',
+    output: {
+      file: 'dist/fluid-cursor.esm.js',
+      format: 'esm',
+      sourcemap: true,
+    },
+    plugins: [
+      resolve({
+        browser: true,
+        preferBuiltins: false,
+      }),
+      commonjs(),
+      typescript({
+        tsconfig: './tsconfig.json',
+        declaration: false,
+        declarationMap: false,
+      }),
+    ],
+    external: ['react', 'react-dom'],
+  },
+  // Fluid Cursor CommonJS build
+  {
+    input: 'src/fluid-cursor/index.ts',
+    output: {
+      file: 'dist/fluid-cursor.js',
+      format: 'cjs',
+      sourcemap: true,
+      exports: 'named',
+    },
+    plugins: [
+      resolve({
+        browser: true,
+        preferBuiltins: false,
+      }),
+      commonjs(),
+      typescript({
+        tsconfig: './tsconfig.json',
+        declaration: false,
+        declarationMap: false,
+      }),
+    ],
+    external: ['react', 'react-dom'],
+  },
   // Main package TypeScript declarations
   {
     input: 'src/index.ts',
@@ -116,6 +161,20 @@ export default [
     input: 'src/splash-cursor/index.ts',
     output: {
       file: 'dist/splash-cursor.d.ts',
+      format: 'esm',
+    },
+    plugins: [
+      dts({
+        tsconfig: './tsconfig.build.json',
+      }),
+    ],
+    external: ['react', 'react-dom'],
+  },
+  // Fluid Cursor TypeScript declarations
+  {
+    input: 'src/fluid-cursor/index.ts',
+    output: {
+      file: 'dist/fluid-cursor.d.ts',
       format: 'esm',
     },
     plugins: [

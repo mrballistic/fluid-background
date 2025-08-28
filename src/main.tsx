@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Demo from './demo';
+import FluidCursorDemo from './demo-fluid-cursor';
 
 const root = createRoot(document.getElementById('root')!);
-root.render(<Demo />);
+root.render(<FluidCursorDemo />);

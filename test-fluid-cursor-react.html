@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluidCursor React Component Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        .test-content {
+            position: relative;
+            z-index: 10;
+            color: white;
+            padding: 20px;
+            pointer-events: auto;
+        }
+        
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        
+        p {
+            margin: 5px 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .success {
+            color: #51cf66;
+            background: rgba(81, 207, 102, 0.1);
+        }
+        
+        .warning {
+            color: #ffd43b;
+            background: rgba(255, 212, 59, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-content">
+        <h1>FluidCursor React Component Test</h1>
+        <p>Testing the actual FluidCursor React component</p>
+        <p>Move your mouse around to see the fluid simulation</p>
+        <p>Click to create splashes</p>
+        <div id="status" class="status">
+            Loading FluidCursor component...
+        </div>
+    </div>
+
+    <!-- React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Load the built component -->
+    <script type="module">
+        import { FluidCursor } from './dist/index.esm.js';
+        
+        const { createElement } = React;
+        const { createRoot } = ReactDOM;
+
+        function TestApp() {
+            React.useEffect(() => {
+                document.getElementById('status').innerHTML = 'FluidCursor component loaded successfully!';
+                document.getElementById('status').className = 'status success';
+            }, []);
+
+            return createElement('div', null, 
+                createElement(FluidCursor, {
+                    SIM_RESOLUTION: 64,  // Lower resolution for testing
+                    DYE_RESOLUTION: 512, // Lower resolution for testing
+                    SHADING: true,
+                    SPLAT_FORCE: 3000,
+                    CURL: 5
+                })
+            );
+        }
+
+        // Create root and render
+        const container = document.createElement('div');
+        container.id = 'react-root';
+        document.body.appendChild(container);
+        
+        const root = createRoot(container);
+        
+        try {
+            root.render(createElement(TestApp));
+        } catch (error) {
+            console.error('Error rendering FluidCursor:', error);
+            document.getElementById('status').innerHTML = `Error: ${error.message}`;
+            document.getElementById('status').className = 'status error';
+        }
+    </script>
+</body>
+</html>

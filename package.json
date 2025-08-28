@@ -19,6 +19,12 @@
       "require": "./dist/splash-cursor.js",
       "default": "./dist/splash-cursor.esm.js"
     },
+    "./fluid-cursor": {
+      "types": "./dist/fluid-cursor.d.ts",
+      "import": "./dist/fluid-cursor.esm.js",
+      "require": "./dist/fluid-cursor.js",
+      "default": "./dist/fluid-cursor.esm.js"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": false,

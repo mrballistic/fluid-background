@@ -1,6 +1,7 @@
 // Main component exports
 export { default as FluidBackground } from './FluidBackground';
 export { SplashCursor } from './components/SplashCursor';
+export { default as FluidCursor } from './components/FluidCursor';
 
 // Simulation classes export
 export {
@@ -31,6 +32,9 @@ export type {
   FramebufferManager,
   FramebufferPair,
 } from './types';
+
+// FluidCursor type exports
+export type { FluidCursorProps } from './components/FluidCursor';
 
 // SplashCursor type exports
 export type {
